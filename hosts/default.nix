@@ -29,7 +29,7 @@ let
               ESP = {
                 name = "ESP";
                 label = "BOOT";
-                size = "1024MiB";
+                size = "1G";
                 type = "EF00";
                 content = {
                   type = "filesystem";
@@ -42,7 +42,7 @@ let
               swap = {
                 name = "swap";
                 label = "swap";
-                size = "34GiB";
+                size = "34G";
                 content = {
                   type = "swap";
                 };
