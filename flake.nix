@@ -17,11 +17,6 @@
     lazyvim-nixvim.url = "github:azuwis/lazyvim-nixvim";
   };
   outputs = inputs@{ self, nixpkgs, home-manager, disko, nixos-generators, lazyvim-nixvim, ... }: {
-    nixosConfigurations = {
-      "nix-laptop1" = import ./hosts {
-        inherit inputs;
-        hostName = "nix-laptop1";
-      };
-    };
+    nixosConfigurations = import ./hosts { inherit inputs; };
   };
 }

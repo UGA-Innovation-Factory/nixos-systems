@@ -1,11 +1,10 @@
-{ inputs, hostName, system ? "x86_64-linux" }:
+{ inputs }:
 
 let
   nixpkgs      = inputs.nixpkgs;
   home-manager = inputs.home-manager;
   disko        = inputs.disko;
-
-  lib = nixpkgs.lib;
+  lib          = nixpkgs.lib;
 
   commonModules = [
     ../boot.nix
@@ -20,9 +19,7 @@ let
       disko.devices = {
         disk.main = {
           type = "disk";
-
           device = lib.mkDefault "/dev/nvme0n1";
-
           content = {
             type = "gpt";
             partitions = {
@@ -44,9 +41,7 @@ let
                 name = "swap";
                 label = "swap";
                 size = "34G";
-                content = {
-                  type = "swap";
-                };
+                content = { type = "swap"; };
               };
 
               root = {
@@ -67,20 +62,33 @@ let
     })
   ];
 
-  # Map hostnames to their per-host module
-  hostModules = {
-    nix-laptop1 = ./nix-laptop1.nix;
-  };
+  mkHost = { hostName, system ? "x86_64-linux", extraModules ? [ ] }:
+    lib.nixosSystem {
+      inherit system;
+
+      specialArgs = { inherit inputs; };
+
+      modules =
+        commonModules
+        ++ extraModules
+        ++ [
+          { networking.hostName = hostName; }
+        ];
+    };
 in
-lib.nixosSystem {
-  inherit system;
-
-  specialArgs = { inherit inputs; };
-
-  modules =
-    commonModules
-    ++ [ (hostModules.${hostName} or (throw "Unknown host '${hostName}' in hosts/default.nix")) ]
-    ++ [
-      { networking.hostName = hostName; }
+{
+  nix-laptop1 = mkHost {
+    hostName = "nix-laptop1";
+    system   = "x86_64-linux";
+    extraModules = [
+      ./nix-laptop1.nix
     ];
+  };
+
+  # future you:
+  # atlas = mkHost {
+  #   hostName = "atlas";
+  #   system   = "x86_64-linux";
+  #   extraModules = [ ./atlas-hardware.nix ./atlas-role-server.nix ];
+  # };
 }
