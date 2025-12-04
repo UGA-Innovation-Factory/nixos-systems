@@ -80,7 +80,15 @@ in
     hostName = "nix-laptop1";
     system   = "x86_64-linux";
     extraModules = [
-      ./nix-laptop1.nix
+      ./nix-laptop.nix
+    ];
+  };
+  
+  nix-laptop2 = mkHost {
+    hostName = "nix-laptop2";
+    system   = "x86_64-linux";
+    extraModules = [
+      ./nix-laptop.nix
     ];
   };
 
