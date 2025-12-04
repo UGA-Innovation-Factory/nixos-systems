@@ -37,9 +37,9 @@
     oh-my-posh
     zsh
     git
-    zoom-us
-    teams-for-linux
-    wpsoffice
+    #zoom-us
+    #teams-for-linux
+    #wpsoffice
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
