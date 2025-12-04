@@ -1,5 +1,4 @@
 { config, pkgs, lib, modulesPath, ... }:
-
 {
   imports =
     [ (modulesPath + "/installer/scan/not-detected.nix")
@@ -20,10 +19,7 @@
   disko.devices.disk.main.content.partitions.swap.size = "16G";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   
-  environment.systemPackages = lib.mkRemove [
-    pkgs.zoom-us
-    pkgs.wpsoffice
-  ];
+  environment.systemPackages = lib.subtractLists [ pkgs.zoom-us pkgs.wspoffice ] config.environment.systemPackages;
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
