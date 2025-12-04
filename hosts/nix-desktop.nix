@@ -19,7 +19,7 @@
   disko.devices.disk.main.content.partitions.swap.size = "16G";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   
-  environment.systemPackages = lib.subtractLists [ pkgs.zoom-us pkgs.wspoffice ] config.environment.systemPackages;
+  environment.systemPackages = lib.mkForce lib.subtractLists [ pkgs.zoom-us pkgs.wspoffice ] config.environment.systemPackages;
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
