@@ -16,7 +16,17 @@
     "rd.systemd.show_status=auto"
   ];
 
-  disko.devices.disk.main.content.partitions.swap.size = "16G";
+  boot.kernelPatches = [
+    {
+      name = "disable-rust";
+      patch = null;
+      extraConfig = ''
+        RUST n
+      '';
+    }
+  ];
+
+  disko.devices.disk.main.content.partitions.swap.size = "8G";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
