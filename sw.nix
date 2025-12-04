@@ -87,7 +87,6 @@
 
   # Suspend / logind behavior
   services.upower.enable = true;
-  services.logind.lidSwitch = "suspend";
   services.logind.settings = {
     Login = {
       HandleLidSwitch = "suspend";
