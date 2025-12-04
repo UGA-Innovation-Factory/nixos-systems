@@ -86,7 +86,6 @@
   programs.virt-manager.enable = true;
 
   # Sensors
-  services.hwmon.enable = true;
   services.thermald.enable = true;
   services.lm_sensors.enable = true;
 
