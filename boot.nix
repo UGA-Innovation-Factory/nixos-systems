@@ -21,6 +21,9 @@
       "boot.shell_on_fail"
       "udev.log_priority=3"
       "rd.systemd.show_status=auto"
+      "i915.enable_psr=0"
+      "i915.enable_dc=0"
+      "i915.enable_fbc=0"
     ];
     # Hide the OS choice for bootloaders.
     # It's still possible to open the bootloader list by pressing any key
@@ -45,6 +48,11 @@
     LC_TELEPHONE = "en_US.UTF-8";
     LC_TIME = "en_US.UTF-8";
   };
+
+  systemd.sleep.extraConfig = ''
+    SuspendState=freeze
+    HibernateDelaySec=2h
+  '';
 
   system.stateVersion = "25.11"; # Did you read the comment?
 }
