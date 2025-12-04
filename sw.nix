@@ -36,13 +36,17 @@
     oh-my-posh
     zsh
     git
+    zoom-us
+    teams-for-linux
+    wpsoffice
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
   programs.zsh.enable = true;
 
-  fonts.packages = with pkgs; [
+  fonts.fonts = with pkgs; [
     nerd-fonts.fira-code
+    corefonts
   ];
   fonts.fontconfig = {
     enable = true;
