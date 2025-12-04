@@ -63,10 +63,6 @@
     enableSSHSupport = true;
   };
 
-  # Power
-  services.tlp.enable = true;
-  services.auto-cpufreq.enable = true;
-
   # Bluetooth
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
@@ -92,10 +88,13 @@
   # Suspend / logind behavior
   services.upower.enable = true;
   services.logind.lidSwitch = "suspend";
-  services.logind.extraConfig = ''
-    HandleLidSwitchExternalPower=suspend
-    HandleLidSwitchDocked=ignore
-  '';
+  services.logind.settings = {
+    Login = {
+      HandleLidSwitch = "suspend";
+      HandleLidSwitchExternalPower = "suspend";
+      HandleLidSwitchDocked = "ignore";
+    };
+  };
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
