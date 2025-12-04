@@ -44,7 +44,7 @@
 
   programs.zsh.enable = true;
 
-  fonts.fonts = with pkgs; [
+  fonts.packages = with pkgs; [
     nerd-fonts.fira-code
     corefonts
   ];
