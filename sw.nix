@@ -77,7 +77,7 @@
   # Flatpak + portals
   services.flatpak.enable = true;
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-kde ];
+  xdg.portal.extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
 
   # Browsers
   programs.chromium.enable = true;
