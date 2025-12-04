@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   # Fetch upstream OMP theme once
   jyumppTheme = pkgs.fetchurl {
