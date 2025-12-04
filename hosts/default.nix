@@ -99,6 +99,7 @@ in
       ./nix-desktop.nix
     ];
   };
+
   nix-surface1 = mkHost {
     hostName = "nix-surface1";
     system   = "x86_64-linux";
