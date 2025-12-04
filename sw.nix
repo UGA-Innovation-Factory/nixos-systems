@@ -8,6 +8,9 @@
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
+  # Enable networking
+  networking.networkmanager.enable = true;
+
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;

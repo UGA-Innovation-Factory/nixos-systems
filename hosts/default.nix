@@ -8,7 +8,6 @@ let
 
   commonModules = [
     ../boot.nix
-    ../net.nix
     ../sw.nix
     ../users
     home-manager.nixosModules.home-manager
