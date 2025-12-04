@@ -47,6 +47,7 @@
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
     corefonts
+    noto-fonts
   ];
   fonts.fontconfig = {
     enable = true;
@@ -61,7 +62,41 @@
     enableSSHSupport = true;
   };
 
-  # List services that you want to enable:
+  # Power
+  services.tlp.enable = true;
+  services.auto-cpufreq.enable = true;
+
+  # Bluetooth
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
+  # Firewall
+  networking.firewall.enable = true;
+
+  # Flatpak + portals
+  services.flatpak.enable = true;
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-kde ];
+
+  # Browsers
+  programs.chromium.enable = true;
+
+  # Virtualization
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
+
+  # Sensors
+  services.hwmon.enable = true;
+  services.thermald.enable = true;
+  programs.sensors.enable = true;
+
+  # Suspend / logind behavior
+  services.upower.enable = true;
+  services.logind.lidSwitch = "suspend";
+  services.logind.extraConfig = ''
+    HandleLidSwitchExternalPower=suspend
+    HandleLidSwitchDocked=ignore
+  '';
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
