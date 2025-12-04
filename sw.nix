@@ -42,6 +42,7 @@
   ];
 
   programs.zsh.enable = true;
+  programs.nix-ld.enable = true;
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
