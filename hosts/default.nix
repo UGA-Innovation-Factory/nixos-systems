@@ -92,10 +92,11 @@ in
     ];
   };
 
-  # future you:
-  # atlas = mkHost {
-  #   hostName = "atlas";
-  #   system   = "x86_64-linux";
-  #   extraModules = [ ./atlas-hardware.nix ./atlas-role-server.nix ];
-  # };
+  nix-desktop1 = mkHost {
+    hostName = "nix-desktop1";
+    system   = "x86_64-linux";
+    extraModules = [
+      ./nix-desktop.nix
+    ];
+  };
 }
