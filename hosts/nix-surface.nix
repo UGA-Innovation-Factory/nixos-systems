@@ -16,15 +16,10 @@
     "rd.systemd.show_status=auto"
   ];
 
-  boot.kernelPatches = [
-    {
-      name = "disable-rust";
-      patch = null;
-      extraConfig = ''
-        RUST n
-      '';
-    }
-  ];
+  boot.kernelPatches = [{
+    name = "rust-1.91-fix";
+    patch = ./hacks/rust-fix.patch;
+  }];
 
   disko.devices.disk.main.content.partitions.swap.size = "8G";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
