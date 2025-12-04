@@ -41,6 +41,14 @@
 
   programs.zsh.enable = true;
 
+  fonts.packages = with pkgs; [
+    (nerdfonts.override { fonts = "FiraCode"; } )
+  ];
+  fonts.fontconfig = {
+    enable = true;
+    defaultFonts.monospace = [ "FiraCode Nerd Font Mono" ];
+  };
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.mtr.enable = true;
