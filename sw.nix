@@ -33,6 +33,7 @@
     htop
     binutils
     man
+    lm_sensors
     oh-my-posh
     zsh
     git
@@ -87,7 +88,6 @@
 
   # Sensors
   services.thermald.enable = true;
-  services.lm_sensors.enable = true;
 
   # Suspend / logind behavior
   services.upower.enable = true;
