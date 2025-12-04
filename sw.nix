@@ -38,6 +38,7 @@
     zoom-us
     teams-for-linux
     wpsoffice
+    qt6-wayland
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
