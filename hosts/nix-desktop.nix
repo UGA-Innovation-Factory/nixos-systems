@@ -17,7 +17,7 @@
       "rd.systemd.show_status=auto"
     ];
 
-  disko.devices.disk.main.content.partitions.swap.size = lib.mkOverride "16G";
+  disko.devices.disk.main.content.partitions.swap.size = "16G";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

@@ -39,7 +39,7 @@ let
               swap = {
                 name = "swap";
                 label = "swap";
-                size = "34G";
+                size = lib.mkDefault "34G";
                 content = { type = "swap"; };
               };
 
