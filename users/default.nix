@@ -10,6 +10,7 @@
       extraGroups = [ "networkmanager" "wheel" ];
       packages = with pkgs; [
         kdePackages.kate
+
       ];
       hashedPassword = "$6$El6e2NhPrhVFjbFU$imlGZqUiizWw5fMP/ib0CeboOcFhYjIVb8oR1V1dP2NjDeri3jMoUm4ZABOB2uAF8UEDjAGHhFuZxhtbHg647/";
     };
@@ -24,6 +25,8 @@
       shell = pkgs.zsh;
     };
   };
+  
+  imports = [ ./python.nix ];
 
   # Home Manager configs per user
   home-manager = {

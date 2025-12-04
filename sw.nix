@@ -21,9 +21,6 @@
     pulse.enable = true;
   };
 
-  # Install firefox.
-  programs.firefox.enable = true;
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -33,6 +30,7 @@
     htop
     binutils
     man
+    chromium
     lm_sensors
     oh-my-posh
     zsh
@@ -76,7 +74,7 @@
   xdg.portal.extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
 
   # Browsers
-  programs.chromium.enable = true;
+  programs.firefox.enable = true;
 
   # Virtualization
   virtualisation.libvirtd.enable = true;
@@ -85,16 +83,6 @@
   # Sensors
   services.thermald.enable = true;
 
-  # Suspend / logind behavior
-  services.upower.enable = true;
-  services.logind.settings = {
-    Login = {
-      HandleLidSwitch = "suspend";
-      HandleLidSwitchExternalPower = "suspend";
-      HandleLidSwitchDocked = "ignore";
-    };
-  };
-
-  # Enable the OpenSSH daemon.
+    # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 }
