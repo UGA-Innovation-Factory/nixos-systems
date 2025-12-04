@@ -46,13 +46,13 @@
   programs.zsh.enable = true;
 
   fonts.packages = with pkgs; [
-    nerd-fonts.fira-code
-    corefonts
-    noto-fonts
+    #nerd-fonts.fira-code
+    #corefonts
+    #noto-fonts
   ];
   fonts.fontconfig = {
     enable = true;
-    defaultFonts.monospace = [ "FiraCode Nerd Font Mono" ];
+    #defaultFonts.monospace = [ "FiraCode Nerd Font Mono" ];
   };
 
   # Some programs need SUID wrappers, can be configured further or are
