@@ -88,7 +88,7 @@
   # Sensors
   services.hwmon.enable = true;
   services.thermald.enable = true;
-  programs.sensors.enable = true;
+  services.lm_sensors.enable = true;
 
   # Suspend / logind behavior
   services.upower.enable = true;
