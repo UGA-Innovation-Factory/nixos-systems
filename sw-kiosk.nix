@@ -10,6 +10,7 @@
   };
 
   # Enable networking
+  networking.networkmanager.enable = false;
   networking.wireless = {
     enable = true;
     networks = {
