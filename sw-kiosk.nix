@@ -4,12 +4,16 @@
   programs.wayfire.enable = true;
 
   environment.etc."wayfire.ini".text = ''
-    [autostart]
-    chromium = chromium --ozone-platform=wayland --kiosk https://ha.factory.uga.edu
-    keyboard = squeekboard
+    [core]
+    plugins = autostart wlr-layer-shell virtual-keyboard idle
 
-    [winrules]
-    chromium-app-id = maximize, fullscreen
+    [autostart]
+    chromium = ${pkgs.chromium}/bin/chromium \
+      --enable-features=UseOzonePlatform \
+      --ozone-platform=wayland \
+      --kiosk https://ha.factory.uga.edu
+
+    keyboard = ${pkgs.squeekboard}/bin/squeekboard
   '';
 
   services.greetd = {
