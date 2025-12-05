@@ -47,8 +47,10 @@
   services.dbus.enable = true;
   services.dbus.implementation = "dbus";
 
-  i18n.inputMethod.enabled = "fcitx5";
-  i18n.inputMethod.fcitx5.addons = [ pkgs.fcitx5-squeekboard ];
+  i18n.inputMethod = {
+    enable = true;
+    type = "fcitx5";
+  };
 
   services.cage = {
     enable = false;
