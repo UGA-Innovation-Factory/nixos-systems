@@ -13,6 +13,7 @@
   services.xserver.desktopManager.phosh = {
     enable = true;
     user = "engr-ugaif";
+    group = "users";
   };
 
   environment.etc."xdg/autostart/kiosk-chromium.desktop".text = ''
