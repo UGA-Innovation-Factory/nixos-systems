@@ -32,11 +32,6 @@
     X-GNOME-Autostart-Phase=Applications
   '';
 
-  environment.etc."dconf/db/local.d/phosh-pin".text = ''
-    [sm/puri/phosh]
-    pin="1234"
-  '';
-
   environment.sessionVariables = {
     GDK_SCALE = "2";
     GDK_DPI_SCALE = "0.5";
@@ -80,6 +75,7 @@
     zsh
     git
     dbus
+    squeekboard
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
