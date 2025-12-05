@@ -13,7 +13,7 @@
       Type = "simple";
       Environment = "XDG_RUNTIME_DIR=/run/user/%u";
       ExecStart = ''
-	${pkgs.sway}/bin/sway --config /etc/sway-kiosk.conf
+	/run/current-system/bin/sway --config /etc/sway-kiosk.conf
       '';
     };
     wantedBy = [ "multi-user.target" ];
@@ -23,6 +23,8 @@
     exec chromium --kiosk https://ha.factory.uga.edu
     exec wvkbd-mobintl --output *
   '';
+
+  services.dbus.enable = true;
 
   services.cage = {
     enable = false;
