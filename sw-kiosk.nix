@@ -85,7 +85,7 @@
     oh-my-posh
     zsh
     git
-    wvkbd
+    squeekboard
     dbus
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
