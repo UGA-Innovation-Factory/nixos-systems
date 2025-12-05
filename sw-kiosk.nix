@@ -74,6 +74,7 @@
     zsh
     git
     wvkbd
+    dbus
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
