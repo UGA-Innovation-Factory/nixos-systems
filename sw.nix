@@ -30,7 +30,9 @@
     htop
     binutils
     man
-    chromium
+    (chromium.override {
+      commandLineArgs = [ "--enable-features=TouchpadOverscrollHistoryNavigation" ];
+    })
     lm_sensors
     oh-my-posh
     zsh
