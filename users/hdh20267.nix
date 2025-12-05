@@ -16,9 +16,11 @@ in
     ghostty
   ];
 
-  services.plasma.settings = {
-    general.defaultTerminal = "ghostty";
-  };
+  programs.plasma-manager.enable = true;
+  xdg.configFile."kdeglobals".source = pkgs.writeText "kdeglobals" ''
+    [General]
+    TerminalApplication=${pkgs.ghostty}/bin/ghostty
+  '';
 
   programs.zsh = {
     enable = true;
