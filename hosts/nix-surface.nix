@@ -26,6 +26,7 @@ in
   boot.kernelPackages = lib.mkForce refKernelPackages;
 
   disko.devices.disk.main.content.partitions.swap.size = "8G";
+  disko.devices.disk.main.device = "/dev/mmcblk0";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
