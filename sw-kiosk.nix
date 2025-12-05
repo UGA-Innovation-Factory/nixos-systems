@@ -13,7 +13,7 @@
       Type = "simple";
       Environment = "XDG_RUNTIME_DIR=/run/user/%u";
       ExecStart = ''
-	/run/current-system/bin/sway --config /etc/sway-kiosk.conf
+	/run/current-system/sw/bin/sway --config /etc/sway-kiosk.conf
       '';
     };
     wantedBy = [ "multi-user.target" ];
