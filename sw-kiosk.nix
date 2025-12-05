@@ -2,13 +2,34 @@
 
 {
   services.cage = {
-    enable = true;
+    enable = false;
     user = "engr-ugaif";
     program = "${(pkgs.writeShellScriptBin "chromium-kiosk" ''
       sleep 5
       ${pkgs.chromium}/bin/chromium --kiosk "https://ha.factory.uga.edu"
     '')}/bin/chromium-kiosk";
   };
+
+  services.xserver.desktopManager.phosh = {
+    enable = true;
+    user = "engr-ugaif";
+  };
+
+  environment.etc."xdg/autostart/kiosk-chromium.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Factory Kiosk
+    Exec=${pkgs.chromium}/bin/chromium \
+      --enable-features=UseOzonePlatform \
+      --ozone-platform=wayland \
+      --kiosk \
+      --start-fullscreen \
+      --noerrdialogs \
+      --disable-session-crashed-bubble \
+      https://ha.factory.uga.edu
+    X-GNOME-Autostart-enabled=true
+    X-GNOME-Autostart-Phase=Applications
+  '';
 
   # Enable networking
   networking.networkmanager.enable = false;
@@ -54,7 +75,7 @@
   programs.chromium = {
     enable = true;
     extensions = [
-      "ecjkcanpimnagobhegghdeeiagffoidk" # Chrome Virtual Keyboard
+      # "ecjkcanpimnagobhegghdeeiagffoidk" # Chrome Virtual Keyboard
     ];
   };
 
