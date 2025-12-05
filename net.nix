@@ -1,5 +1,0 @@
-{ ... }:
-
-{
-  # Enable networking
-}
