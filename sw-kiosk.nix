@@ -6,25 +6,34 @@
     wrapperFeatures.gtk = true;
   };
   
-  systemd.services."kiosk-session" = {
-    description = "Kiosk session";
-    serviceConfig = {
-      User = "engr-ugaif";
-      Type = "simple";
-      Environment = [
-        "XDG_RUNTIME_DIR=/run/user/%u"
-	"PATH=/run/current-system/sw/bin"
-      ];
-      ExecStart = ''
-	/run/current-system/sw/bin/sway --config /etc/sway-kiosk.conf
-      '';
+  # Login manager that starts sway on a real TTY
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        user = "engr-ugaif";
+        command = ''
+          /run/current-system/sw/bin/sway --config /etc/sway-kiosk.conf
+        '';
+      };
     };
-    wantedBy = [ "multi-user.target" ];
   };
 
+  # Sway config for kiosk
   environment.etc."sway-kiosk.conf".text = ''
-    exec chromium --kiosk https://ha.factory.uga.edu
-    exec wvkbd-mobintl --output *
+    # No fancy tiling, just a fullscreen kiosk
+    exec_always {
+      export LANG=en_US.UTF-8
+      export LC_ALL=en_US.UTF-8
+      exec ${pkgs.chromium}/bin/chromium \
+        --kiosk "https://ha.factory.uga.edu"
+    }
+
+    # On-screen keyboard (once you add wvkbd)
+    exec_always ${pkgs.wvkbd}/bin/wvkbd-mobintl
+
+    # Basic output config if needed
+    output * scale 1
   '';
 
   services.dbus.enable = true;
@@ -84,7 +93,7 @@
   programs.chromium = {
     enable = true;
     extensions = [
-      "ofelldpjbfeheadojfhkagakafgghlji" # Chrome Virtual Keyboard
+      # "ofelldpjbfeheadojfhkagakafgghlji" # Chrome Virtual Keyboard
     ];
   };
 
