@@ -5,6 +5,7 @@
     enable = true;
     user = "engr-ugaif";
     program = "${(pkgs.writeShellScriptBin "chromium-kiosk" ''
+      sleep 5
       ${pkgs.chromium}/bin/chromium --kiosk "https://ha.factory.uga.edu"
     '')}/bin/chromium-kiosk";
   };
@@ -52,7 +53,7 @@
   programs.chromium = {
     enable = true;
     extensions = [
-      "ecdaoooilnflogancccpapbeebbpkhoj" # Chrome Virtual Keyboard
+      "cmeanlmbffknccbnkahlnkeaompejbch" # Chrome Virtual Keyboard
     ];
   };
 
