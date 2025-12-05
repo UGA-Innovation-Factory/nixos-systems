@@ -17,7 +17,7 @@
       "IOT_vr" = {
         ssid = "IOT_vr";
         pskRaw = "849a13f095b73a3d038a904576fd8ad4b83da81d285acaf435b545c1560c7e27";
-	authProtocols = [ "wpa2" ];
+	authProtocols = [ "WPA-PSK" ];
       };
       "IOT_sensors".psk = "aaaaaaaa";
     };
