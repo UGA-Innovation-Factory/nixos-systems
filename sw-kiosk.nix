@@ -37,6 +37,40 @@
     GDK_DPI_SCALE = "0.5";
   };
 
+  systemd.user.services."phosh-enable-osk" = {
+    description = "Enable on-screen keyboard in Phosh";
+    wantedBy = [ "graphical-session.target" ];
+    partOf   = [ "graphical-session.target" ];
+
+    serviceConfig = {
+      ExecStart = pkgs.writeShellScript "phosh-enable-osk.sh" ''
+        #!/bin/sh
+        # Allow OSK usage in this session
+        ${pkgs.glib.bin}/bin/gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled true || true
+      '';
+    };
+  };
+
+  systemd.user.services."chromium-kiosk" = {
+    description = "Chromium kiosk";
+    wantedBy = [ "graphical-session.target" ];
+    partOf   = [ "graphical-session.target" ];
+
+    serviceConfig = {
+      ExecStart = ''
+        ${pkgs.chromium}/bin/chromium \
+          --enable-features=UseOzonePlatform \
+          --ozone-platform=wayland \
+          --kiosk \
+          --start-fullscreen \
+          --noerrdialogs \
+          --disable-session-crashed-bubble \
+          --disable-infobars \
+          https://ha.factory.uga.edu
+      '';
+    };
+  };
+
   # Enable networking
   networking.networkmanager.enable = false;
   networking.wireless = {
@@ -75,7 +109,11 @@
     zsh
     git
     dbus
+    glib
     squeekboard
+    (pkgs.writeShellScriptBin "osk-wayland" ''
+      exec ${pkgs.squeekboard}/bin/squeekboard "$@"
+    '')
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
