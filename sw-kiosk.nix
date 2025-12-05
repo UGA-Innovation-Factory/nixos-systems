@@ -1,8 +1,31 @@
 { pkgs, inputs, ... }:
 
 {
-  services.cage = {
+  programs.sway = {
     enable = true;
+    wrapperFeatures.gtk = true;
+  };
+  
+  systemd.services."kiosk-session" = {
+    description = "Kiosk session";
+    serviceConfig = {
+      User = "engr-ugaif";
+      Type = "simple";
+      Environment = "XDG_RUNTIME_DIR=/run/user/%u";
+      ExecStart = ''
+	${pkgs.sway}/bin/sway --config /etc/sway-kiosk.conf
+      '';
+    };
+    wantedBy = [ "multi-user.target" ];
+  };
+
+  environment.etc."sway-kiosk.conf".text = ''
+    exec chromium --kiosk https://ha.factory.uga.edu
+    exec wvkbd-mobintl --output *
+  '';
+
+  services.cage = {
+    enable = false;
     user = "engr-ugaif";
     program = "${(pkgs.writeShellScriptBin "chromium-kiosk" ''
       sleep 5
@@ -47,6 +70,7 @@
     oh-my-posh
     zsh
     git
+    wvkbd
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
