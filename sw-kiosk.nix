@@ -25,6 +25,7 @@
   '';
 
   services.dbus.enable = true;
+  services.dbus.implementation = "dbus-daemon";
 
   services.cage = {
     enable = false;
