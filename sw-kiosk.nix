@@ -53,7 +53,7 @@
   programs.chromium = {
     enable = true;
     extensions = [
-      "cmeanlmbffknccbnkahlnkeaompejbch" # Chrome Virtual Keyboard
+      "ofelldpjbfeheadojfhkagakafgghlji" # Chrome Virtual Keyboard
     ];
   };
 
