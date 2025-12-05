@@ -12,7 +12,13 @@ in
   home.homeDirectory = "/home/hdh20267";
   home.stateVersion = "25.11";
 
-  home.packages = [];
+  home.packages = with pkgs; [
+    ghostty
+  ];
+
+  services.plasma.settings = {
+    general.defaultTerminal = "ghostty";
+  };
 
   programs.zsh = {
     enable = true;
