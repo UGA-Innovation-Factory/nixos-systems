@@ -26,11 +26,19 @@
       export LANG=en_US.UTF-8
       export LC_ALL=en_US.UTF-8
       exec ${pkgs.chromium}/bin/chromium \
-        --kiosk "https://ha.factory.uga.edu"
+        --kiosk "https://ha.factory.uga.edu" \
+	--enable-features=UseOzonePlatform \ 
+	--ozone-platform=wayland
     }
 
-    # On-screen keyboard (once you add wvkbd)
-    exec_always ${pkgs.wvkbd}/bin/wvkbd-mobintl
+    # Required for squeekboard + fcitx5
+    set $env IM_MODULE fcitx
+    set $env GTK_IM_MODULE fcitx
+    set $env QT_IM_MODULE fcitx
+    set $env XMODIFIERS "@im=fcitx"
+    exec_always fcitx5
+    exec_always squeekboard-im
+    exec_always squeekboard
 
     # Basic output config if needed
     output * scale 1
@@ -38,6 +46,9 @@
 
   services.dbus.enable = true;
   services.dbus.implementation = "dbus";
+
+  i18n.inputMethod.enabled = "fcitx5";
+  i18n.inputMethod.fcitx5.addons = [ pkgs.fcitx5-squeekboard ];
 
   services.cage = {
     enable = false;

@@ -9,7 +9,7 @@ in
     engr-ugaif = {
       isNormalUser = true;
       description = "UGA Innovation Factory";
-      extraGroups = [ "networkmanager" "wheel" ];
+      extraGroups = [ "networkmanager" "wheel" "video" "input" ];
       packages = with pkgs; [
         kdePackages.kate
       ] ++ pythonPkgs;
