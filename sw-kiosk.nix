@@ -1,51 +1,26 @@
 { pkgs, inputs, ... }:
 
 {
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-  };
-  
-  # Login manager that starts sway on a real TTY
+  programs.wayfire.enable = true;
+
+  environment.etc."wayfire.ini".text = ''
+    [autostart]
+    chromium = chromium --ozone-platform=wayland --kiosk https://ha.factory.uga.edu
+    keyboard = squeekboard
+
+    [winrules]
+    chromium-app-id = maximize, fullscreen
+  '';
+
   services.greetd = {
     enable = true;
     settings = {
       default_session = {
-        user = "engr-ugaif";
-        command = ''
-          /run/current-system/sw/bin/sway --config /etc/sway-kiosk.conf
-        '';
+	user = "engr-ugaif";
+	command = "wayfire";
       };
     };
   };
-
-  # Sway config for kiosk
-  environment.etc."sway-kiosk.conf".text = ''
-    # No fancy tiling, just a fullscreen kiosk
-    exec_always {
-      export LANG=en_US.UTF-8
-      export LC_ALL=en_US.UTF-8
-      exec ${pkgs.chromium}/bin/chromium \
-        --kiosk "https://ha.factory.uga.edu" \
-	--enable-features=UseOzonePlatform \ 
-	--ozone-platform=wayland
-    }
-
-    # Required for squeekboard + fcitx5
-    set $env IM_MODULE fcitx
-    set $env GTK_IM_MODULE fcitx
-    set $env QT_IM_MODULE fcitx
-    set $env XMODIFIERS "@im=fcitx"
-    exec_always fcitx5
-    exec_always squeekboard-im
-    exec_always squeekboard
-
-    # Basic output config if needed
-    output * scale 1
-  '';
-
-  services.dbus.enable = true;
-  services.dbus.implementation = "dbus";
 
   i18n.inputMethod = {
     enable = true;
