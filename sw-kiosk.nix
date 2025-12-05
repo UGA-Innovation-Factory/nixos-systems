@@ -6,7 +6,7 @@
     user = "engr-ugaif";
     program = "${(pkgs.writeShellScriptBin "chromium-kiosk" ''
       ${pkgs.chromium}/bin/chromium --kiosk "https://ha.factory.uga.edu"
-    '')}/bin/chromium-kiosk";
+    '')}/bin/chromium-kiosk;";
   };
 
   # Enable networking
@@ -14,6 +14,11 @@
   networking.wireless = {
     enable = true;
     networks = {
+      "IOT_vr" = {
+        ssid = "IOT_vr";
+        pskRaw = "849a13f095b73a3d038a904576fd8ad4b83da81d285acaf435b545c1560c7e27";
+	authProtocols = [ "wpa2" ];
+      };
       "IOT_sensors".psk = "aaaaaaaa";
     };
   };
