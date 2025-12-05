@@ -6,7 +6,7 @@
     user = "engr-ugaif";
     program = "${(pkgs.writeShellScriptBin "chromium-kiosk" ''
       ${pkgs.chromium}/bin/chromium --kiosk "https://ha.factory.uga.edu"
-    '')}/bin/chromium-kiosk;";
+    '')}/bin/chromium-kiosk";
   };
 
   # Enable networking
