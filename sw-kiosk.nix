@@ -32,6 +32,11 @@
     X-GNOME-Autostart-Phase=Applications
   '';
 
+  environment.etc."dconf/db/local.d/phosh-pin".text = ''
+    [sm/puri/phosh]
+    pin="1234"
+  '';
+
   environment.sessionVariables = {
     GDK_SCALE = "2";
     GDK_DPI_SCALE = "0.5";
