@@ -17,7 +17,10 @@
     settings = {
       default_session = {
 	user = "engr-ugaif";
-	command = "wayfire";
+	command = ''
+          env WAYFIRE_CONFIG_FILE=/etc/wayfire.ini \
+            /run/current-system/sw/bin/wayfire
+	''
       };
     };
   };
