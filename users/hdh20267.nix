@@ -16,11 +16,6 @@ in
     ghostty
   ];
 
-  xdg.configFile."kdeglobals".source = pkgs.writeText "kdeglobals" ''
-    [General]
-    TerminalApplication=${pkgs.ghostty}/bin/ghostty
-  '';
-
   programs.zsh = {
     enable = true;
 
