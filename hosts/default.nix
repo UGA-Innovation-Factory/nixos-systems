@@ -8,7 +8,6 @@ let
 
   commonModules = [
     ../boot.nix
-    ../sw.nix
     ../users
     home-manager.nixosModules.home-manager
     disko.nixosModules.disko
@@ -89,6 +88,7 @@ in
     system   = "x86_64-linux";
     extraModules = [
       ./nix-laptop.nix
+      ../sw.nix
     ];
   };
 
@@ -97,6 +97,7 @@ in
     system   = "x86_64-linux";
     extraModules = [
       ./nix-desktop.nix
+      ../sw.nix
     ];
   };
 
@@ -105,6 +106,7 @@ in
     system   = "x86_64-linux";
     extraModules = [
       ./nix-surface.nix
+      ../sw-kiosk.nix
       inputs.nixos-hardware.nixosModules.microsoft-surface-go
     ];
   };
