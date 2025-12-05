@@ -1,4 +1,4 @@
-{ inputs }:
+{ inputs, ... }:
 
 let
   nixpkgs      = inputs.nixpkgs;

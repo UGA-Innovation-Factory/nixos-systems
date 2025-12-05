@@ -1,4 +1,11 @@
-{ config, lib, modulesPath, ... }:
+{ config, lib, pkgs, inputs, modulesPath, ... }:
+let
+  refSystem = inputs.nixpkgs-old-kernel.lib.nixosSystem {
+    system = pkgs.system;
+    modules = [ inputs.nixos-hardware.nixosModules.microsoft-surface-go ];
+  };
+  refKernelPackages = refSystem.config.boot.kernelPackages;
+in 
 {
   imports =
     [ (modulesPath + "/installer/scan/not-detected.nix")
@@ -16,10 +23,7 @@
     "rd.systemd.show_status=auto"
   ];
 
-  boot.kernelPatches = [{
-    name = "rust-1.91-fix";
-    patch = ./hacks/rust-fix.patch;
-  }];
+  boot.kernelPackages = lib.mkForce refKernelPackages;
 
   disko.devices.disk.main.content.partitions.swap.size = "8G";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
