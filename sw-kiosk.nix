@@ -31,6 +31,11 @@
     X-GNOME-Autostart-Phase=Applications
   '';
 
+  environment.sessionVariables = {
+    GDK_SCALE = "2";
+    GDK_DPI_SCALE = "0.5";
+  };
+
   # Enable networking
   networking.networkmanager.enable = false;
   networking.wireless = {
