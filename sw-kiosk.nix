@@ -1,41 +1,8 @@
 { pkgs, inputs, ... }:
 
 {
-  programs.wayfire.enable = true;
-
-  environment.etc."wayfire.ini".text = ''
-    [core]
-    plugins = autostart wlr-layer-shell virtual-keyboard idle
-
-    [autostart]
-    chromium = ${pkgs.chromium}/bin/chromium \
-      --enable-features=UseOzonePlatform \
-      --ozone-platform=wayland \
-      --kiosk https://ha.factory.uga.edu
-
-    keyboard = ${pkgs.squeekboard}/bin/squeekboard
-  '';
-
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-	user = "engr-ugaif";
-	command = ''
-          env WAYFIRE_CONFIG_FILE=/etc/wayfire.ini \
-            /run/current-system/sw/bin/wayfire
-	'';
-      };
-    };
-  };
-
-  i18n.inputMethod = {
-    enable = true;
-    type = "fcitx5";
-  };
-
   services.cage = {
-    enable = false;
+    enable = true;
     user = "engr-ugaif";
     program = "${(pkgs.writeShellScriptBin "chromium-kiosk" ''
       sleep 5
@@ -80,7 +47,6 @@
     oh-my-posh
     zsh
     git
-    squeekboard
     dbus
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
@@ -88,7 +54,7 @@
   programs.chromium = {
     enable = true;
     extensions = [
-      # "ofelldpjbfeheadojfhkagakafgghlji" # Chrome Virtual Keyboard
+      "ecjkcanpimnagobhegghdeeiagffoidk" # Chrome Virtual Keyboard
     ];
   };
 
