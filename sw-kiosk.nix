@@ -11,7 +11,10 @@
     serviceConfig = {
       User = "engr-ugaif";
       Type = "simple";
-      Environment = "XDG_RUNTIME_DIR=/run/user/%u";
+      Environment = [
+        "XDG_RUNTIME_DIR=/run/user/%u"
+	"PATH=/run/current-system/sw/bin"
+      ];
       ExecStart = ''
 	/run/current-system/sw/bin/sway --config /etc/sway-kiosk.conf
       '';
