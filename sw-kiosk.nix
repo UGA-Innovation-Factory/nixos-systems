@@ -107,7 +107,7 @@
 
     serviceConfig = {
       ExecStart = ''
-	dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
+	env dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
         ${pkgs.chromium}/bin/chromium \
           --enable-features=UseOzonePlatform,WebRTCLibcamera,TouchpadOverscrollHistoryNavigation \
           --ozone-platform=wayland \
