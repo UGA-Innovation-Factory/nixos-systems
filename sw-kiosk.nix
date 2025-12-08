@@ -154,9 +154,7 @@
     htop
     binutils
     libcamera
-    (chromium.override {
-      commandLineArgs = [ "--enable-features=TouchpadOverscrollHistoryNavigation" ];
-    })
+    chromium
     oh-my-posh
     zsh
     git
