@@ -81,16 +81,15 @@
   };
 
   services.udev.extraRules = ''
+    # These shouldn't be counted as keyboards, but should still produce events
     ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Video Bus", \
-      ENV{ID_INPUT}="", ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
+      ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""
     ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Power Button", \
-      ENV{ID_INPUT}="", ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
+      ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""
     ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Intel HID events", \
-      ENV{ID_INPUT}="", ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
+      ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""
     ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Intel HID 5 button array", \
-      ENV{ID_INPUT}="", ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="AT Translated Set 2 keyboard", \
-      ENV{ID_INPUT}="", ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
+      ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""
   '';
 
   systemd.user.services."force-osk" = {
