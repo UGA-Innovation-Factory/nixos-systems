@@ -62,6 +62,11 @@
   environment.sessionVariables = {
     GDK_SCALE = "2";
     GDK_DPI_SCALE = "0.5";
+
+    # Make GLib / gsettings actually see schemas
+    XDG_DATA_DIRS =
+      "/run/current-system/sw/share:"
+      + "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}";
   };
 
   systemd.user.services."chromium-kiosk" = {
