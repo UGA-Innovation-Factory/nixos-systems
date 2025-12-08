@@ -45,7 +45,7 @@
             lock-enabled = false;
 	  };
 	  "org/gnome/desktop/session" = {
-            idle-delay = 0;
+            idle-delay = inputs.nixpkgs.lib.gvariant.mkUint32 0;
 	  };
 	  "org/gnome/desktop/interface" = {
             show-battery-percentage = true;
