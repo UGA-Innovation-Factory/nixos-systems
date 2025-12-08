@@ -21,6 +21,8 @@ in
     "boot.shell_on_fail"
     "udev.log_priority=3"
     "rd.systemd.show_status=auto"
+    "intel_ipu3_imgu"
+    "intel_ipu3_isys"
   ];
 
   boot.kernelPackages = lib.mkForce refKernelPackages;

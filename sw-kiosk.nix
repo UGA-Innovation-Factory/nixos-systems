@@ -56,7 +56,8 @@
   };
 
   i18n.inputMethod = {
-    enabled = "ibus";
+    type = "ibus";
+    enable = true;
     ibus.engines = [ pkgs.ibus-engines.m17n ];
   };
   
@@ -98,24 +99,6 @@
     ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="AT Translated Set 2 keyboard", \
       ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
   '';
-
-  systemd.user.services."force-osk" = {
-    description = "Force-enable GNOME OSK after session init";
-    wantedBy = [ "graphical-session.target" ];
-    partOf   = [ "graphical-session.target" ];
-
-    unitConfig = {
-      After = [ "gnome-session-initialized.target" "graphical-session.target" ];
-    };
-
-    serviceConfig = {
-      ExecStart = ''
-	${pkgs.glib.bin}/bin/gsettings set \
-	  org.gnome.desktop.a11y.applications screen-keyboard-enabled true
-      '';
-      Type = "oneshot";
-    };
-  };
 
   systemd.user.services."chromium-kiosk" = {
     description = "Chromium kiosk";
@@ -159,6 +142,7 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.enable = true;
   };
 
   # Allow unfree packages
@@ -168,6 +152,8 @@
   environment.systemPackages = with pkgs; [
     htop
     binutils
+    libcamera
+    libcamera-tools
     (chromium.override {
       commandLineArgs = [ "--enable-features=TouchpadOverscrollHistoryNavigation" ];
     })
@@ -179,17 +165,11 @@
     dconf
     phoc
     gsettings-desktop-schemas
-    #(pkgs.writeShellScriptBin "osk-wayland" ''
-    #  exec ${pkgs.squeekboard}/bin/squeekboard "$@"
-    #'')
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
   programs.chromium = {
     enable = true;
-    extensions = [
-      # "ecjkcanpimnagobhegghdeeiagffoidk" # Chrome Virtual Keyboard
-    ];
   };
 
   programs.zsh.enable = true;
