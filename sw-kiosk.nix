@@ -1,15 +1,6 @@
 { pkgs, inputs, ... }:
 
 {
-  services.cage = {
-    enable = false;
-    user = "engr-ugaif";
-    program = "${(pkgs.writeShellScriptBin "chromium-kiosk" ''
-      sleep 5
-      ${pkgs.chromium}/bin/chromium --kiosk "https://ha.factory.uga.edu"
-    '')}/bin/chromium-kiosk";
-  };
-
   services.xserver = {
     enable = true;
     desktopManager.phosh = {
@@ -84,25 +75,10 @@
       "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}/glib-2.0/schemas";
   };
 
-  services.udev.extraRules = ''
-    # These shouldn't be counted as keyboards, but should still produce events
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Video Bus", \
-      ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Power Button", \
-      ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Intel HID events", \
-      ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Intel HID 5 button array", \
-      ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_KEY}=""
-    ACTION=="change", SUBSYSTEM=="switch", ATTRS{name}=="Intel HID switches", \
-      ENV{SW_TABLET_MODE}="1"
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="AT Translated Set 2 keyboard", \
-      ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
-  '';
   systemd.user.services."force-osk" = {
     description = "Force the OSK to Enable";
-    wantedBy = [ "graphical-session.target" ];
-    partOf   = [ "graphical-session.target" ];
+    wantedBy = [ "chromium-kiosk.service" ];
+    partOf   = [ "chromium-kiosk.service" ];
 
     serviceConfig = {
       ExecStart = ''
@@ -119,7 +95,7 @@
     serviceConfig = {
       ExecStart = ''
         ${pkgs.chromium}/bin/chromium \
-          --enable-features=UseOzonePlatform,WebRTCLibcamera,TouchpadOverscrollHistoryNavigation \
+          --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation \
           --ozone-platform=wayland \
           --kiosk \
           --start-fullscreen \
