@@ -60,7 +60,7 @@
     ibus.engines = [ pkgs.ibus-engines.m17n ];
   };
   
-  services.gnome.gnome-keyring.enable = false;
+  services.gnome.gnome-keyring.enable = inputs.nixpkgs.lib.mkForce false;
 
   systemd.user.services.squeekboard = {
     description = "Squeekboard on-screen keyboard";
