@@ -45,7 +45,10 @@
             lock-enabled = false;
 	  };
 	  "org/gnome/desktop/session" = {
-            idle-delay = "uint32 0";
+            idle-delay = 0;
+	  };
+	  "org/gnome/desktop/interface" = {
+            show-battery-percentage = true;
 	  };
 	  "org/gnome/desktop/input-sources" = {
             sources = "[('ibus', 'xkb:us::eng')]";
