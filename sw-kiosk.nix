@@ -82,9 +82,12 @@
 
     serviceConfig = {
       ExecStart = ''
-	/run/current-system/sw/bin/sleep 5 && \
-	/run/current-system/sw/bin/dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
+        /bin/bash -c ' \
+	  /run/current-system/sw/bin/sleep 5 \
+	  /run/current-system/sw/bin/dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
+	'
       '';
+      Type = "exec";
     };
   };
 
