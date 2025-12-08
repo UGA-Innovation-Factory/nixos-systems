@@ -99,6 +99,17 @@
     ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="AT Translated Set 2 keyboard", \
       ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
   '';
+  systemd.user.services."force-osk" = {
+    description = "Force the OSK to Enable";
+    wantedBy = [ "graphical-session.target" ];
+    partOf   = [ "graphical-session.target" ];
+
+    serviceConfig = {
+      ExecStart = ''
+	/run/current-system/sw/bin/dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
+      '';
+    };
+  };
 
   systemd.user.services."chromium-kiosk" = {
     description = "Chromium kiosk";
@@ -107,7 +118,6 @@
 
     serviceConfig = {
       ExecStart = ''
-	/run/current-system/sw/bin/dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
         ${pkgs.chromium}/bin/chromium \
           --enable-features=UseOzonePlatform,WebRTCLibcamera,TouchpadOverscrollHistoryNavigation \
           --ozone-platform=wayland \
