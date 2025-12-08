@@ -89,13 +89,16 @@
   environment.sessionVariables = {
     GDK_SCALE = "1.25";
     GDK_DPI_SCALE = "0.5";
-    PHOSH_DOCKED = "0";
 
     # Make GLib / gsettings actually see schemas
     XDG_DATA_DIRS = [ "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}" ];
     GSETTINGS_SCHEMA_DIR =
       "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}/glib-2.0/schemas";
   };
+
+  environment.etc."machine-info".text = ''
+    CHASSIS=handset
+  '';
 
   systemd.user.services."force-osk" = {
     description = "Force the OSK to Enable";
