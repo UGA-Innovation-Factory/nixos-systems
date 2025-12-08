@@ -105,6 +105,9 @@
     git
     glib
     squeekboard
+    osk-wayland
+    dconf
+    gsettings-desktop-schemas
     #(pkgs.writeShellScriptBin "osk-wayland" ''
     #  exec ${pkgs.squeekboard}/bin/squeekboard "$@"
     #'')
