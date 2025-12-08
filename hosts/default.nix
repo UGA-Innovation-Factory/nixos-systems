@@ -110,4 +110,14 @@ in
       inputs.nixos-hardware.nixosModules.microsoft-surface-go
     ];
   };
+
+  nix-surface2 = mkHost {
+    hostName = "nix-surface2";
+    system   = "x86_64-linux";
+    extraModules = [
+      ./nix-surface.nix
+      ../sw-kiosk.nix
+      inputs.nixos-hardware.nixosModules.microsoft-surface-go
+    ];
+  };
 }
