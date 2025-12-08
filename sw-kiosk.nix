@@ -89,6 +89,7 @@
   environment.sessionVariables = {
     GDK_SCALE = "1.25";
     GDK_DPI_SCALE = "0.5";
+    PHOSH_DOCKED = "0";
 
     # Make GLib / gsettings actually see schemas
     XDG_DATA_DIRS = [ "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}" ];
@@ -120,7 +121,7 @@
     serviceConfig = {
       ExecStart = ''
         ${pkgs.chromium}/bin/chromium \
-          --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation \
+          --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation,PullToRefresh \
           --ozone-platform=wayland \
           --kiosk \
           --start-fullscreen \
