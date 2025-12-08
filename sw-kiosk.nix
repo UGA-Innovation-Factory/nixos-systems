@@ -15,6 +15,15 @@
     user = "engr-ugaif";
     group = "users";
   };
+  
+  services.dbus = {
+    enable = true;
+    packages = with pkgs; [
+      dconf
+      gsettings-desktop-schemas
+    ];
+  };
+  programs.dconf.enable = true;
 
   environment.etc."xdg/autostart/kiosk-chromium.desktop".text = ''
     [Desktop Entry]
@@ -35,20 +44,6 @@
   environment.sessionVariables = {
     GDK_SCALE = "2";
     GDK_DPI_SCALE = "0.5";
-  };
-
-  systemd.user.services."phosh-enable-osk" = {
-    description = "Enable on-screen keyboard in Phosh";
-    wantedBy = [ "graphical-session.target" ];
-    partOf   = [ "graphical-session.target" ];
-
-    serviceConfig = {
-      ExecStart = pkgs.writeShellScript "phosh-enable-osk.sh" ''
-        #!/bin/sh
-        # Allow OSK usage in this session
-        ${pkgs.glib.bin}/bin/gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled true || true
-      '';
-    };
   };
 
   systemd.user.services."chromium-kiosk" = {
@@ -108,12 +103,11 @@
     oh-my-posh
     zsh
     git
-    dbus
     glib
     squeekboard
-    (pkgs.writeShellScriptBin "osk-wayland" ''
-      exec ${pkgs.squeekboard}/bin/squeekboard "$@"
-    '')
+    #(pkgs.writeShellScriptBin "osk-wayland" ''
+    #  exec ${pkgs.squeekboard}/bin/squeekboard "$@"
+    #'')
     inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
   ];
 
