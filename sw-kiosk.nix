@@ -12,11 +12,18 @@
 
   services.xserver = {
     enable = true;
-    displayManager.gdm.enable = true;
     desktopManager.phosh = {
       enable = true;
       user = "engr-ugaif";
       group = "users";
+    };
+  };
+
+  services.displayManager = {
+    gdm.enable = true;
+    autoLogin = {
+      enable = true;
+      user = "engr-ugaif";
     };
   };
 
@@ -47,6 +54,10 @@
       }];
     };
   };
+  
+  security.pam.services."login".enableGnomeKeyring = true;
+  security.pam.services."gdm-password".enableGnomeKeyring = true;
+  services.gnome.gnome-keyring.enable = true;
 
   systemd.user.services.squeekboard = {
     description = "Squeekboard on-screen keyboard";
@@ -67,6 +78,24 @@
     XDG_DATA_DIRS = [ "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}" ];
     GSETTINGS_SCHEMA_DIR =
       "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}/glib-2.0/schemas";
+  };
+
+  systemd.user.services."force-osk" = {
+    description = "Force-enable GNOME OSK after session init";
+    wantedBy = [ "graphical-session.target" ];
+    partOf   = [ "graphical-session.target" ];
+
+    unitConfig = {
+      After = [ "gnome-session-initialized.target" "graphical-session.target" ];
+    };
+
+    serviceConfig = {
+      ExecStart = ''
+	${pkgs.glib.bin}/bin/gsettings set \
+	  org.gnome.desktop.a11y.applications screen-keyboard-enabled true
+      '';
+      Type = "oneshot";
+    };
   };
 
   systemd.user.services."chromium-kiosk" = {
