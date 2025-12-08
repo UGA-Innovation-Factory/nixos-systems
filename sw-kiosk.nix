@@ -64,7 +64,7 @@
     GDK_DPI_SCALE = "0.5";
 
     # Make GLib / gsettings actually see schemas
-    XDG_DATA_DIRS =
+    XDG_DATA_DIRS = lib.mkForce
       "/run/current-system/sw/share:"
       + "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}";
   };
