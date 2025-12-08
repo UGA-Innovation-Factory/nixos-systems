@@ -110,6 +110,15 @@
       '';
     };
   };
+  
+  services.logind.extraConfig = ''
+    HandlePowerKey=ignore
+    HandleSuspendKey=ignore
+    HandleHibernateKey=ignore
+    HandleLidSwitch=ignore
+    HandleLidSwitchExternalPower=ignore
+    IdleAction=ignore
+  '';
 
   # Enable networking
   networking.networkmanager.enable = false;
