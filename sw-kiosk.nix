@@ -45,7 +45,13 @@
             lock-enabled = false;
 	  };
 	  "org/gnome/desktop/session" = {
-            idle-delay="uint32 0";
+            idle-delay = "uint32 0";
+	  };
+	  "org/gnome/desktop/input-sources" = {
+            sources = "[('ibus', 'xkb:us::eng')]";
+	  };
+	  "org/gnome/desktop/mru-sources" = {
+            sources = "[('ibus', 'xkb:us::eng')]";
 	  };
 	  "sm/puri/phosh" = {
             lock-enabled = false;
@@ -78,7 +84,7 @@
   };
 
   environment.sessionVariables = {
-    GDK_SCALE = "2";
+    GDK_SCALE = "1.25";
     GDK_DPI_SCALE = "0.5";
 
     # Make GLib / gsettings actually see schemas
