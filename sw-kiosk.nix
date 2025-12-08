@@ -12,7 +12,7 @@
 
   services.xserver = {
     enable = true;
-    displayManger.gdm.enable = true;
+    displayManager.gdm.enable = true;
     desktopManager.phosh = {
       enable = true;
       user = "engr-ugaif";
