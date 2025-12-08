@@ -23,7 +23,32 @@
       gsettings-desktop-schemas
     ];
   };
-  programs.dconf.enable = true;
+  programs.dconf = {
+    enable = true;
+    profiles.user = {
+      databases = [{
+	lockAll = true;
+	settings = {
+	  "org/gnome/desktop/interface" = {
+	    color-scheme = "prefer-dark";
+	    clock-format = "12h";
+	    clock-show-weekday = true;
+	  };
+	  "org/gnome/desktop/media-handling" = {
+	    automount = false;
+	    automount-open = false;
+	    autorun-never = true;
+	  };
+	  "org/gnome/settings-daemon/plugins/power" = {
+	    sleep-inactive-ac-type = "nothing";
+	  };
+	  "org/gnome/desktop/a11y/applications" = {
+            screen-keyboard-enabled = true;
+	  };
+	};
+      }];
+    };
+  };
 
   environment.etc."xdg/autostart/kiosk-chromium.desktop".text = ''
     [Desktop Entry]
@@ -105,8 +130,8 @@
     git
     glib
     squeekboard
-    osk-wayland
     dconf
+    phoc
     gsettings-desktop-schemas
     #(pkgs.writeShellScriptBin "osk-wayland" ''
     #  exec ${pkgs.squeekboard}/bin/squeekboard "$@"
@@ -130,14 +155,6 @@
   fonts.fontconfig = {
     enable = true;
     defaultFonts.monospace = [ "FiraCode Nerd Font Mono" ];
-  };
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  programs.mtr.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
   };
 
   # Bluetooth
