@@ -54,10 +54,13 @@
       }];
     };
   };
+
+  i18n.inputMethod = {
+    enabled = "ibus";
+    ibus.engines = [ pkgs.ibus-engines.m17n ];
+  };
   
-  security.pam.services."login".enableGnomeKeyring = true;
-  security.pam.services."gdm-password".enableGnomeKeyring = true;
-  services.gnome.gnome-keyring.enable = true;
+  services.gnome.gnome-keyring.enable = false;
 
   systemd.user.services.squeekboard = {
     description = "Squeekboard on-screen keyboard";
