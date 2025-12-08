@@ -81,11 +81,11 @@
   };
 
   services.udev.extraRules = ''
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Video Bus", ENV{ID_INPUT_KEYBOARD}="0"
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Power Button", ENV{ID_INPUT_KEYBOARD}="0"
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Intel HID events", ENV{ID_INPUT_KEYBOARD}="0"
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Intel HID 5 button array", ENV{ID_INPUT_KEYBOARD}="0"
-    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="AT Translated Set 2 keyboard", ENV{ID_INPUT_KEYBOARD}="0"
+    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Video Bus", ENV{ID_INPUT_KEY}="0"
+    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Power Button", ENV{ID_INPUT_KEY}="0"
+    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Intel HID events", ENV{ID_INPUT_KEY}="0"
+    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="Intel HID 5 button array", ENV{ID_INPUT_KEY}="0"
+    ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="AT Translated Set 2 keyboard", ENV{ID_INPUT_KEY}="0"
   '';
 
   systemd.user.services."force-osk" = {
