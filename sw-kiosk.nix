@@ -81,13 +81,13 @@
     partOf   = [ "chromium-kiosk.service" ];
 
     serviceConfig = {
-      ExecStart = ''
-        /bin/bash -c ' \
-	  /run/current-system/sw/bin/sleep 5; \
-	  /run/current-system/sw/bin/dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
-	'
+      ExecStartPre = ''
+	/run/current-system/sw/bin/sleep 5 
       '';
-      Type = "exec";
+      ExecStart = ''
+	/run/current-system/sw/bin/dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
+      '';
+      Type = "simple";
     };
   };
 
