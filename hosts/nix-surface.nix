@@ -1,7 +1,7 @@
 { config, lib, pkgs, inputs, modulesPath, ... }:
 let
   refSystem = inputs.nixpkgs-old-kernel.lib.nixosSystem {
-    system = pkgs.system;
+    system = pkgs.stdenv.hostPlatform.system;
     modules = [ inputs.nixos-hardware.nixosModules.microsoft-surface-go ];
   };
   refKernelPackages = refSystem.config.boot.kernelPackages;
