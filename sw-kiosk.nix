@@ -10,24 +10,22 @@
     '')}/bin/chromium-kiosk";
   };
 
-  services.xserver.desktopManager.phosh = {
+  services.xserver = {
     enable = true;
-    user = "engr-ugaif";
-    group = "users";
+    displayManger.gdm.enable = true;
+    desktopManager.phosh = {
+      enable = true;
+      user = "engr-ugaif";
+      group = "users";
+    };
   };
-  
-  services.dbus = {
-    enable = true;
-    packages = with pkgs; [
-      dconf
-      gsettings-desktop-schemas
-    ];
-  };
+
+  services.dbus.enable = true;
+
   programs.dconf = {
     enable = true;
     profiles.user = {
       databases = [{
-	lockAll = true;
 	settings = {
 	  "org/gnome/desktop/interface" = {
 	    color-scheme = "prefer-dark";
@@ -50,21 +48,16 @@
     };
   };
 
-  environment.etc."xdg/autostart/kiosk-chromium.desktop".text = ''
-    [Desktop Entry]
-    Type=Application
-    Name=Factory Kiosk
-    Exec=${pkgs.chromium}/bin/chromium \
-      --enable-features=UseOzonePlatform \
-      --ozone-platform=wayland \
-      --kiosk \
-      --start-fullscreen \
-      --noerrdialogs \
-      --disable-session-crashed-bubble \
-      https://ha.factory.uga.edu
-    X-GNOME-Autostart-enabled=true
-    X-GNOME-Autostart-Phase=Applications
-  '';
+  systemd.user.services.squeekboard = {
+    description = "Squeekboard on-screen keyboard";
+    wantedBy = [ "graphical-session.target" ];
+    partOf   = [ "graphical-session.target" ];
+
+    serviceConfig = {
+      ExecStart = "${pkgs.squeekboard}/bin/squeekboard";
+      Restart = "on-failure";
+    };
+  };
 
   environment.sessionVariables = {
     GDK_SCALE = "2";
