@@ -153,7 +153,6 @@
     htop
     binutils
     libcamera
-    libcamera-tools
     (chromium.override {
       commandLineArgs = [ "--enable-features=TouchpadOverscrollHistoryNavigation" ];
     })
