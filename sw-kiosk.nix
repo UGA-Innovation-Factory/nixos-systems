@@ -44,6 +44,9 @@
 	  "org/gnome/desktop/screensaver" = {
             lock-enabled = false;
 	  };
+	  "sm/puri/phosh" = {
+            lock-enabled = false;
+	  };
 	  "org/gnome/desktop/a11y/applications" = {
             screen-keyboard-enabled = true;
 	  };
