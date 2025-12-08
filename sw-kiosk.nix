@@ -44,6 +44,9 @@
 	  "org/gnome/desktop/screensaver" = {
             lock-enabled = false;
 	  };
+	  "org/gnome/desktop/session" = {
+            idle-delay="uint32 0";
+	  };
 	  "sm/puri/phosh" = {
             lock-enabled = false;
 	  };
