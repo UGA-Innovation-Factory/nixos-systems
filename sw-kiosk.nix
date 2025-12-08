@@ -93,8 +93,7 @@
     ACTION=="change", SUBSYSTEM=="switch", ATTRS{name}=="Intel HID switches", \
       ENV{SW_TABLET_MODE}="1"
     ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="AT Translated Set 2 keyboard", \
-      ENV{ID_INPUT}="", ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}="", \
-      OPTIONS+="ignore_device"
+      ENV{ID_INPUT_KEY}="", ENV{ID_INPUT_KEYBOARD}=""
   '';
 
   systemd.user.services."force-osk" = {
