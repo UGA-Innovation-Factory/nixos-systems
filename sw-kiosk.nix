@@ -107,8 +107,9 @@
 
     serviceConfig = {
       ExecStart = ''
+	dconf reset /org/gnome/desktop/a11y/applications/screen-keyboard-enabled
         ${pkgs.chromium}/bin/chromium \
-          --enable-features=UseOzonePlatform \
+          --enable-features=UseOzonePlatform,WebRTCLibcamera,TouchpadOverscrollHistoryNavigation \
           --ozone-platform=wayland \
           --kiosk \
           --start-fullscreen \
