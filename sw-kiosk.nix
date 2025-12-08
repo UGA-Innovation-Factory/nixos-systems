@@ -38,6 +38,12 @@
 	  "org/gnome/settings-daemon/plugins/power" = {
 	    sleep-inactive-ac-type = "nothing";
 	  };
+	  "org/gnome/desktop/lockdown" = {
+            disable-lock-screen = true;
+	  };
+	  "org/gnome/desktop/screensaver" = {
+            lock-enabled = false;
+	  };
 	  "org/gnome/desktop/a11y/applications" = {
             screen-keyboard-enabled = true;
 	  };
