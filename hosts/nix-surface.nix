@@ -23,6 +23,9 @@ in
     "rd.systemd.show_status=auto"
     "intel_ipu3_imgu"
     "intel_ipu3_isys"
+    "fbcon=map:1"
+    "i915.enable_psr=0"  # Panel Self Refresh breaks resume on Surface
+    "i915.enable_dc=0"
   ];
 
   boot.kernelPackages = lib.mkForce refKernelPackages;
