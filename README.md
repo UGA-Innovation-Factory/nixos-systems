@@ -92,6 +92,94 @@ hdh20267 = {
 
 The external flake must provide a `homeManagerModules.default` output. Note that using this feature may require running `update-system --impure` if the flake is not locked in the system's `flake.lock`.
 
+### Using External Flakes for System Configuration
+
+You can also override the system-level configuration for a specific host using an external flake. This is useful for adding system services (like Docker), changing boot parameters, or installing system-wide packages that are not in the standard image.
+
+1.  Open `inventory.nix`.
+2.  In the `devices` override for the host, set the `flakeUrl`:
+
+```nix
+nix-laptop = {
+  count = 2;
+  devices = {
+    "2" = { 
+      flakeUrl = "github:myuser/my-system-config"; 
+      # You can still combine this with other overrides
+      swapSize = "64G";
+    };
+  };
+};
+```
+
+The external flake must provide a `nixosModules.default` output.
+
+## External Flake Templates
+
+If you are creating a new flake to use with `flakeUrl`, use these templates as a starting point.
+
+### Home Manager Flake (for `users.nix`)
+
+Use this for user-specific dotfiles, shell configuration, and user packages.
+
+```nix
+{
+  description = "My Home Manager Configuration";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # home-manager is not strictly required as an input if you only export a module,
+    # but it's good practice for standalone testing.
+  };
+
+  outputs = { self, nixpkgs, ... }: {
+    # This output is what nixos-systems looks for
+    homeManagerModules.default = { pkgs, ... }: {
+      home.stateVersion = "25.11";
+      
+      home.packages = with pkgs; [ 
+        ripgrep 
+        bat 
+        fzf
+      ];
+
+      programs.git = {
+        enable = true;
+        userName = "My Name";
+        userEmail = "me@example.com";
+      };
+    };
+  };
+}
+```
+
+### System Flake (for `inventory.nix`)
+
+Use this for host-specific system services, hardware tweaks, or root-level packages.
+
+```nix
+{
+  description = "My System Configuration Override";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+  };
+
+  outputs = { self, nixpkgs, ... }: {
+    # This output is what nixos-systems looks for
+    nixosModules.default = { pkgs, ... }: {
+      environment.systemPackages = [ pkgs.docker ];
+      
+      virtualisation.docker.enable = true;
+      
+      # Example: Add a custom binary cache
+      nix.settings.substituters = [ "https://nix-community.cachix.org" ];
+      nix.settings.trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+    };
+  };
+}
+```
+
 ### Adding a New Host
 
 1.  Open `inventory.nix`.
