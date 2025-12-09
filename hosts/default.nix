@@ -47,22 +47,36 @@ let
   mkHostGroup = { prefix, count, system ? "x86_64-linux", extraModules ? [], deviceOverrides ? {} }:
     lib.listToAttrs (map (i: {
       name = "${prefix}${toString i}";
-      value = mkHost {
-        hostName = "${prefix}${toString i}";
-        inherit system;
-        extraModules = extraModules ++ 
-          (lib.optional (builtins.hasAttr (toString i) deviceOverrides) 
-            ({ ... }: 
-              let
-                devConf = deviceOverrides.${toString i};
-                fsConf = builtins.removeAttrs devConf [ "extraUsers" ];
-              in {
-                host.filesystem = fsConf;
-                modules.users.enabledUsers = devConf.extraUsers or [];
-              }
-            )
-          );
-      };
+      value = 
+        let
+          devConf = deviceOverrides.${toString i} or {};
+          hasOverride = builtins.hasAttr (toString i) deviceOverrides;
+          
+          # Extract flakeUrl if it exists
+          externalFlake = if hasOverride && (builtins.hasAttr "flakeUrl" devConf) 
+                          then builtins.getFlake devConf.flakeUrl 
+                          else null;
+          
+          # Module from external flake
+          externalModule = if externalFlake != null 
+                           then externalFlake.nixosModules.default 
+                           else {};
+
+          # Config override module
+          overrideModule = { ... }: 
+            let
+              # Remove special keys that are not filesystem options
+              fsConf = builtins.removeAttrs devConf [ "extraUsers" "flakeUrl" ];
+            in lib.mkIf hasOverride {
+              host.filesystem = fsConf;
+              modules.users.enabledUsers = devConf.extraUsers or [];
+            };
+        in
+        mkHost {
+          hostName = "${prefix}${toString i}";
+          inherit system;
+          extraModules = extraModules ++ [ overrideModule ] ++ (lib.optional (externalFlake != null) externalModule);
+        };
     }) (lib.range 1 count));
 
   # Generate host groups based on the input hosts configuration
