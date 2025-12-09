@@ -3,7 +3,7 @@ let
   userSubmodule = lib.types.submodule {
     options = {
       isNormalUser = lib.mkOption { type = lib.types.bool; default = true; };
-      description = lib.mkOption { type = lib.types.str; default = ""; };
+      description = lib.mkOption { type = lib.types.nullOr lib.types.str; default = null; };
       extraGroups = lib.mkOption { type = lib.types.listOf lib.types.str; default = []; };
       hashedPassword = lib.mkOption { type = lib.types.str; default = "!"; };
       extraPackages = lib.mkOption { type = lib.types.listOf lib.types.package; default = []; };
@@ -49,7 +49,8 @@ in
         finalPackages = lib.subtractLists user.excludePackages (defaultPackages ++ user.extraPackages);
       in
       {
-        inherit (user) isNormalUser description extraGroups hashedPassword;
+        inherit (user) isNormalUser extraGroups hashedPassword;
+        description = if user.description != null then user.description else lib.mkDefault "";
         openssh.authorizedKeys.keys = user.opensshKeys;
         packages = finalPackages;
         shell = config.modules.users.shell;
