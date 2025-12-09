@@ -140,6 +140,10 @@
       ExecStart = ''
 	/run/current-system/sw/bin/dconf reset /org/gnome/desktop/input-sources/sources
       '';
+      ExecStartPost = ''
+	/run/current-system/sw/bin/dconf reset /org/gnome/desktop/mru-sources/sources
+      '';
+
       Type = "simple";
     };
   };
