@@ -5,7 +5,7 @@
     enable = true;
     desktopManager.phosh = {
       enable = true;
-      user = "mobile";
+      user = "engr-ugaif";
       group = "users";
     };
   };
@@ -17,16 +17,7 @@
     };
     autoLogin = {
       enable = true;
-      user = "mobile";
-    };
-  };
-
-  users.users = {
-    mobile = {
-      isNormalUser = true;
-      description = "Mobile User";
-      extraGroups = [ "networkmanager" "video" "input" ];
-      hashedPassword = "$6$yGhkTKcFZt1nhAek$MKt3yeutQ/X9EJ2Xj3goj5srrrCA0lvgI3eOdtFz4.NpPhJW0Vwr4PUOXbDfxzQXTp5ug1U7YuElKSZCWrsve.";
+      user = "engr-ugaif";
     };
   };
 
@@ -109,7 +100,7 @@
   };
 
   environment.etc."machine-info".text = ''
-    CHASSIS=convertible
+    CHASSIS=handset
   '';
 
   systemd.user.services."force-osk" = {
