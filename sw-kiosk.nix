@@ -5,18 +5,29 @@
     enable = true;
     desktopManager.phosh = {
       enable = true;
-      user = "engr-ugaif";
+      user = "mobile";
       group = "users";
     };
   };
 
   services.displayManager = {
-    gdm.enable = true;
+    gdm = {
+      enable = true;
+      autoSuspend = false;
+    };
     autoLogin = {
       enable = true;
-      user = "engr-ugaif";
+      user = "mobile";
     };
   };
+
+  users.users = {
+    mobile = {
+      isNormalUser = true;
+      description = "Mobile User";
+      extraGroups = [ "networkmanager" "video" "input" ];
+      hashedPassword = "$6$yGhkTKcFZt1nhAek$MKt3yeutQ/X9EJ2Xj3goj5srrrCA0lvgI3eOdtFz4.NpPhJW0Vwr4PUOXbDfxzQXTp5ug1U7YuElKSZCWrsve.";
+    };
 
   services.dbus.enable = true;
 
@@ -144,6 +155,7 @@
     HandleLidSwitchExternalPower="ignore";
     IdleAction="ignore";
   };
+
 
   # Enable networking
   networking.networkmanager.enable = false;
