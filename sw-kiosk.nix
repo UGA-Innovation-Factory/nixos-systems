@@ -128,6 +128,22 @@
     };
   };
 
+  systemd.user.services."force-input-sources" = {
+    description = "Force the Gsettings Input Sources";
+    wantedBy = [ "chromium-kiosk.service" ];
+    partOf   = [ "chromium-kiosk.service" ];
+
+    serviceConfig = {
+      ExecStartPre = ''
+	/run/current-system/sw/bin/sleep 5 
+      '';
+      ExecStart = ''
+	/run/current-system/sw/bin/dconf reset /org/gnome/desktop/input-sources/sources
+      '';
+      Type = "simple";
+    };
+  };
+
   systemd.user.services."chromium-kiosk" = {
     description = "Chromium kiosk";
     wantedBy = [ "graphical-session.target" ];
