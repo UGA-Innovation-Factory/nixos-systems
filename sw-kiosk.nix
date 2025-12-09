@@ -97,7 +97,7 @@
   };
 
   environment.etc."machine-info".text = ''
-    CHASSIS=tablet
+    CHASSIS=handset
   '';
 
   systemd.user.services."force-osk" = {
