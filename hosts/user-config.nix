@@ -3,7 +3,7 @@ let
   userSubmodule = lib.types.submodule {
     options = {
       isNormalUser = lib.mkOption { type = lib.types.bool; default = true; };
-      description = lib.mkOption { type = lib.types.nullOr lib.types.str; default = null; };
+      description = lib.mkOption { type = lib.types.str; default = ""; };
       extraGroups = lib.mkOption { type = lib.types.listOf lib.types.str; default = []; };
       hashedPassword = lib.mkOption { type = lib.types.str; default = "!"; };
       extraPackages = lib.mkOption { type = lib.types.listOf lib.types.package; default = []; };
@@ -49,9 +49,7 @@ in
         finalPackages = lib.subtractLists user.excludePackages (defaultPackages ++ user.extraPackages);
       in
       {
-        inherit (user) isNormalUser extraGroups hashedPassword;
-        description = if user.description != null then user.description else lib.mkDefault "";
-        openssh.authorizedKeys.keys = user.opensshKeys;
+        inherit (user) isNormalUser description extraGroups hashedPassword;
         packages = finalPackages;
         shell = config.modules.users.shell;
       }
@@ -61,14 +59,14 @@ in
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
-      extraSpecialArgs = { osConfig = config; };
+      extraSpecialArgs = { inherit osConfig; };
 
       users = 
         let
           enabledAccounts = lib.filterAttrs (name: _: lib.elem name config.modules.users.enabledUsers) config.modules.users.accounts;
         in
         lib.mapAttrs (name: user: { ... }: {
-          imports = user.extraImports ++ 
+          imports = user.extraImports ++ [ ../sw/theme.nix ../sw/nvim.nix ] ++
             (lib.optional (user.flakeUrl != "") (builtins.getFlake user.flakeUrl).homeManagerModules.default);
           home.username = name;
           home.homeDirectory = if name == "root" then "/root" else "/home/${name}";
