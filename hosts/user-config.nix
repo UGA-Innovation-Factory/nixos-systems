@@ -60,7 +60,7 @@ in
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
-      extraSpecialArgs = { inherit osConfig; };
+      extraSpecialArgs = { osConfig = config; };
 
       users = 
         let
