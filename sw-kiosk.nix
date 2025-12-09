@@ -28,6 +28,7 @@
       extraGroups = [ "networkmanager" "video" "input" ];
       hashedPassword = "$6$yGhkTKcFZt1nhAek$MKt3yeutQ/X9EJ2Xj3goj5srrrCA0lvgI3eOdtFz4.NpPhJW0Vwr4PUOXbDfxzQXTp5ug1U7YuElKSZCWrsve.";
     };
+  };
 
   services.dbus.enable = true;
 
@@ -108,7 +109,7 @@
   };
 
   environment.etc."machine-info".text = ''
-    CHASSIS=handset
+    CHASSIS=convertible
   '';
 
   systemd.user.services."force-osk" = {
