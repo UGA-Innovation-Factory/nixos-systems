@@ -14,6 +14,8 @@
     lazyvim-nixvim.url = "github:azuwis/lazyvim-nixvim";
   };
   outputs = inputs@{ self, nixpkgs, nixpkgs-old-kernel, home-manager, disko, lazyvim-nixvim, nixos-hardware,... }: {
+    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
+
     nixosConfigurations = import ./hosts { inherit inputs; };
   };
 }
