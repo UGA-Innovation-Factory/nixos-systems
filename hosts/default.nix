@@ -1,63 +1,32 @@
-{ inputs, ... }:
+{ inputs, hosts ? import ../inventory.nix, ... }:
 
 let
   nixpkgs      = inputs.nixpkgs;
+  lib          = nixpkgs.lib;
   home-manager = inputs.home-manager;
   disko        = inputs.disko;
-  lib          = nixpkgs.lib;
 
   commonModules = [
-    ../boot.nix
-    ../users
+    ./boot.nix
+    ./user-config.nix
+    ../users.nix
+    ../sw
     home-manager.nixosModules.home-manager
     disko.nixosModules.disko
-    ({ ... }: {
-      disko.enableConfig = true;
-
-      disko.devices = {
-        disk.main = {
-          type = "disk";
-          device = lib.mkDefault "/dev/nvme0n1";
-          content = {
-            type = "gpt";
-            partitions = {
-              ESP = {
-                name = "ESP";
-                label = "BOOT";
-                size = "1G";
-                type = "EF00";
-                content = {
-                  type = "filesystem";
-                  format = "vfat";
-                  mountpoint = "/boot";
-                  mountOptions = [ "umask=0077" ];
-                  extraArgs = [ "-n" "BOOT" ];
-                };
-              };
-
-              swap = {
-                name = "swap";
-                label = "swap";
-                size = lib.mkDefault "34G";
-                content = { type = "swap"; };
-              };
-
-              root = {
-                name = "root";
-                label = "root";
-                size = "100%";
-                content = {
-                  type = "filesystem";
-                  format = "ext4";
-                  mountpoint = "/";
-                  extraArgs = [ "-L" "ROOT" ];
-                };
-              };
-            };
-          };
-        };
+    {
+      system.stateVersion = "25.11";
+      nix.settings.experimental-features = [ "nix-command" "flakes" ];
+      
+      # Automatic Garbage Collection
+      nix.gc = {
+        automatic = true;
+        dates = "weekly";
+        options = "--delete-older-than 30d";
       };
-    })
+      
+      # Optimize storage
+      nix.optimise.automatic = true;
+    }
   ];
 
   mkHost = { hostName, system ? "x86_64-linux", extraModules ? [ ] }:
@@ -73,61 +42,44 @@ let
           { networking.hostName = hostName; }
         ];
     };
+
+  # Function to generate a set of hosts
+  mkHostGroup = { prefix, count, system ? "x86_64-linux", extraModules ? [], deviceOverrides ? {} }:
+    lib.listToAttrs (map (i: {
+      name = "${prefix}${toString i}";
+      value = mkHost {
+        hostName = "${prefix}${toString i}";
+        inherit system;
+        extraModules = extraModules ++ 
+          (lib.optional (builtins.hasAttr (toString i) deviceOverrides) 
+            ({ ... }: 
+              let
+                devConf = deviceOverrides.${toString i};
+                fsConf = builtins.removeAttrs devConf [ "extraUsers" ];
+              in {
+                host.filesystem = fsConf;
+                modules.users.enabledUsers = devConf.extraUsers or [];
+              }
+            )
+          );
+      };
+    }) (lib.range 1 count));
+
+  # Generate host groups based on the input hosts configuration
+  hostGroups = lib.mapAttrsToList (type: config:
+    let
+      typeFile = ./types + "/${type}.nix";
+      modules = if builtins.pathExists typeFile 
+                then import typeFile { inherit inputs; }
+                else throw "Host type '${type}' not found in hosts/types/";
+    in
+      mkHostGroup {
+        prefix = type;
+        inherit (config) count;
+        extraModules = modules;
+        deviceOverrides = config.devices or {};
+      }
+  ) hosts;
+
 in
-{
-  nix-laptop1 = mkHost {
-    hostName = "nix-laptop1";
-    system   = "x86_64-linux";
-    extraModules = [
-      ./nix-laptop.nix
-    ];
-  };
-  
-  nix-laptop2 = mkHost {
-    hostName = "nix-laptop2";
-    system   = "x86_64-linux";
-    extraModules = [
-      ./nix-laptop.nix
-      ../sw.nix
-    ];
-  };
-
-  nix-desktop1 = mkHost {
-    hostName = "nix-desktop1";
-    system   = "x86_64-linux";
-    extraModules = [
-      ./nix-desktop.nix
-      ../sw.nix
-    ];
-  };
-
-  nix-surface1 = mkHost {
-    hostName = "nix-surface1";
-    system   = "x86_64-linux";
-    extraModules = [
-      ./nix-surface.nix
-      ../sw-kiosk.nix
-      inputs.nixos-hardware.nixosModules.microsoft-surface-go
-    ];
-  };
-
-  nix-surface2 = mkHost {
-    hostName = "nix-surface2";
-    system   = "x86_64-linux";
-    extraModules = [
-      ./nix-surface.nix
-      ../sw-kiosk.nix
-      inputs.nixos-hardware.nixosModules.microsoft-surface-go
-    ];
-  };
-
-  nix-surface3 = mkHost {
-    hostName = "nix-surface3";
-    system   = "x86_64-linux";
-    extraModules = [
-      ./nix-surface.nix
-      ../sw-kiosk.nix
-      inputs.nixos-hardware.nixosModules.microsoft-surface-go
-    ];
-  };
-}
+  lib.foldl' lib.recursiveUpdate {} hostGroups
