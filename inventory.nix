@@ -9,6 +9,7 @@
       
       # Enable specific users for this device index
       "1" = { extraUsers = [ "hdh20267" ]; };
+      "2" = { extraUsers = [ "hdh20267" ]; };
     };
   };
 
