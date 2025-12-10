@@ -17,6 +17,7 @@ let
   nixpkgs = inputs.nixpkgs;
   lib = nixpkgs.lib;
   home-manager = inputs.home-manager;
+  ragenix = inpus.ragenix;
   disko = inputs.disko;
 
   # Modules shared by all hosts
@@ -26,6 +27,7 @@ let
     ../users.nix
     ../sw
     home-manager.nixosModules.home-manager
+    ragenix.nixosModules.default
     disko.nixosModules.disko
     {
       system.stateVersion = "25.11";

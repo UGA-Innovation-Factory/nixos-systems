@@ -28,6 +28,11 @@
     # Hardware quirks and configurations
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
+    inputs.ragenix = {
+      url = "github:yaxitech/ragenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Neovim configuration
     lazyvim-nixvim.url = "github:azuwis/lazyvim-nixvim";
 
@@ -50,6 +55,7 @@
       nixpkgs-old-kernel,
       home-manager,
       disko,
+      ragenix,
       lazyvim-nixvim,
       nixos-hardware,
       vscode-server,
@@ -73,7 +79,7 @@
     {
       # Formatter for 'nix fmt'
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
-
+ 
       # Generate NixOS configurations from hosts/default.nix
       nixosConfigurations = hosts.nixosConfigurations;
 

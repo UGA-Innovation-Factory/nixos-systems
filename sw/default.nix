@@ -73,6 +73,7 @@ in
           git
           oh-my-posh
           inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
+          inputs.ragenix.${stdenv.hostPlatform.system}.default
           # Custom update script
           (writeShellScriptBin "update-system" ''
             HOSTNAME=$(hostname)
@@ -92,7 +93,7 @@ in
         ];
     }
     # Import Desktop or Kiosk modules based on type
-        (mkIf (cfg.type == "desktop") (
+    (mkIf (cfg.type == "desktop") (
       import ./desktop {
         inherit
           config
