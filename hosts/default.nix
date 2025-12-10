@@ -1,11 +1,21 @@
 { inputs, hosts ? import ../inventory.nix, ... }:
 
+# ============================================================================
+# Host Generator
+# ============================================================================
+# This file contains the logic to generate NixOS configurations for all hosts
+# defined in inventory.nix. It handles:
+# 1. Common module imports (boot, users, software).
+# 2. Host-specific overrides (filesystem, enabled users).
+# 3. External flake integration for system overrides.
+
 let
   nixpkgs      = inputs.nixpkgs;
   lib          = nixpkgs.lib;
   home-manager = inputs.home-manager;
   disko        = inputs.disko;
 
+  # Modules shared by all hosts
   commonModules = [
     ./boot.nix
     ./user-config.nix
@@ -29,7 +39,23 @@ let
     }
   ];
 
+  # Helper to create a single NixOS system configuration
   mkHost = { hostName, system ? "x86_64-linux", extraModules ? [ ] }:
+    let
+      # Load users.nix to find external user flakes
+      # We use legacyPackages to evaluate the simple data structure of users.nix
+      pkgs = nixpkgs.legacyPackages.${system};
+      usersData = import ../users.nix { inherit pkgs; };
+      accounts = usersData.modules.users.accounts or {};
+      
+      # Extract flakeUrls and convert to modules
+      userFlakeModules = lib.mapAttrsToList (name: user:
+        if (user ? flakeUrl && user.flakeUrl != "") then
+          (builtins.getFlake user.flakeUrl).nixosModules.default
+        else
+          {}
+      ) accounts;
+    in
     lib.nixosSystem {
       inherit system;
 
@@ -37,13 +63,14 @@ let
 
       modules =
         commonModules
+        ++ userFlakeModules
         ++ extraModules
         ++ [
           { networking.hostName = hostName; }
         ];
     };
 
-  # Function to generate a set of hosts
+  # Function to generate a set of hosts based on inventory count and overrides
   mkHostGroup = { prefix, count, system ? "x86_64-linux", extraModules ? [], deviceOverrides ? {} }:
     lib.listToAttrs (map (i: {
       name = "${prefix}${toString i}";
@@ -62,7 +89,7 @@ let
                            then externalFlake.nixosModules.default 
                            else {};
 
-          # Config override module
+          # Config override module (filesystem, users)
           overrideModule = { ... }: 
             let
               # Remove special keys that are not filesystem options

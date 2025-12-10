@@ -4,6 +4,13 @@
 
 { config, lib, ... }:
 
+# ============================================================================
+# Boot & Storage Configuration
+# ============================================================================
+# This module defines the Disko partition layout and bootloader settings.
+# It exposes 'host.filesystem' options to allow per-host overrides of
+# the target device and swap size.
+
 {
   options.host = {
     filesystem = {
@@ -19,6 +26,7 @@
   };
 
   config = {
+    # Enable Disko for declarative partitioning
     disko.enableConfig = true;
 
     disko.devices = {
@@ -28,6 +36,7 @@
         content = {
           type = "gpt";
           partitions = {
+            # EFI System Partition
             ESP = {
               name = "ESP";
               label = "BOOT";
@@ -42,6 +51,7 @@
               };
             };
 
+            # Swap Partition (size configurable per host)
             swap = {
               name = "swap";
               label = "swap";
@@ -49,6 +59,7 @@
               content = { type = "swap"; };
             };
 
+            # Root Partition (takes remaining space)
             root = {
               name = "root";
               label = "root";
@@ -65,7 +76,7 @@
       };
     };
 
-    # Bootloader.
+    # Bootloader Configuration
     boot = {
       loader.systemd-boot.enable = true;
       loader.efi.canTouchEfiVariables = true;

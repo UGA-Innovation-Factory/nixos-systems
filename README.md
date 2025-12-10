@@ -78,7 +78,7 @@ nix-laptop = {
 
 ### Using External Flakes for User Configuration
 
-Users can manage their own Home Manager configuration in a separate flake repository. To use this:
+Users can manage their own configuration (both Home Manager and System-level settings) in a separate flake repository. To use this:
 
 1.  Open `users.nix`.
 2.  In the user's configuration block, set the `flakeUrl` option:
@@ -90,11 +90,11 @@ hdh20267 = {
 };
 ```
 
-The external flake must provide a `homeManagerModules.default` output. Note that using this feature may require running `update-system --impure` if the flake is not locked in the system's `flake.lock`.
+The external flake must provide a `nixosModules.default` output. This module is imported into the system configuration, allowing the user to override their own system settings (like `shell`, `extraGroups`) and define their Home Manager configuration.
 
 ### Using External Flakes for System Configuration
 
-You can also override the system-level configuration for a specific host using an external flake. This is useful for adding system services (like Docker), changing boot parameters, or installing system-wide packages that are not in the standard image.
+You can also override the system-level configuration for a specific host using an external flake. This is useful for adding system services (like Docker), changing boot parameters, installing system-wide packages, or even overriding hardware settings (like swap size) without modifying `inventory.nix`.
 
 1.  Open `inventory.nix`.
 2.  In the `devices` override for the host, set the `flakeUrl`:
@@ -105,48 +105,57 @@ nix-laptop = {
   devices = {
     "2" = { 
       flakeUrl = "github:myuser/my-system-config"; 
-      # You can still combine this with other overrides
-      swapSize = "64G";
     };
   };
 };
 ```
 
-The external flake must provide a `nixosModules.default` output.
+The external flake must provide a `nixosModules.default` output. Any configuration defined in that module will be merged with the host's configuration.
 
 ## External Flake Templates
 
 If you are creating a new flake to use with `flakeUrl`, use these templates as a starting point.
 
-### Home Manager Flake (for `users.nix`)
+### User Flake (for `users.nix`)
 
-Use this for user-specific dotfiles, shell configuration, and user packages.
+Use this for user-specific dotfiles, shell configuration, and user packages. It can also override system-level user settings.
+
+Note that `inputs` are omitted. This ensures the flake uses the exact same `nixpkgs` version as the main system, preventing version drift and saving disk space.
 
 ```nix
 {
-  description = "My Home Manager Configuration";
+  description = "My User Configuration";
 
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # home-manager is not strictly required as an input if you only export a module,
-    # but it's good practice for standalone testing.
-  };
+  # No inputs needed! We use the system's packages.
 
-  outputs = { self, nixpkgs, ... }: {
+  outputs = { self }: {
     # This output is what nixos-systems looks for
-    homeManagerModules.default = { pkgs, ... }: {
-      home.stateVersion = "25.11";
+    nixosModules.default = { pkgs, lib, ... }: {
       
-      home.packages = with pkgs; [ 
-        ripgrep 
-        bat 
-        fzf
-      ];
+      # 1. Override System-Level User Settings
+      modules.users.accounts.hdh20267 = {
+        shell = pkgs.fish;
+        extraGroups = [ "docker" ];
+      };
+      
+      # Enable programs needed for the shell
+      programs.fish.enable = true;
 
-      programs.git = {
-        enable = true;
-        userName = "My Name";
-        userEmail = "me@example.com";
+      # 2. Define Home Manager Configuration
+      home-manager.users.hdh20267 = { pkgs, ... }: {
+        home.stateVersion = "25.11";
+        
+        home.packages = with pkgs; [ 
+          ripgrep 
+          bat 
+          fzf
+        ];
+
+        programs.git = {
+          enable = true;
+          userName = "My Name";
+          userEmail = "me@example.com";
+        };
       };
     };
   };
@@ -161,16 +170,20 @@ Use this for host-specific system services, hardware tweaks, or root-level packa
 {
   description = "My System Configuration Override";
 
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
-  };
+  # No inputs needed! We use the system's packages.
 
-  outputs = { self, nixpkgs, ... }: {
+  outputs = { self }: {
     # This output is what nixos-systems looks for
-    nixosModules.default = { pkgs, ... }: {
+    nixosModules.default = { pkgs, lib, ... }: {
       environment.systemPackages = [ pkgs.docker ];
       
       virtualisation.docker.enable = true;
+      
+      # Example: Override hardware settings defined in the main repo
+      host.filesystem.swapSize = lib.mkForce "64G";
+
+      # Example: Enable specific users
+      modules.users.enabledUsers = [ "myuser" ];
       
       # Example: Add a custom binary cache
       nix.settings.substituters = [ "https://nix-community.cachix.org" ];

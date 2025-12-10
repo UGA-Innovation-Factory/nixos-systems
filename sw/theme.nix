@@ -1,5 +1,11 @@
 { pkgs, config, osConfig, lib, ... }:
 
+# ============================================================================
+# Shell Theme Configuration
+# ============================================================================
+# This module configures the shell environment (Zsh, Oh My Posh) for users.
+# It is imported by default for all users to ensure a consistent experience.
+
 let
   # Fetch upstream OMP theme once
   jyumppTheme = pkgs.fetchurl {
@@ -15,11 +21,9 @@ let
 
   isRoot = config.home.username == "root";
   themeFile = if isRoot then jyumppRootTheme else jyumppTheme;
-  
-  isZsh = osConfig.modules.users.shell == pkgs.zsh;
 in
 {
-  config = lib.mkIf isZsh {
+  config = {
     programs.zsh = {
       enable = true;
 

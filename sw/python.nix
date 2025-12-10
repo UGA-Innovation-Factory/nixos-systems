@@ -1,5 +1,12 @@
 { config, lib, pkgs, ... }:
 
+# ============================================================================
+# Python Environment
+# ============================================================================
+# This module provides Python development tools. It installs 'pixi' and 'uv'
+# for project-based dependency management, rather than installing global
+# Python packages which can lead to conflicts.
+
 with lib;
 
 let

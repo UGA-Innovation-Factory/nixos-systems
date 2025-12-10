@@ -1,5 +1,14 @@
 { pkgs, config, lib, ... }:
+
+# ============================================================================
+# User Configuration Module
+# ============================================================================
+# This module defines the schema for user accounts and handles their creation.
+# It bridges the gap between the data in 'users.nix' and the actual NixOS
+# and Home Manager configuration.
+
 let
+  # Submodule defining the structure of a user account
   userSubmodule = lib.types.submodule {
     options = {
       isNormalUser = lib.mkOption { type = lib.types.bool; default = true; };
@@ -12,6 +21,7 @@ let
       extraImports = lib.mkOption { type = lib.types.listOf lib.types.path; default = []; };
       flakeUrl = lib.mkOption { type = lib.types.str; default = ""; description = "URL of a flake to import Home Manager configuration from (e.g. github:user/dotfiles)."; };
       opensshKeys = lib.mkOption { type = lib.types.listOf lib.types.str; default = []; description = "List of SSH public keys for the user."; };
+      shell = lib.mkOption { type = lib.types.nullOr lib.types.package; default = null; description = "The shell for this user."; };
     };
   };
 in
@@ -19,7 +29,7 @@ in
   options.modules.users = {
     shell = lib.mkOption {
       type = lib.types.package;
-      default = pkgs.zsh;
+      default = pkgs.bash;
       description = "The default shell for users.";
     };
     accounts = lib.mkOption {
@@ -35,6 +45,7 @@ in
   };
 
   config = {
+    # Default enabled users (always present)
     modules.users.enabledUsers = [ "root" "engr-ugaif" ];
 
     # Generate NixOS users
@@ -53,7 +64,7 @@ in
         description = if user.description != null then user.description else lib.mkDefault "";
         openssh.authorizedKeys.keys = user.opensshKeys;
         packages = finalPackages;
-        shell = config.modules.users.shell;
+        shell = if user.shell != null then user.shell else config.modules.users.shell;
       }
     ) enabledAccounts;
     
@@ -68,8 +79,7 @@ in
           enabledAccounts = lib.filterAttrs (name: _: lib.elem name config.modules.users.enabledUsers) config.modules.users.accounts;
         in
         lib.mapAttrs (name: user: { ... }: {
-          imports = user.extraImports ++ [ ../sw/theme.nix ../sw/nvim.nix ] ++
-            (lib.optional (user.flakeUrl != "") (builtins.getFlake user.flakeUrl).homeManagerModules.default);
+          imports = user.extraImports ++ [ ../sw/theme.nix ../sw/nvim.nix ];
           home.username = name;
           home.homeDirectory = if name == "root" then "/root" else "/home/${name}";
           home.stateVersion = "25.11";

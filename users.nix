@@ -1,5 +1,12 @@
 { pkgs, ... }:
 {
+  # ============================================================================
+  # User Definitions
+  # ============================================================================
+  # This file defines the available user accounts. These accounts are NOT
+  # enabled by default on all systems. They must be enabled via the
+  # 'modules.users.enabledUsers' option in inventory.nix or system flakes.
+
   # Define the users here using the new option
   # To generate a password hash, run: mkpasswd -m sha-512
   modules.users.accounts = {
@@ -17,6 +24,7 @@
       description = "Hunter Halloran";
       extraGroups = [ "networkmanager" "wheel" ];
       homePackages = [ pkgs.ghostty ];
+      shell = pkgs.zsh;
       # Example of using an external flake for configuration:
       # flakeUrl = "github:hdh20267/dotfiles";
     };

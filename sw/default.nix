@@ -1,5 +1,12 @@
 { config, lib, pkgs, inputs, ... }:
 
+# ============================================================================
+# Software Module Entry Point
+# ============================================================================
+# This module manages the software configuration for the system. It provides
+# options to select the system type ('desktop' or 'kiosk') and handles
+# the conditional importation of the appropriate sub-modules.
+
 with lib;
 
 let
@@ -46,6 +53,7 @@ in
         git
         oh-my-posh
         inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
+        # Custom update script
         (writeShellScriptBin "update-system" ''
           HOSTNAME=$(hostname)
           FLAKE_URI="github:UGA-Innovation-Factory/nixos-systems"
@@ -63,6 +71,7 @@ in
         '')
       ];
     }
+    # Import Desktop or Kiosk modules based on type
     (mkIf (cfg.type == "desktop") (import ./desktop { inherit config lib pkgs inputs; }))
     (mkIf (cfg.type == "kiosk") (import ./kiosk { inherit config lib pkgs inputs; }))
   ]);

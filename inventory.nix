@@ -1,4 +1,22 @@
 {
+  # ============================================================================
+  # Fleet Inventory
+  # ============================================================================
+  # This file defines the types of hosts and their counts. It is used by
+  # hosts/default.nix to generate the full set of NixOS configurations.
+  #
+  # Structure:
+  #   <host-type> = {
+  #     count = <number>;       # Number of hosts to generate (e.g., nix-laptop1, nix-laptop2)
+  #     devices = {             # Per-device overrides
+  #       "<index>" = {
+  #         extraUsers = [ ... ];  # Users enabled on this specific device
+  #         flakeUrl = "...";      # Optional external system flake for full override
+  #         ...                    # Other hardware/filesystem overrides
+  #       };
+  #     };
+  #   };
+
   # Laptop Configuration
   # Base specs: NVMe drive, 34G Swap
   nix-laptop = {
