@@ -57,6 +57,7 @@ nix flake update
 1.  Open `users.nix`.
 2.  Add a new entry to `modules.users.accounts`.
 3.  Generate a hashed password using `mkpasswd -m sha-512` (requires `whois` package or similar).
+  - Hashed passwords are intended for shared credentials as a minimal layer of safety; do not treat them as secure storage for personal secrets (use per-user secrets managed outside the flake instead).
 4.  Commit and push.
 
 ### Assigning Users to Hosts
@@ -78,7 +79,29 @@ nix-laptop = {
 
 ### Using External Flakes for User Configuration
 
-Users can manage their own configuration (both Home Manager and System-level settings) in a separate flake repository. To use this:
+### Customizing the Kiosk URL for Surfaces
+
+Surface tablets run the kiosk configuration and delegate the Chromium launch URL via `sw.kioskUrl`. You can set a per-device URL directly from `inventory.nix` by providing a `modules` override for the device entry:
+
+```nix
+nix-surface = {
+  count = 3;
+  devices = {
+    "1" = {
+      modules = {
+        sw = {
+          kioskUrl = "https://ha.factory.uga.edu/surface-1";
+        };
+      };
+    };
+  };
+};
+```
+
+Any other device attributes (filesystem overrides, extra users) can still sit beside `modules`; they are merged into the generated host configuration so you just need to set the `kioskUrl` value you want to use for that Surface.
+
+Users can manage their own configuration (both Home Manager and System-level settings) in a separate flake repository. External flakes run with the same privileges as the primary configuration, so audit any flake before pointing to it and pin to a known-good commit when possible.
+To use this:
 
 1.  Open `users.nix`.
 2.  In the user's configuration block, set the `flakeUrl` option:
@@ -115,7 +138,7 @@ nix-laptop = {
 };
 ```
 
-The external flake must provide a `nixosModules.default` output. Any configuration defined in that module will be merged with the host's configuration.
+The external flake must provide a `nixosModules.default` output. Any configuration defined in that module will be merged with the host's configuration, so treat these flakes as privileged code and audit them before importing.
 
 ## External Flake Templates
 
