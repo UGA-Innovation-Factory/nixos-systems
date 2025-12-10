@@ -8,6 +8,8 @@
       ...
     }:
     {
+      # This host type is for ephemeral, diskless systems (e.g. kiosks, netboot clients).
+      # It runs entirely from RAM and does not persist state across reboots.
       imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
       boot.initrd.availableKernelModules = [

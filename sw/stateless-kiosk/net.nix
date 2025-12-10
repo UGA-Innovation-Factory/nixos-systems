@@ -1,3 +1,5 @@
+# This module configures the network for the stateless kiosk.
+# It uses systemd-networkd to set up a VLAN (ID 5) on the primary interface.
 { config, lib, pkgs, inputs, ... }:
 {
   # Minimal container networking (systemd-networkd)

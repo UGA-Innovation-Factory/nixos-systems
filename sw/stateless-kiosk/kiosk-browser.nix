@@ -1,3 +1,6 @@
+# This module configures Firefox for kiosk mode.
+# It wraps Firefox with specific policies to disable UI elements and lock down the browser.
+# It also includes a startup script that determines the kiosk URL based on the machine's MAC address.
 { config, lib, pkgs, ... }:
 
 let
@@ -49,6 +52,7 @@ let
 
     BASE="http://homeassistant.lan:8123"
 
+    # Helper to find the primary MAC address
     get_primary_mac() {
       for dev in /sys/class/net/*; do
         iface="$(basename "$dev")"
@@ -64,6 +68,7 @@ let
     MAC="$(get_primary_mac 2>/dev/null || echo "")"
     MAC="$(echo "$MAC" | tr '[:upper:]' '[:lower:]')"
 
+    # Map MAC addresses to specific station IDs
     case "$MAC" in
       "00:e0:4c:46:0b:32") STATION="1" ;;
       "00:e0:4c:46:07:26") STATION="2" ;; 

@@ -1,3 +1,6 @@
+# This module defines a systemd service that automatically installs NixOS to the disk.
+# It is intended to be used in an installation ISO.
+# It expects `targetSystem` (the closure to install) and `diskoScript` (the partitioning script) to be passed as arguments.
 { config, lib, pkgs, inputs, hostName, hostPlatform, targetSystem, diskoScript, ... }:
 {
   environment.systemPackages = [

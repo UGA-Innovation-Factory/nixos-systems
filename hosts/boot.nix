@@ -26,7 +26,15 @@
     buildMethods = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ "installer-iso" ];
-      description = "List of allowed build methods (installer-iso, iso, ipxe, lxc, proxmox).";
+      description = ''
+        List of allowed build methods for this host.
+        Supported methods:
+        - "installer-iso": Generates an auto-install ISO that installs this configuration to disk.
+        - "iso": Generates a live ISO (using nixos-generators).
+        - "ipxe": Generates iPXE netboot artifacts (kernel, initrd, script).
+        - "lxc": Generates an LXC container tarball.
+        - "proxmox": Generates a Proxmox VMA archive.
+      '';
     };
   };
 

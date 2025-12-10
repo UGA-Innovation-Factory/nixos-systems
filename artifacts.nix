@@ -1,10 +1,14 @@
 { inputs, hosts, self, system }:
+# This file defines the logic for generating various build artifacts (ISOs, Netboot, LXC, etc.)
+# It exports a set of packages that can be built using `nix build .#<artifact-name>`
 let
   nixpkgs = inputs.nixpkgs;
   lib = nixpkgs.lib;
   pkgs = nixpkgs.legacyPackages.${system};
   nixos-generators = inputs.nixos-generators;
 
+  # Creates a self-installing ISO for a specific host configuration
+  # This ISO will automatically partition the disk (using disko) and install the system
   mkInstaller = hostName:
     let
       targetConfig = self.nixosConfigurations.${hostName}.config;
@@ -24,6 +28,7 @@ let
       ];
     };
 
+  # Uses nixos-generators to create artifacts like LXC containers, Proxmox VMA, or Live ISOs
   mkGenerator = hostName: format:
     nixos-generators.nixosGenerate {
       inherit system;
@@ -37,6 +42,8 @@ let
       inherit format;
     };
 
+  # Creates Netboot (iPXE) artifacts using the native NixOS netboot module
+  # Returns a system configuration that includes the netboot module
   mkNetboot = hostName:
     nixpkgs.lib.nixosSystem {
       inherit system;
@@ -52,6 +59,7 @@ let
 
   hostNames = builtins.attrNames hosts.nixosConfigurations;
 
+  # Generate installer ISOs for hosts that have "installer-iso" in their buildMethods
   installerPackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
     if lib.elem "installer-iso" cfg.config.host.buildMethods then [{
@@ -60,6 +68,7 @@ let
     }] else []
   ) hostNames);
 
+  # Generate Live ISOs for hosts that have "iso" in their buildMethods
   isoPackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
     if lib.elem "iso" cfg.config.host.buildMethods then [{
@@ -68,6 +77,7 @@ let
     }] else []
   ) hostNames);
 
+  # Generate iPXE artifacts (kernel, initrd, script) for hosts that have "ipxe" in their buildMethods
   ipxePackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
     if lib.elem "ipxe" cfg.config.host.buildMethods then [{
@@ -87,6 +97,7 @@ let
     }] else []
   ) hostNames);
 
+  # Generate LXC tarballs for hosts that have "lxc" in their buildMethods
   lxcPackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
     if lib.elem "lxc" cfg.config.host.buildMethods then [{

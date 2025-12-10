@@ -1,3 +1,5 @@
+# This module defines the software stack for a stateless kiosk.
+# It includes a custom Firefox wrapper, Cage (Wayland kiosk compositor), and specific networking configuration.
 {
   config,
   lib,
