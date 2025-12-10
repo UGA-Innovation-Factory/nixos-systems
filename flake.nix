@@ -28,7 +28,7 @@
     # Hardware quirks and configurations
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
-    ragenix = {
+    agenix = {
       url = "github:yaxitech/ragenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -55,7 +55,7 @@
       nixpkgs-old-kernel,
       home-manager,
       disko,
-      ragenix,
+      agenix,
       lazyvim-nixvim,
       nixos-hardware,
       vscode-server,

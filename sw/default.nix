@@ -73,7 +73,7 @@ in
           git
           oh-my-posh
           inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
-          inputs.ragenix.${stdenv.hostPlatform.system}.default
+          inputs.agenix.packages.${stdenv.hostPlatform.system}.default
           # Custom update script
           (writeShellScriptBin "update-system" ''
             HOSTNAME=$(hostname)
