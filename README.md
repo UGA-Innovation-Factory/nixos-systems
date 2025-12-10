@@ -76,13 +76,7 @@ nix build .#lxc-nix-lxc1
 nix build .#proxmox-nix-lxc1
 ```
 
-### Using Remote Builders
 
-If you are building on a low-power device (like a Surface tablet) or want to speed up the build, you can offload the build to a powerful remote builder (e.g., `nix-builder`):
-
-```bash
-nix build .#installer-iso-nix-laptop1 --builders 'ssh:engr-ugaif@nix-builder'
-```
 
 ## Configuration Guide
 
