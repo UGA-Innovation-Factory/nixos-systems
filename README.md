@@ -50,6 +50,40 @@ To update the lockfile (nixpkgs, home-manager versions, etc.):
 nix flake update
 ```
 
+## Building Artifacts (ISOs, LXC, Proxmox)
+
+You can generate installation media and virtual machine images directly from this flake.
+
+### Installer ISOs
+
+To build an auto-install ISO for a specific host (e.g., `nix-laptop1`):
+
+```bash
+nix build .#installer-iso-nix-laptop1
+```
+
+The resulting ISO will be in `result/iso/`.
+
+### LXC / Proxmox Images
+
+For hosts configured as containers (e.g., `nix-lxc1`), you can build LXC tarballs or Proxmox VMA archives:
+
+```bash
+# Build LXC tarball
+nix build .#lxc-nix-lxc1
+
+# Build Proxmox VMA
+nix build .#proxmox-nix-lxc1
+```
+
+### Using Remote Builders
+
+If you are building on a low-power device (like a Surface tablet) or want to speed up the build, you can offload the build to a powerful remote builder (e.g., `nix-builder`):
+
+```bash
+nix build .#installer-iso-nix-laptop1 --builders 'ssh:engr-ugaif@nix-builder'
+```
+
 ## Configuration Guide
 
 ### Adding a New User

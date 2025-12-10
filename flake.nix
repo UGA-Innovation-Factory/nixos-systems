@@ -58,17 +58,26 @@
     }:
     let
       hosts = import ./hosts { inherit inputs; };
-      system = "x86_64-linux";
+      linuxSystem = "x86_64-linux";
+      artifacts = import ./artifacts.nix {
+        inherit inputs hosts self;
+        system = linuxSystem;
+      };
+      forAllSystems = nixpkgs.lib.genAttrs [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
     in
     {
       # Formatter for 'nix fmt'
-      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
 
       # Generate NixOS configurations from hosts/default.nix
       nixosConfigurations = hosts.nixosConfigurations;
 
-      packages.${system} = import ./artifacts.nix {
-        inherit inputs hosts self system;
-      };
+      # Expose artifacts to all systems, but they are always built for x86_64-linux
+      packages = forAllSystems (_: artifacts);
     };
 }
