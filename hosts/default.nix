@@ -1,4 +1,8 @@
-{ inputs, hosts ? import ../inventory.nix, ... }:
+{
+  inputs,
+  hosts ? import ../inventory.nix,
+  ...
+}:
 
 # ============================================================================
 # Host Generator
@@ -10,10 +14,10 @@
 # 3. External flake integration for system overrides.
 
 let
-  nixpkgs      = inputs.nixpkgs;
-  lib          = nixpkgs.lib;
+  nixpkgs = inputs.nixpkgs;
+  lib = nixpkgs.lib;
   home-manager = inputs.home-manager;
-  disko        = inputs.disko;
+  disko = inputs.disko;
 
   # Modules shared by all hosts
   commonModules = [
@@ -25,35 +29,44 @@ let
     disko.nixosModules.disko
     {
       system.stateVersion = "25.11";
-      nix.settings.experimental-features = [ "nix-command" "flakes" ];
-      
+      nix.settings.experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+
       # Automatic Garbage Collection
       nix.gc = {
         automatic = true;
         dates = "weekly";
         options = "--delete-older-than 30d";
       };
-      
+
       # Optimize storage
       nix.optimise.automatic = true;
     }
   ];
 
   # Helper to create a single NixOS system configuration
-  mkHost = { hostName, system ? "x86_64-linux", extraModules ? [ ] }:
+  mkHost =
+    {
+      hostName,
+      system ? "x86_64-linux",
+      extraModules ? [ ],
+    }:
     let
       # Load users.nix to find external user flakes
       # We use legacyPackages to evaluate the simple data structure of users.nix
       pkgs = nixpkgs.legacyPackages.${system};
       usersData = import ../users.nix { inherit pkgs; };
-      accounts = usersData.modules.users.accounts or {};
-      
+      accounts = usersData.modules.users.accounts or { };
+
       # Extract flakeUrls and convert to modules
-      userFlakeModules = lib.mapAttrsToList (name: user:
+      userFlakeModules = lib.mapAttrsToList (
+        name: user:
         if (user ? flakeUrl && user.flakeUrl != "") then
           (builtins.getFlake user.flakeUrl).nixosModules.default
         else
-          {}
+          { }
       ) accounts;
     in
     lib.nixosSystem {
@@ -71,56 +84,85 @@ let
     };
 
   # Function to generate a set of hosts based on inventory count and overrides
-  mkHostGroup = { prefix, count, system ? "x86_64-linux", extraModules ? [], deviceOverrides ? {} }:
-    lib.listToAttrs (map (i: {
-      name = "${prefix}${toString i}";
-      value = 
+  mkHostGroup =
+    {
+      prefix,
+      count,
+      system ? "x86_64-linux",
+      extraModules ? [ ],
+      deviceOverrides ? { },
+    }:
+    lib.listToAttrs (
+      lib.concatMap (
+        i:
         let
-          devConf = deviceOverrides.${toString i} or {};
+          defaultName = "${prefix}${toString i}";
+          devConf = deviceOverrides.${toString i} or { };
           hasOverride = builtins.hasAttr (toString i) deviceOverrides;
-          
+          hostName =
+            if hasOverride && (builtins.hasAttr "hostname" devConf) then devConf.hostname else defaultName;
+
           # Extract flakeUrl if it exists
-          externalFlake = if hasOverride && (builtins.hasAttr "flakeUrl" devConf) 
-                          then builtins.getFlake devConf.flakeUrl 
-                          else null;
-          
+          externalFlake =
+            if hasOverride && (builtins.hasAttr "flakeUrl" devConf) then
+              builtins.getFlake devConf.flakeUrl
+            else
+              null;
+
           # Module from external flake
-          externalModule = if externalFlake != null 
-                           then externalFlake.nixosModules.default 
-                           else {};
+          externalModule = if externalFlake != null then externalFlake.nixosModules.default else { };
 
           # Config override module (filesystem, users)
-          overrideModule = { ... }: 
+          overrideModule =
+            { ... }:
             let
               # Remove special keys that are not filesystem options
-              fsConf = builtins.removeAttrs devConf [ "extraUsers" "flakeUrl" ];
-            in lib.mkIf hasOverride {
+              fsConf = builtins.removeAttrs devConf [
+                "extraUsers"
+                "flakeUrl"
+                "hostname"
+              ];
+            in
+            lib.mkIf hasOverride {
               host.filesystem = fsConf;
-              modules.users.enabledUsers = devConf.extraUsers or [];
+              modules.users.enabledUsers = devConf.extraUsers or [ ];
             };
+
+          config = mkHost {
+            hostName = hostName;
+            inherit system;
+            extraModules =
+              extraModules ++ [ overrideModule ] ++ (lib.optional (externalFlake != null) externalModule);
+          };
+
+          aliasNames = lib.optional (hostName != defaultName) hostName;
+          names = lib.unique ([ defaultName ] ++ aliasNames);
         in
-        mkHost {
-          hostName = "${prefix}${toString i}";
-          inherit system;
-          extraModules = extraModules ++ [ overrideModule ] ++ (lib.optional (externalFlake != null) externalModule);
-        };
-    }) (lib.range 1 count));
+        lib.map (name: {
+          inherit name;
+          value = config;
+        }) names
+      ) (lib.range 1 count)
+    );
 
   # Generate host groups based on the input hosts configuration
-  hostGroups = lib.mapAttrsToList (type: config:
+  hostGroups = lib.mapAttrsToList (
+    type: config:
     let
       typeFile = ./types + "/${type}.nix";
-      modules = if builtins.pathExists typeFile 
-                then import typeFile { inherit inputs; }
-                else throw "Host type '${type}' not found in hosts/types/";
+      modules =
+        if builtins.pathExists typeFile then
+          import typeFile { inherit inputs; }
+        else
+          throw "Host type '${type}' not found in hosts/types/";
     in
-      mkHostGroup {
-        prefix = type;
-        inherit (config) count;
-        extraModules = modules;
-        deviceOverrides = config.devices or {};
-      }
+    mkHostGroup {
+      prefix = type;
+      inherit (config) count;
+      extraModules = modules;
+      deviceOverrides = config.devices or { };
+    }
   ) hosts;
 
 in
-  lib.foldl' lib.recursiveUpdate {} hostGroups
+lib.foldl' lib.recursiveUpdate { } hostGroups

@@ -24,11 +24,15 @@
     devices = {
       # Override example:
       # "2" = { swapSize = "64G"; };
-      
+
       # Enable specific users for this device index
-      "1" = { extraUsers = [ "hdh20267" ]; };
-      "2" = { extraUsers = [ "hdh20267" ]; };
-      
+      "1" = {
+        extraUsers = [ "hdh20267" ];
+      };
+      "2" = {
+        extraUsers = [ "hdh20267" ];
+      };
+
       # Example of using an external flake for system configuration:
       # "2" = { flakeUrl = "github:user/system-flake"; };
     };
@@ -41,4 +45,14 @@
   # Surface Tablet Configuration (Kiosk Mode)
   # Base specs: eMMC drive, 8G Swap
   nix-surface.count = 3;
+
+  # LXC Container Configuration
+  nix-lxc = {
+    count = 1;
+    devices = {
+      "1" = {
+        hostname = "nix-builder";
+      };
+    };
+  };
 }

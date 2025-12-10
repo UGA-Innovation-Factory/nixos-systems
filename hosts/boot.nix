@@ -47,7 +47,10 @@
                 format = "vfat";
                 mountpoint = "/boot";
                 mountOptions = [ "umask=0077" ];
-                extraArgs = [ "-n" "BOOT" ];
+                extraArgs = [
+                  "-n"
+                  "BOOT"
+                ];
               };
             };
 
@@ -56,7 +59,9 @@
               name = "swap";
               label = "swap";
               size = config.host.filesystem.swapSize;
-              content = { type = "swap"; };
+              content = {
+                type = "swap";
+              };
             };
 
             # Root Partition (takes remaining space)
@@ -68,7 +73,10 @@
                 type = "filesystem";
                 format = "ext4";
                 mountpoint = "/";
-                extraArgs = [ "-L" "ROOT" ];
+                extraArgs = [
+                  "-L"
+                  "ROOT"
+                ];
               };
             };
           };

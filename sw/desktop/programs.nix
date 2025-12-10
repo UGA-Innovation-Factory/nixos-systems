@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 with lib;
 
@@ -15,7 +21,8 @@ let
     teams-for-linux
     wpsoffice
   ];
-in {
+in
+{
   environment.systemPackages = subtractLists cfg.excludePackages (basePackages ++ cfg.extraPackages);
 
   programs.mtr.enable = true;

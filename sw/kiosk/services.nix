@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   services.xserver = {
@@ -28,7 +33,7 @@
     enable = true;
     ibus.engines = [ pkgs.ibus-engines.m17n ];
   };
-  
+
   services.gnome.gnome-keyring.enable = lib.mkForce false;
 
   environment.sessionVariables = {
@@ -36,9 +41,10 @@
     GDK_DPI_SCALE = "0.5";
 
     # Make GLib / gsettings actually see schemas
-    XDG_DATA_DIRS = [ "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}" ];
-    GSETTINGS_SCHEMA_DIR =
-      "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}/glib-2.0/schemas";
+    XDG_DATA_DIRS = [
+      "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}"
+    ];
+    GSETTINGS_SCHEMA_DIR = "/run/current-system/sw/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}/glib-2.0/schemas";
   };
 
   environment.etc."machine-info".text = ''
@@ -46,12 +52,12 @@
   '';
 
   services.logind.settings.Login = {
-    HandlePowerKey="ignore";
-    HandleSuspendKey="ignore";
-    HandleHibernateKey="ignore";
-    HandleLidSwitch="ignore";
-    HandleLidSwitchExternalPower="ignore";
-    IdleAction="ignore";
+    HandlePowerKey = "ignore";
+    HandleSuspendKey = "ignore";
+    HandleHibernateKey = "ignore";
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
+    IdleAction = "ignore";
   };
 
   # Enable networking
@@ -90,7 +96,7 @@
   systemd.user.services.squeekboard = {
     description = "Squeekboard on-screen keyboard";
     wantedBy = [ "graphical-session.target" ];
-    partOf   = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
 
     serviceConfig = {
       ExecStart = "${pkgs.squeekboard}/bin/squeekboard";
@@ -101,7 +107,7 @@
   systemd.user.services."force-osk" = {
     description = "Force the OSK to Enable";
     wantedBy = [ "chromium-kiosk.service" ];
-    partOf   = [ "chromium-kiosk.service" ];
+    partOf = [ "chromium-kiosk.service" ];
 
     serviceConfig = {
       ExecStartPre = ''
@@ -117,7 +123,7 @@
   systemd.user.services."force-input-sources" = {
     description = "Force the Gsettings Input Sources";
     wantedBy = [ "chromium-kiosk.service" ];
-    partOf   = [ "chromium-kiosk.service" ];
+    partOf = [ "chromium-kiosk.service" ];
 
     serviceConfig = {
       ExecStartPre = ''
@@ -137,7 +143,7 @@
   systemd.user.services."chromium-kiosk" = {
     description = "Chromium kiosk";
     wantedBy = [ "graphical-session.target" ];
-    partOf   = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
 
     serviceConfig = {
       ExecStart = ''

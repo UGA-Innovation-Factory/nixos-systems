@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 # ============================================================================
 # Ghostty Terminfo Module
@@ -8,7 +13,7 @@
 # adds it to the system packages.
 
 let
-  ghostty-terminfo = pkgs.runCommand "ghostty-terminfo" {} ''
+  ghostty-terminfo = pkgs.runCommand "ghostty-terminfo" { } ''
     mkdir -p $out/share/terminfo
     cat > ghostty.info <<'EOF'
     xterm-ghostty|ghostty|Ghostty,

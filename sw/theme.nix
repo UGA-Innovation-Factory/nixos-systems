@@ -1,4 +1,10 @@
-{ pkgs, config, osConfig, lib, ... }:
+{
+  pkgs,
+  config,
+  osConfig,
+  lib,
+  ...
+}:
 
 # ============================================================================
 # Shell Theme Configuration
@@ -14,7 +20,7 @@ let
   };
 
   # Make a root variant with red username (wraps {{ .UserName }} with ANSI red)
-  jyumppRootTheme = pkgs.runCommand "jyumpp-root.omp.json" {} ''
+  jyumppRootTheme = pkgs.runCommand "jyumpp-root.omp.json" { } ''
     sed -E 's|\{\{[[:space:]]*\.UserName[[:space:]]*\}\}|<#FF3B30>{{ .UserName }}</>|g' \
       ${jyumppTheme} > $out
   '';

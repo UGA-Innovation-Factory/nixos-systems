@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 # ============================================================================
 # Python Environment
@@ -11,7 +16,8 @@ with lib;
 
 let
   cfg = config.modules.sw.python;
-in {
+in
+{
   options.modules.sw.python = {
     enable = mkEnableOption "Python development tools (pixi, uv)";
   };

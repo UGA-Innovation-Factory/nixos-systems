@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 with lib;
 
@@ -13,7 +19,8 @@ let
     phoc
     gsettings-desktop-schemas
   ];
-in {
+in
+{
   environment.systemPackages = subtractLists cfg.excludePackages (basePackages ++ cfg.extraPackages);
 
   programs.chromium = {
