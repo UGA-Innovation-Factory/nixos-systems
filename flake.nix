@@ -36,6 +36,12 @@
       url = "github:nix-community/nixos-vscode-server";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # NixOS Generators for creating ISOs, LXC, etc.
+    nixos-generators = {
+      url = "github:nix-community/nixos-generators";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs =
     inputs@{
@@ -47,13 +53,22 @@
       lazyvim-nixvim,
       nixos-hardware,
       vscode-server,
+      nixos-generators,
       ...
     }:
+    let
+      hosts = import ./hosts { inherit inputs; };
+      system = "x86_64-linux";
+    in
     {
       # Formatter for 'nix fmt'
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
 
       # Generate NixOS configurations from hosts/default.nix
-      nixosConfigurations = import ./hosts { inherit inputs; };
+      nixosConfigurations = hosts.nixosConfigurations;
+
+      packages.${system} = import ./artifacts.nix {
+        inherit inputs hosts self system;
+      };
     };
 }

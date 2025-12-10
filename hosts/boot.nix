@@ -23,6 +23,11 @@
         description = "The size of the swap partition.";
       };
     };
+    buildMethods = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ "iso" ];
+      description = "List of allowed build methods (iso, lxc, proxmox).";
+    };
   };
 
   config = {

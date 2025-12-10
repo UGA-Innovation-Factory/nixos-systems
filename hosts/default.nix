@@ -69,11 +69,20 @@ let
           { }
       ) accounts;
     in
-    lib.nixosSystem {
-      inherit system;
+    {
+      system = lib.nixosSystem {
+        inherit system;
 
-      specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs; };
 
+        modules =
+          commonModules
+          ++ userFlakeModules
+          ++ extraModules
+          ++ [
+            { networking.hostName = hostName; }
+          ];
+      };
       modules =
         commonModules
         ++ userFlakeModules
@@ -122,17 +131,19 @@ let
                 "flakeUrl"
                 "hostname"
                 "modules"
+                "buildMethods"
               ];
               extraConfig = lib.removeAttrs devConf [
                 "extraUsers"
                 "flakeUrl"
                 "hostname"
+                "buildMethods"
               ];
             in
-            lib.mkIf hasOverride (lib.recursiveUpdate {
+            lib.mkIf hasOverride (lib.recursiveUpdate (lib.recursiveUpdate {
               host.filesystem = fsConf;
               modules.users.enabledUsers = devConf.extraUsers or [ ];
-            } extraConfig);
+            } (lib.optionalAttrs (devConf ? buildMethods) { host.buildMethods = devConf.buildMethods; })) extraConfig);
 
           config = mkHost {
             hostName = hostName;
@@ -170,5 +181,9 @@ let
     }
   ) hosts;
 
+  allHosts = lib.foldl' lib.recursiveUpdate { } hostGroups;
 in
-lib.foldl' lib.recursiveUpdate { } hostGroups
+{
+  nixosConfigurations = lib.mapAttrs (n: v: v.system) allHosts;
+  modules = lib.mapAttrs (n: v: v.modules) allHosts;
+}

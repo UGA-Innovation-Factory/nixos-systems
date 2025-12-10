@@ -39,7 +39,7 @@
       host.filesystem.swapSize = lib.mkDefault "34G";
 
       # Suspend / logind behavior
-      services.upower.enable = true;
+      services.upower.enable = lib.mkDefault true;
       services.logind.settings = {
         Login = {
           HandleLidSwitch = "suspend";

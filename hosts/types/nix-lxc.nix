@@ -35,6 +35,7 @@
       ];
       services.vscode-server.enable = true;
       system.stateVersion = "25.11";
+      host.buildMethods = lib.mkDefault [ "lxc" "proxmox" ];
     }
   )
   {
