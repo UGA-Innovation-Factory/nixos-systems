@@ -17,7 +17,7 @@ let
   nixpkgs = inputs.nixpkgs;
   lib = nixpkgs.lib;
   home-manager = inputs.home-manager;
-  ragenix = inpus.ragenix;
+  ragenix = inputs.ragenix;
   disko = inputs.disko;
 
   # Modules shared by all hosts
