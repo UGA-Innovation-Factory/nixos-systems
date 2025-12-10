@@ -53,6 +53,6 @@
   inputs.nixos-hardware.nixosModules.microsoft-surface-go
   {
     modules.sw.enable = true;
-    modules.sw.type = "kiosk";
+    modules.sw.type = "tablet-kiosk";
   }
 ]

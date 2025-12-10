@@ -11,18 +11,8 @@ with lib;
 let
   cfg = config.modules.sw;
   basePackages = with pkgs; [
-    uv
-    perl
-    openssh
-    ncurses
     tmux
-    htop
-    binutils
     man
-    git
-    oh-my-posh
-    zsh
-    lm_sensors
   ];
 in
 {

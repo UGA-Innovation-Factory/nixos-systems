@@ -30,11 +30,11 @@ in
     type = mkOption {
       type = types.enum [
         "desktop"
-        "kiosk"
+        "tablet-kiosk"
         "headless"
       ];
       default = "desktop";
-      description = "Type of system configuration: 'desktop' for normal OS, 'kiosk' for tablet/kiosk mode.";
+      description = "Type of system configuration: 'desktop' for normal OS, 'tablet-kiosk' for tablet/kiosk mode.";
     };
 
     extraPackages = mkOption {
@@ -101,8 +101,8 @@ in
           ;
       }
     ))
-    (mkIf (cfg.type == "kiosk") (
-      import ./kiosk {
+    (mkIf (cfg.type == "tablet-kiosk") (
+      import ./tablet-kiosk {
         inherit
           config
           lib
