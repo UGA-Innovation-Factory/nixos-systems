@@ -92,6 +92,11 @@ hdh20267 = {
 
 The external flake must provide a `nixosModules.default` output. This module is imported into the system configuration, allowing the user to override their own system settings (like `shell`, `extraGroups`) and define their Home Manager configuration.
 
+You can also opt-out of the default system configurations for Zsh and Neovim if you prefer to manage them entirely yourself:
+
+*   `useZshTheme` (default: `true`): Set to `false` to disable the system-wide Zsh theme and configuration.
+*   `useNvimPlugins` (default: `true`): Set to `false` to disable the system-wide Neovim plugins and configuration.
+
 ### Using External Flakes for System Configuration
 
 You can also override the system-level configuration for a specific host using an external flake. This is useful for adding system services (like Docker), changing boot parameters, installing system-wide packages, or even overriding hardware settings (like swap size) without modifying `inventory.nix`.
@@ -136,6 +141,10 @@ Note that `inputs` are omitted. This ensures the flake uses the exact same `nixp
       modules.users.accounts.hdh20267 = {
         shell = pkgs.fish;
         extraGroups = [ "docker" ];
+        
+        # Optional: Disable system defaults if you manage your own
+        useZshTheme = false;
+        useNvimPlugins = false;
       };
       
       # Enable programs needed for the shell

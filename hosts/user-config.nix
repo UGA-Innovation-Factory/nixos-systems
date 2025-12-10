@@ -22,6 +22,8 @@ let
       flakeUrl = lib.mkOption { type = lib.types.str; default = ""; description = "URL of a flake to import Home Manager configuration from (e.g. github:user/dotfiles)."; };
       opensshKeys = lib.mkOption { type = lib.types.listOf lib.types.str; default = []; description = "List of SSH public keys for the user."; };
       shell = lib.mkOption { type = lib.types.nullOr lib.types.package; default = null; description = "The shell for this user."; };
+      useZshTheme = lib.mkOption { type = lib.types.bool; default = true; description = "Whether to apply the system Zsh theme."; };
+      useNvimPlugins = lib.mkOption { type = lib.types.bool; default = true; description = "Whether to apply the system Neovim configuration."; };
     };
   };
 in
@@ -78,13 +80,28 @@ in
         let
           enabledAccounts = lib.filterAttrs (name: _: lib.elem name config.modules.users.enabledUsers) config.modules.users.accounts;
         in
-        lib.mapAttrs (name: user: { ... }: {
-          imports = user.extraImports ++ [ ../sw/theme.nix ../sw/nvim.nix ];
-          home.username = name;
-          home.homeDirectory = if name == "root" then "/root" else "/home/${name}";
-          home.stateVersion = "25.11";
-          home.packages = user.homePackages;
-        }) enabledAccounts;
+        lib.mapAttrs (name: user: { ... }: 
+          let
+            isExternal = user.flakeUrl != "";
+            
+            # Common imports based on flags
+            commonImports = 
+                 lib.optional user.useZshTheme ../sw/theme.nix 
+                 ++ lib.optional user.useNvimPlugins ../sw/nvim.nix;
+          in
+          if isExternal then {
+            # External users: Only apply requested system modules.
+            # The external flake is responsible for home.username, home.packages, etc.
+            imports = commonImports;
+          } else {
+            # Local users: Apply full configuration.
+            imports = user.extraImports ++ commonImports;
+            home.username = name;
+            home.homeDirectory = if name == "root" then "/root" else "/home/${name}";
+            home.stateVersion = "25.11";
+            home.packages = user.homePackages;
+          }
+        ) enabledAccounts;
     };
   };
 }
