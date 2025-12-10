@@ -44,7 +44,12 @@
 
   # Surface Tablet Configuration (Kiosk Mode)
   # Base specs: eMMC drive, 8G Swap
-  nix-surface.count = 3;
+  nix-surface = {
+    count = 3;
+    devices = {
+      "1".modules.sw.kioskUrl = "https://google.com";
+    };
+  };
 
   # LXC Container Configuration
   nix-lxc = {

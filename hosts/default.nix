@@ -116,17 +116,23 @@ let
           overrideModule =
             { ... }:
             let
-              # Remove special keys that are not filesystem options
+              # Remove special keys for filesystem overrides, keep other config attrs
               fsConf = builtins.removeAttrs devConf [
+                "extraUsers"
+                "flakeUrl"
+                "hostname"
+                "modules"
+              ];
+              extraConfig = lib.removeAttrs devConf [
                 "extraUsers"
                 "flakeUrl"
                 "hostname"
               ];
             in
-            lib.mkIf hasOverride {
+            lib.mkIf hasOverride (lib.recursiveUpdate {
               host.filesystem = fsConf;
               modules.users.enabledUsers = devConf.extraUsers or [ ];
-            };
+            } extraConfig);
 
           config = mkHost {
             hostName = hostName;
