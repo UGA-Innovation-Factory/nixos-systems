@@ -24,7 +24,7 @@ let
       modules = [
         "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
         inputs.disko.nixosModules.disko
-        ./installer/auto-install.nix
+        ./auto-install.nix
       ];
     };
 

@@ -59,7 +59,7 @@
     let
       hosts = import ./hosts { inherit inputs; };
       linuxSystem = "x86_64-linux";
-      artifacts = import ./artifacts.nix {
+      artifacts = import ./installer/artifacts.nix {
         inherit inputs hosts self;
         system = linuxSystem;
       };
