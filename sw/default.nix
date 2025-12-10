@@ -38,6 +38,12 @@ in
       default = [];
       description = "Packages to exclude from the default list.";
     };
+
+    kioskUrl = mkOption {
+      type = types.str;
+      default = "https://ha.factory.uga.edu";
+      description = "URL to open in Chromium kiosk mode.";
+    };
   };
 
   config = mkIf cfg.enable (mkMerge [

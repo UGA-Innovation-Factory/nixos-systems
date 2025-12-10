@@ -149,7 +149,7 @@
           --noerrdialogs \
           --disable-session-crashed-bubble \
           --disable-infobars \
-          https://ha.factory.uga.edu
+          ${config.modules.sw.kioskUrl}
       '';
     };
   };
