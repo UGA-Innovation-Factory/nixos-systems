@@ -10,15 +10,6 @@
     targetSystem
   ];
 
-  # Enable networking
-  networking.hostName = "autoinstaller-${hostName}";
-  networking.networkmanager.enable = lib.mkForce false;
-  networking.wireless = {
-    enable = true;
-    networks = {
-      "IOT_sensors".psk = "aaaaaaaa";
-    };
-  };
   nixpkgs.hostPlatform = hostPlatform;
 
   systemd.services.auto-install = {
