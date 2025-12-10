@@ -37,4 +37,8 @@
       system.stateVersion = "25.11";
     }
   )
+  {
+    modules.sw.enable = true;
+    modules.sw.type = "headless";
+  }
 ]

@@ -31,6 +31,7 @@ in
       type = types.enum [
         "desktop"
         "kiosk"
+        "headless"
       ];
       default = "desktop";
       description = "Type of system configuration: 'desktop' for normal OS, 'kiosk' for tablet/kiosk mode.";
@@ -102,6 +103,16 @@ in
     ))
     (mkIf (cfg.type == "kiosk") (
       import ./kiosk {
+        inherit
+          config
+          lib
+          pkgs
+          inputs
+          ;
+      }
+    ))
+    (mkIf (cfg.type == "headless") (
+      import ./headless {
         inherit
           config
           lib
