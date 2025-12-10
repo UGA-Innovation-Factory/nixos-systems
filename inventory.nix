@@ -60,4 +60,7 @@
       };
     };
   };
+
+  # Ephemeral Configuration (Live ISO / Netboot)
+  nix-ephemeral.count = 1;
 }

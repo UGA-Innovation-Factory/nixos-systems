@@ -25,8 +25,8 @@
     };
     buildMethods = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [ "iso" ];
-      description = "List of allowed build methods (iso, lxc, proxmox).";
+      default = [ "installer-iso" ];
+      description = "List of allowed build methods (installer-iso, iso, ipxe, lxc, proxmox).";
     };
   };
 
@@ -102,7 +102,7 @@
       # Hide the OS choice for bootloaders.
       # It's still possible to open the bootloader list by pressing any key
       # It will just not appear on screen unless a key is pressed
-      loader.timeout = 0;
+      loader.timeout = lib.mkDefault 0;
     };
 
     # Set your time zone.

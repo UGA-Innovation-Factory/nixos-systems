@@ -32,6 +32,7 @@ in
         "desktop"
         "tablet-kiosk"
         "headless"
+        "stateless-kiosk"
       ];
       default = "desktop";
       description = "Type of system configuration: 'desktop' for normal OS, 'tablet-kiosk' for tablet/kiosk mode.";
@@ -91,7 +92,7 @@ in
         ];
     }
     # Import Desktop or Kiosk modules based on type
-    (mkIf (cfg.type == "desktop") (
+        (mkIf (cfg.type == "desktop") (
       import ./desktop {
         inherit
           config
@@ -113,6 +114,16 @@ in
     ))
     (mkIf (cfg.type == "headless") (
       import ./headless {
+        inherit
+          config
+          lib
+          pkgs
+          inputs
+          ;
+      }
+    ))
+    (mkIf (cfg.type == "stateless-kiosk") (
+      import ./stateless-kiosk {
         inherit
           config
           lib

@@ -28,16 +28,27 @@
         "rd.systemd.show_status=auto"
       ];
 
-      host.filesystem.swapSize = lib.mkDefault "16G";
-      host.filesystem.device = lib.mkDefault "/dev/nvme0n1";
-      host.buildMethods = lib.mkDefault [ "installer-iso" ];
-      nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+      # Ephemeral setup: No swap, no disk
+      host.filesystem.swapSize = lib.mkForce "0G";
+      host.filesystem.device = lib.mkForce "/dev/null"; # Dummy device
+      host.buildMethods = lib.mkDefault [ "iso" "ipxe" ];
+      
+      # Disable Disko config since we are running from RAM/ISO
+      disko.enableConfig = lib.mkForce false;
 
+      # Define a dummy root filesystem to satisfy assertions
+      fileSystems."/" = {
+        device = "none";
+        fsType = "tmpfs";
+        options = [ "defaults" "size=50%" "mode=755" ];
+      };
+
+      nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
     }
   )
   {
     modules.sw.enable = true;
-    modules.sw.type = "desktop";
+    modules.sw.type = "stateless-kiosk";
   }
 ]

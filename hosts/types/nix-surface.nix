@@ -45,6 +45,7 @@
 
       host.filesystem.swapSize = lib.mkDefault "8G";
       host.filesystem.device = lib.mkDefault "/dev/mmcblk0";
+      host.buildMethods = lib.mkDefault [ "installer-iso" ];
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

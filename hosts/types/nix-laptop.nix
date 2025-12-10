@@ -37,6 +37,7 @@
 
       host.filesystem.device = lib.mkDefault "/dev/nvme0n1";
       host.filesystem.swapSize = lib.mkDefault "34G";
+      host.buildMethods = lib.mkDefault [ "installer-iso" ];
 
       # Suspend / logind behavior
       services.upower.enable = lib.mkDefault true;
