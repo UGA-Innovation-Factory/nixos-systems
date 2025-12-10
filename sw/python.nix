@@ -19,8 +19,9 @@ let
 in
 {
   options.modules.sw.python = {
-    enable = mkEnableOption "Python development tools (pixi, uv)";
-    default = true;
+    enable = mkEnableOption "Python development tools (pixi, uv)" // {
+      default = true;
+    };
   };
 
   config = mkIf cfg.enable {
