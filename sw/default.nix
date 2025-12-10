@@ -15,6 +15,7 @@ in
 {
   imports = [
     ./python.nix
+    ./ghostty.nix
   ];
 
   options.modules.sw = {
