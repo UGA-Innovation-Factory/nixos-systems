@@ -28,7 +28,7 @@
     # Hardware quirks and configurations
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
-    inputs.ragenix = {
+    ragenix = {
       url = "github:yaxitech/ragenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
