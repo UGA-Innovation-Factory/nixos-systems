@@ -10,6 +10,14 @@ This repository contains the NixOS configuration for the Innovation Factory's fl
 - **`hosts/`**: Contains the logic for generating host configurations and hardware-specific types.
 - **`sw/`**: Software modules (Desktop, Kiosk, Python, Neovim, etc.).
 
+## Prerequisites
+
+To work with this repository on a non-NixOS system (like macOS or another Linux distro), you need to install Nix. We recommend the Determinate Systems installer for a reliable and feature-complete setup (including Flakes support out of the box).
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+```
+
 ## Quick Start
 
 ### Updating the System
