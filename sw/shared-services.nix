@@ -73,7 +73,7 @@ with lib;
                 ''--builders "${builders}"''
               else "";
           in
-            "${rebuildCmd} ${remoteBuildFlags} ${source}#${config.networking.hostName}";
+            "${rebuildCmd} ${remoteBuildFlags} --print-build-logs ${source}#${config.networking.hostName}";
         User = "root";
         Group = "root";
       };
