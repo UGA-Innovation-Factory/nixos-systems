@@ -87,7 +87,7 @@ with lib;
               subject.isInGroup("users")) {
             return polkit.Result.YES;
           }
-        };
+        });
       '';
     };
   };
