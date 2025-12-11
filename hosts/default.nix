@@ -134,18 +134,20 @@ let
                 "hostname"
                 "modules"
                 "buildMethods"
+                "wslUser"
               ];
               extraConfig = lib.removeAttrs devConf [
                 "extraUsers"
                 "flakeUrl"
                 "hostname"
                 "buildMethods"
+                "wslUser"
               ];
             in
             lib.mkIf hasOverride (lib.recursiveUpdate (lib.recursiveUpdate {
               host.filesystem = fsConf;
               modules.users.enabledUsers = devConf.extraUsers or [ ];
-            } (lib.optionalAttrs (devConf ? buildMethods) { host.buildMethods = devConf.buildMethods; })) extraConfig);
+            } (lib.optionalAttrs (devConf ? buildMethods) { host.buildMethods = devConf.buildMethods; } // lib.optionalAttrs (devConf ? wslUser) { host.wsl.user = devConf.wslUser; })) extraConfig);
 
           config = mkHost {
             hostName = hostName;
