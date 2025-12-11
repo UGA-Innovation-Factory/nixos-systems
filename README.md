@@ -59,7 +59,14 @@ You can generate installation media and virtual machine images directly from thi
 To build an auto-install ISO for a specific host (e.g., `nix-laptop1`):
 
 ```bash
-nix build .#installer-iso-nix-laptop1
+nix build github:UGA-Innovation-Factory/nixos-systems#installer-iso-nix-laptop1
+```
+
+To speed up the build by offloading to a powerful build server (e.g., `nix-builder`), use the `--builders` flag:
+
+```bash
+nix build github:UGA-Innovation-Factory/nixos-systems#installer-iso-nix-laptop1 \
+  --builders "ssh://engr-ugaif@nix-builder x86_64-linux - 16 1 big-parallel"
 ```
 
 The resulting ISO will be in `result/iso/`.
