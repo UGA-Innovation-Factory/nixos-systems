@@ -31,6 +31,30 @@ with lib;
   config = {
     modules.sw.remoteBuild.enable = lib.mkDefault (config.modules.sw.type == "tablet-kiosk");
 
+    environment.systemPackages = [
+      (pkgs.writeShellScriptBin "update-system" ''
+        set -euo pipefail
+
+        UNIT="update-system.service"
+
+        # Start following logs in the background
+        journalctl -fu "$UNIT" --output=cat &
+        JPID=$!
+
+        # Start the service and wait for it to finish
+        if systemctl start --wait "$UNIT"; then
+          STATUS=$?
+        else
+          STATUS=$?
+        fi
+
+        # Kill the log follower
+        kill "$JPID" 2>/dev/null || true
+
+        exit "$STATUS"
+      '')
+    ];
+
     systemd.services.update-system = {
       enable = true;
       description = "System daemon to one-shot run the Nix updater from fleet flake as root";

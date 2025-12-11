@@ -75,19 +75,6 @@ in
           oh-my-posh
           inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
           inputs.agenix.packages.${stdenv.hostPlatform.system}.default
-          # Custom update script
-          (writeShellScriptBin "update-system" ''
-            #!/usr/bin/env bash
-            set -euo pipefail
-
-            UNIT="update-system.service"
-
-            # start the service
-            systemctl start "$UNIT"
-
-            # follow logs until it exits
-            journalctl -u "$UNIT" -f -n 20
-          '')
         ];
     }
     # Import Desktop or Kiosk modules based on type
