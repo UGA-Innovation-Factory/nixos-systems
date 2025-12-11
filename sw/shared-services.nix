@@ -38,7 +38,7 @@ with lib;
         UNIT="update-system.service"
 
         # Start following logs in the background
-        journalctl -fu "$UNIT" --output=cat &
+        journalctl -fu "$UNIT" -n 0 --output=cat &
         JPID=$!
 
         # Start the service and wait for it to finish
@@ -47,6 +47,8 @@ with lib;
         else
           STATUS=$?
         fi
+
+        sleep 2
 
         # Kill the log follower
         kill "$JPID" 2>/dev/null || true
