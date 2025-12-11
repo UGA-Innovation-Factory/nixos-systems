@@ -42,7 +42,7 @@ with lib;
         JPID=$!
 
         # Start the service and wait for it to finish
-        if systemctl start --wait "$UNIT"; then
+        if systemctl start --wait --no-ask-password "$UNIT"; then
           STATUS=$?
         else
           STATUS=$?
@@ -78,6 +78,7 @@ with lib;
     };
 
     security.polkit = {
+      debug = true;
       enable = true;
       extraConfig = ''
         polkit.addRule(function(action, subject) {
