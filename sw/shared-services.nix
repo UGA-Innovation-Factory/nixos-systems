@@ -76,6 +76,7 @@ with lib;
             "${rebuildCmd} ${remoteBuildFlags} --print-build-logs ${source}#${config.networking.hostName}";
         User = "root";
         Group = "root";
+        TimeoutStartSec = "0";
       };
     };
 
