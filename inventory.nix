@@ -61,6 +61,16 @@
     };
   };
 
+  # WSL Configuration
+  nix-wsl = {
+    count = 1;
+    devices = {
+      "1" = {
+        hostname = "nix-wsl-alireza";
+      };
+    };
+  };
+
   # Ephemeral Configuration (Live ISO / Netboot)
   nix-ephemeral.count = 1;
 }

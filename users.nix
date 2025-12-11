@@ -38,5 +38,13 @@
       # Example of using an external flake for configuration:
       # flakeUrl = "github:hdh20267/dotfiles";
     };
+    sv22900 = {
+      description = "Alireza Vaezi";
+      extraGroups = [
+        "networkmanager"
+        "wheel"
+      ];
+      shell = pkgs.zsh;
+    };
   };
 }
