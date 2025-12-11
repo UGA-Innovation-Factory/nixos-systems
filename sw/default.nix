@@ -22,6 +22,7 @@ in
   imports = [
     ./python.nix
     ./ghostty.nix
+    ./shared-services.nix
   ];
 
   options.modules.sw = {
@@ -76,19 +77,7 @@ in
           inputs.agenix.packages.${stdenv.hostPlatform.system}.default
           # Custom update script
           (writeShellScriptBin "update-system" ''
-            HOSTNAME=$(hostname)
-            FLAKE_URI="github:UGA-Innovation-Factory/nixos-systems"
-
-            # Pass arguments like --impure to nixos-rebuild
-            EXTRA_ARGS="$@"
-
-            if [[ "$HOSTNAME" == nix-surface* ]]; then
-              echo "Detected Surface tablet. Using remote build host."
-              sudo nixos-rebuild switch --flake "$FLAKE_URI" --build-host engr-ugaif@192.168.11.133 --refresh $EXTRA_ARGS
-            else
-              echo "Updating local system..."
-              sudo nixos-rebuild switch --flake "$FLAKE_URI" --refresh $EXTRA_ARGS
-            fi
+            systemctl start update-system
           '')
         ];
     }
