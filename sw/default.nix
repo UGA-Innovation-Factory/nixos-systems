@@ -22,7 +22,7 @@ in
   imports = [
     ./python.nix
     ./ghostty.nix
-    ./shared-services.nix
+    ./updater.nix
   ];
 
   options.modules.sw = {
