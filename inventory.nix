@@ -68,6 +68,7 @@
       "1" = {
         hostname = "nix-wsl-alireza";
         extraUsers = [ "sv22900" ];
+        modules.wsl.user = "sv22900";
       };
     };
   };
