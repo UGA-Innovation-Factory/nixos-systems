@@ -67,6 +67,7 @@
     devices = {
       "1" = {
         hostname = "nix-wsl-alireza";
+        extraUsers = [ "sv22900" ];
       };
     };
   };
