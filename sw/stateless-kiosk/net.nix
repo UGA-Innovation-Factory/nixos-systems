@@ -28,7 +28,7 @@
     netdevs."20-vlan5" = {
       netdevConfig = {
         Kind = "vlan";
-	Name = "vlan5";
+	      Name = "vlan5";
       };
       vlanConfig.Id = 5;
     };

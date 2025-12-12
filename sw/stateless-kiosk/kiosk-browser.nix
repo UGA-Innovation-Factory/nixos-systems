@@ -1,52 +1,14 @@
-# This module configures Firefox for kiosk mode.
-# It wraps Firefox with specific policies to disable UI elements and lock down the browser.
-# It also includes a startup script that determines the kiosk URL based on the machine's MAC address.
+
+# This module configures Chromium for kiosk mode under Sway.
+# It includes a startup script that determines the kiosk URL based on the machine's MAC address.
 { config, lib, pkgs, ... }:
 
 let
-  kioskPolicies = {
-    DisableAppUpdate = true;
-    DisableFirefoxStudies = true;
-    DisableTelemetry = true;
-    DisablePocket = true;
-    DisableSetDesktopBackground = true;
-    DisableFeedbackCommands = true;
-    DontCheckDefaultBrowser = true;
-    OverrideFirstRunPage = "";
-    OverridePostUpdatePage = "";
-    NoDefaultBookmarks = true;
-    DisableProfileImport = true;
-
-    Permissions = {
-      Camera        = { Allow = ["homeassistant.lan"]; };
-      Microphone    = { Allow = ["homeassistant.lan"]; };
-      Location      = { Allow = ["homeassistant.lan"]; };
-      Notifications = { Allow = ["homeassistant.lan"]; };
-      Clipboard     = { Allow = ["homeassistant.lan"]; };
-      Fullscreen    = { Allow = ["homeassistant.lan"]; };
-    };
+  macCaseBuilder = (import ./mac-hostmap.nix { inherit lib; }).macCaseBuilder;
+  macCases = macCaseBuilder {
+    varName = "STATION";
   };
-
-  extraPrefs = pkgs.writeText "kiosk-prefs.js" ''
-    pref("browser.shell.checkDefaultBrowser", false);
-    pref("browser.startup.homepage_override.mstone", "ignore");
-    pref("startup.homepage_welcome_url", "");
-    pref("startup.homepage_welcome_url.additional", "");
-    pref("browser.sessionstore.resume_from_crash", false);
-    pref("browser.sessionstore.max_resumed_crashes", 0);
-    pref("network.captive-portal-service.enabled", false);
-    pref("network.connectivity-service.enabled", false);
-    pref("browser.messaging-system.whatsNewPanel.enabled", false);
-    pref("browser.aboutwelcome.enabled", false);
-    pref("privacy.popups.showBrowserMessage", false);
-  '';
-
-  firefoxWrapped = pkgs.wrapFirefox pkgs.firefox-unwrapped {
-    extraPolicies = kioskPolicies;
-    extraPrefsFiles = [ extraPrefs ];
-  };
-
-  firefoxKiosk = pkgs.writeShellScriptBin "firefoxkiosk" ''
+  chromiumKiosk = pkgs.writeShellScriptBin "chromiumkiosk" ''
     #!/usr/bin/env bash
     set -eu
 
@@ -70,12 +32,7 @@ let
 
     # Map MAC addresses to specific station IDs
     case "$MAC" in
-      "00:e0:4c:46:0b:32") STATION="1" ;;
-      "00:e0:4c:46:07:26") STATION="2" ;; 
-      "00:e0:4c:46:05:94") STATION="3" ;;
-      "00:e0:4c:46:07:11") STATION="4" ;;
-      "00:e0:4c:46:08:02") STATION="5" ;;
-      "00:e0:4c:46:08:5c") STATION="6" ;;
+      ${macCases}
       *) ;;
     esac
 
@@ -93,31 +50,31 @@ let
     # Add BrowserID query param if we have one
     if [ -n "$BROWSER_ID" ]; then
       if [[ "$URL" == *"?"* ]]; then
-	URL="$URL&BrowserID=$BROWSER_ID"
+        URL="$URL&BrowserID=$BROWSER_ID"
       else
-	URL="$URL?BrowserID=$BROWSER_ID"
+        URL="$URL?BrowserID=$BROWSER_ID"
       fi
     fi
 
     sleep 2
 
-    exec ${firefoxWrapped}/bin/firefox --kiosk "$URL"
+    exec ${pkgs.chromium}/bin/chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble "$URL"
   '';
 in
 {
-  environment.systemPackages = [ firefoxKiosk ];
+  environment.systemPackages = [
+    pkgs.chromium
+    chromiumKiosk
+  ];
 
-  services.xserver.enable = false;
-  services.seatd.enable = true;
-
-  services.cage = {
-    enable = true;
-    user = "engr-ugaif";
-    program = "${firefoxKiosk}/bin/firefoxkiosk";
-  };
-
-  systemd.services.cage = {
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
+  systemd.user.services.chromium-kiosk = {
+    description = "Chromium Kiosk";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${chromiumKiosk}/bin/chromiumkiosk";
+      Restart = "on-failure";
+      Type = "simple";
+    };
   };
 }

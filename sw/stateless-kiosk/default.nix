@@ -1,5 +1,5 @@
-# This module defines the software stack for a stateless kiosk.
-# It includes a custom Firefox wrapper, Cage (Wayland kiosk compositor), and specific networking configuration.
+## This module defines the software stack for a stateless kiosk.
+# It now uses Sway (Wayland compositor) and Chromium in kiosk mode.
 {
   config,
   lib,
@@ -9,22 +9,15 @@
 }:
 lib.mkMerge [
   (import ./kiosk-browser.nix {
-    inherit
-      config
-      lib
-      pkgs
-      inputs
-      ;
+    inherit config lib pkgs inputs;
+  })
+  (import ./services.nix {
+    inherit config lib pkgs inputs;
   })
   (import ./net.nix {
-    inherit
-      config
-      lib
-      pkgs
-      inputs
-      ;
+    inherit config lib pkgs inputs;
   })
-  {
-    services.openssh.enable = false;
-  }
+  (import ./programs.nix {
+    inherit config lib pkgs inputs;
+  })
 ]
