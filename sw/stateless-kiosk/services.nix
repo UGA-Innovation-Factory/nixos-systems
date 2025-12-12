@@ -30,8 +30,8 @@ in
   systemd.services.dynamic-hostname = {
     description = "Set hostname based on MAC address";
     wantedBy = [ "sysinit.target" ];
-    wants = [ "default.target" ];
-    after = [ "default.target" ];
+    before = [ "network-pre.target" ];
+    wants = [ "network-pre.target" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -44,10 +44,11 @@ in
 
         case "$MAC" in
           ${shellCases}
-          *) NEW_HOST="nix-station-unregistered" ;;
+          *) NEW_HOST="nix-station-anon" ;;
         esac
 
         ${pkgs.nettools}/bin/hostname "$NEW_HOST"
+
       '';
     };
   };

@@ -56,7 +56,17 @@ let
       fi
     fi
 
-    sleep 2
+    # Wait for the URL to resolve, up to 30 seconds
+    timeout=30
+    elapsed=0
+    while ! ${pkgs.curl}/bin/curl -sf --max-time 2 "$URL" >/dev/null; do
+      sleep 1
+      elapsed=$((elapsed+1))
+      if [ "$elapsed" -ge "$timeout" ]; then
+        echo "ERROR: $URL did not resolve after $timeout seconds" >&2
+        exit 1
+      fi
+    done
 
     exec ${pkgs.chromium}/bin/chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble "$URL"
   '';

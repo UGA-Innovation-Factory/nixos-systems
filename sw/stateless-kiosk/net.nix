@@ -1,45 +1,24 @@
-# This module configures the network for the stateless kiosk.
-# It uses systemd-networkd to set up a VLAN (ID 5) on the primary interface.
+# This module configures the network for the stateless kiosk using base networking (no systemd-networkd).
 { config, lib, pkgs, inputs, ... }:
 {
-  # Minimal container networking (systemd-networkd)
   networking = {
-    useNetworkd = true;
+    useNetworkd = false;
     networkmanager.enable = false;
-    dhcpcd.enable = false;
+    dhcpcd.enable = true;
     useDHCP = false;
     useHostResolvConf = false;
-  };
 
-  systemd.network = {
-    enable = true;
-    wait-online.enable = true;
-
-    networks."10-wired" = {
-      matchConfig.Type = "ether";
-      networkConfig = {
-        LinkLocalAddressing = false;
-        DHCP = "no";
-        VLAN = [ "vlan5" ];
-      };
-      linkConfig.RequiredForOnline = "no";
+    # Set up VLAN 5 on the primary interface (assume eth0, adjust if needed)
+    vlans.vlan5 = {
+      id = 5;
+      interface = "eth0";
     };
 
-    netdevs."20-vlan5" = {
-      netdevConfig = {
-        Kind = "vlan";
-	      Name = "vlan5";
-      };
-      vlanConfig.Id = 5;
-    };
-
-    networks."30-vlan5" = {
-      matchConfig.Name = "vlan5";
-      networkConfig = {
-        DHCP = "ipv4";
-        IPv6AcceptRA = true;
-      };
-      linkConfig.RequiredForOnline = "routable";
+    interfaces.vlan5 = {
+      useDHCP = true;
     };
   };
+
+  # Disable systemd-networkd and systemd-hostnamed
+  systemd.network.enable = false;
 }
