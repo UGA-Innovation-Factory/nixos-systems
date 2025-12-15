@@ -12,35 +12,60 @@
 # the target device and swap size.
 
 {
-  options.ugaif.host = {
-    filesystem = {
-      device = lib.mkOption {
-        type = lib.types.str;
-        description = "The main disk device to use for installation.";
+  options.ugaif = {
+    host = {
+      filesystem = {
+        device = lib.mkOption {
+          type = lib.types.str;
+          description = "The main disk device to use for installation.";
+        };
+        swapSize = lib.mkOption {
+          type = lib.types.str;
+          description = "The size of the swap partition.";
+        };
       };
-      swapSize = lib.mkOption {
-        type = lib.types.str;
-        description = "The size of the swap partition.";
+      buildMethods = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ "installer-iso" ];
+        description = ''
+          List of allowed build methods for this host.
+          Supported methods:
+          - "installer-iso": Generates an auto-install ISO that installs this configuration to disk.
+          - "iso": Generates a live ISO (using nixos-generators).
+          - "ipxe": Generates iPXE netboot artifacts (kernel, initrd, script).
+          - "lxc": Generates an LXC container tarball.
+          - "proxmox": Generates a Proxmox VMA archive.
+        '';
       };
     };
-    buildMethods = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ "installer-iso" ];
-      description = ''
-        List of allowed build methods for this host.
-        Supported methods:
-        - "installer-iso": Generates an auto-install ISO that installs this configuration to disk.
-        - "iso": Generates a live ISO (using nixos-generators).
-        - "ipxe": Generates iPXE netboot artifacts (kernel, initrd, script).
-        - "lxc": Generates an LXC container tarball.
-        - "proxmox": Generates a Proxmox VMA archive.
-      '';
+
+    system.gc = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to enable automatic garbage collection.";
+      };
+      frequency = lib.mkOption {
+        type = lib.types.str;
+        default = "weekly";
+        description = "How often to run garbage collection (systemd timer format).";
+      };
+      retentionDays = lib.mkOption {
+        type = lib.types.int;
+        default = 30;
+        description = "Number of days to keep old generations before deletion.";
+      };
+      optimise = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to automatically optimize the Nix store.";
+      };
     };
   };
 
   config = {
     # Enable Disko for declarative partitioning
-    disko.enableConfig = true;
+    disko.enableConfig = lib.mkDefault true;
 
     disko.devices = {
       disk.main = {

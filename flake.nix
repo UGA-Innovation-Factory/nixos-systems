@@ -91,5 +91,8 @@
 
       # Expose artifacts to all systems, but they are always built for x86_64-linux
       packages = forAllSystems (_: artifacts);
+
+      # Expose host type modules for external use
+      nixosModules = import ./installer/modules.nix { inherit inputs; };
     };
 }

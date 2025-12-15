@@ -16,38 +16,6 @@
 let
   nixpkgs = inputs.nixpkgs;
   lib = nixpkgs.lib;
-  home-manager = inputs.home-manager;
-  agenix = inputs.agenix;
-  disko = inputs.disko;
-
-  # Modules shared by all hosts
-  commonModules = [
-    ./boot.nix
-    ./user-config.nix
-    ../users.nix
-    ../sw
-    home-manager.nixosModules.home-manager
-    agenix.nixosModules.default
-    disko.nixosModules.disko
-    {
-      system.stateVersion = "25.11";
-      nix.settings.experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-
-      # Automatic Garbage Collection
-      nix.gc = {
-        automatic = true;
-        dates = "weekly";
-        options = "--delete-older-than 30d";
-      };
-
-      # Optimize storage
-      nix.optimise.automatic = true;
-    }
-  ];
-
   # Helper to create a single NixOS system configuration
   mkHost =
     {
@@ -72,8 +40,7 @@ let
       ) accounts;
 
       allModules =
-        commonModules
-        ++ userFlakeModules
+        userFlakeModules
         ++ extraModules
         ++ [
           { networking.hostName = hostName; }
@@ -164,7 +131,7 @@ let
       typeFile = ./types + "/${type}.nix";
       modules =
         if builtins.pathExists typeFile then
-          import typeFile { inherit inputs; }
+          [ (import typeFile { inherit inputs; }) ]
         else
           throw "Host type '${type}' not found in hosts/types/";
     in
