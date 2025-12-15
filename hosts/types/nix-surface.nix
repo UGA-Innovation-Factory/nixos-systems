@@ -52,6 +52,6 @@ in
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  ugaif.sw.enable = true;
+  ugaif.sw.enable = lib.mkDefault true;
   ugaif.sw.type = lib.mkDefault "tablet-kiosk";
 }

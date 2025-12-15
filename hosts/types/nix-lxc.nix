@@ -41,6 +41,6 @@
     "proxmox"
   ];
 
-  ugaif.sw.enable = true;
+  ugaif.sw.enable = lib.mkDefault true;
   ugaif.sw.type = lib.mkDefault "headless";
 }

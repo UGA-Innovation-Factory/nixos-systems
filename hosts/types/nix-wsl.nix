@@ -22,7 +22,7 @@
     wsl.defaultUser = config.ugaif.host.wsl.user;
 
     # Enable the headless software profile
-    ugaif.sw.enable = true;
+    ugaif.sw.enable = lib.mkDefault true;
     ugaif.sw.type = lib.mkDefault "headless";
 
     # Fix for VS Code Server in WSL if needed, though vscode-server input exists
