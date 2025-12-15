@@ -33,8 +33,11 @@
       # Ephemeral setup: No swap, no disk
       ugaif.host.filesystem.swapSize = lib.mkForce "0G";
       ugaif.host.filesystem.device = lib.mkForce "/dev/null"; # Dummy device
-      ugaif.host.buildMethods = lib.mkDefault [ "iso" "ipxe" ];
-      
+      ugaif.host.buildMethods = lib.mkDefault [
+        "iso"
+        "ipxe"
+      ];
+
       # Disable Disko config since we are running from RAM/ISO
       disko.enableConfig = lib.mkForce false;
 
@@ -42,7 +45,11 @@
       fileSystems."/" = {
         device = "none";
         fsType = "tmpfs";
-        options = [ "defaults" "size=50%" "mode=755" ];
+        options = [
+          "defaults"
+          "size=50%"
+          "mode=755"
+        ];
       };
 
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

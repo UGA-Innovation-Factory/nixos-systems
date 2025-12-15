@@ -35,7 +35,10 @@
       ];
       services.vscode-server.enable = true;
       system.stateVersion = "25.11";
-      ugaif.host.buildMethods = lib.mkDefault [ "lxc" "proxmox" ];
+      ugaif.host.buildMethods = lib.mkDefault [
+        "lxc"
+        "proxmox"
+      ];
     }
   )
   {

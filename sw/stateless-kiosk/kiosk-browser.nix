@@ -1,7 +1,11 @@
-
 # This module configures Chromium for kiosk mode under Sway.
 # It includes a startup script that determines the kiosk URL based on the machine's MAC address.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   macCaseBuilder = (import ./mac-hostmap.nix { inherit lib; }).macCaseBuilder;

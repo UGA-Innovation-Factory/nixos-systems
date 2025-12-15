@@ -1,5 +1,11 @@
 # This module configures the network for the stateless kiosk using base networking (no systemd-networkd).
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   networking = {
     useNetworkd = false;

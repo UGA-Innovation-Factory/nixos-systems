@@ -13,15 +13,16 @@ let
   # varName: the shell variable to assign
   # prefix: optional string to prepend to the value (default: "")
   # attrset: attribute set to use (default: hostmap)
-  macCaseBuilder = {
-    varName,
-    prefix ? "",
-    attrset ? hostmap
-  }:
+  macCaseBuilder =
+    {
+      varName,
+      prefix ? "",
+      attrset ? hostmap,
+    }:
     lib.concatStringsSep "\n" (
       lib.mapAttrsToList (mac: val: "      ${mac}) ${varName}=${prefix}${val} ;;") attrset
     );
-in 
+in
 {
   inherit hostmap macCaseBuilder;
 }

@@ -62,18 +62,15 @@ with lib;
       description = "System daemon to one-shot run the Nix updater from fleet flake as root";
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = 
+        ExecStart =
           let
             hosts = config.ugaif.sw.remoteBuild.hosts;
             builders = lib.strings.concatMapStringsSep ";" (x: x) hosts;
             rebuildCmd = "${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --refresh";
             source = "--flake github:UGA-Innovation-Factory/nixos-systems";
-            remoteBuildFlags = if config.ugaif.sw.remoteBuild.enable
-              then
-                ''--builders "${builders}"''
-              else "";
+            remoteBuildFlags = if config.ugaif.sw.remoteBuild.enable then ''--builders "${builders}"'' else "";
           in
-            "${rebuildCmd} ${remoteBuildFlags} --print-build-logs ${source}#${config.networking.hostName}";
+          "${rebuildCmd} ${remoteBuildFlags} --print-build-logs ${source}#${config.networking.hostName}";
         User = "root";
         Group = "root";
         TimeoutStartSec = "0";

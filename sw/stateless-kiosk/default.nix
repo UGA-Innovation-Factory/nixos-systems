@@ -9,15 +9,35 @@
 }:
 lib.mkMerge [
   (import ./kiosk-browser.nix {
-    inherit config lib pkgs inputs;
+    inherit
+      config
+      lib
+      pkgs
+      inputs
+      ;
   })
   (import ./services.nix {
-    inherit config lib pkgs inputs;
+    inherit
+      config
+      lib
+      pkgs
+      inputs
+      ;
   })
   (import ./net.nix {
-    inherit config lib pkgs inputs;
+    inherit
+      config
+      lib
+      pkgs
+      inputs
+      ;
   })
   (import ./programs.nix {
-    inherit config lib pkgs inputs;
+    inherit
+      config
+      lib
+      pkgs
+      inputs
+      ;
   })
 ]

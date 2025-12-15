@@ -85,7 +85,7 @@
     {
       # Formatter for 'nix fmt'
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
- 
+
       # Generate NixOS configurations from hosts/default.nix
       nixosConfigurations = hosts.nixosConfigurations;
 

@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   macCaseBuilder = (import ./mac-hostmap.nix { inherit lib; }).macCaseBuilder;
   shellCases = macCaseBuilder {
