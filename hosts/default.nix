@@ -60,7 +60,7 @@ let
       # We use legacyPackages to evaluate the simple data structure of users.nix
       pkgs = nixpkgs.legacyPackages.${system};
       usersData = import ../users.nix { inherit pkgs; };
-      accounts = usersData.modules.users.accounts or { };
+      accounts = usersData.ugaif.users.accounts or { };
 
       # Extract flakeUrls and convert to modules
       userFlakeModules = lib.mapAttrsToList (
@@ -70,6 +70,14 @@ let
         else
           { }
       ) accounts;
+      
+      allModules =
+        commonModules
+        ++ userFlakeModules
+        ++ extraModules
+        ++ [
+          { networking.hostName = hostName; }
+        ];
     in
     {
       system = lib.nixosSystem {
@@ -77,21 +85,9 @@ let
 
         specialArgs = { inherit inputs; };
 
-        modules =
-          commonModules
-          ++ userFlakeModules
-          ++ extraModules
-          ++ [
-            { networking.hostName = hostName; }
-          ];
+        modules = allModules;
       };
-      modules =
-        commonModules
-        ++ userFlakeModules
-        ++ extraModules
-        ++ [
-          { networking.hostName = hostName; }
-        ];
+      modules = allModules;
     };
 
   # Function to generate a set of hosts based on inventory count and overrides
@@ -127,27 +123,22 @@ let
           overrideModule =
             { ... }:
             let
-              # Remove special keys for filesystem overrides, keep other config attrs
-              fsConf = builtins.removeAttrs devConf [
+              # Extract device-specific config, removing special keys that need custom handling
+              baseConfig = lib.removeAttrs devConf [
                 "extraUsers"
                 "flakeUrl"
                 "hostname"
-                "modules"
                 "buildMethods"
                 "wslUser"
               ];
-              extraConfig = lib.removeAttrs devConf [
-                "extraUsers"
-                "flakeUrl"
-                "hostname"
-                "buildMethods"
-                "wslUser"
+              # Handle special keys that map to specific ugaif options
+              specialConfig = lib.mkMerge [
+                (lib.optionalAttrs (devConf ? extraUsers) { ugaif.users.enabledUsers = devConf.extraUsers; })
+                (lib.optionalAttrs (devConf ? buildMethods) { ugaif.host.buildMethods = devConf.buildMethods; })
+                (lib.optionalAttrs (devConf ? wslUser) { ugaif.host.wsl.user = devConf.wslUser; })
               ];
             in
-            lib.mkIf hasOverride (lib.recursiveUpdate (lib.recursiveUpdate {
-              host.filesystem = fsConf;
-              modules.users.enabledUsers = devConf.extraUsers or [ ];
-            } (lib.optionalAttrs (devConf ? buildMethods) { host.buildMethods = devConf.buildMethods; } // lib.optionalAttrs (devConf ? wslUser) { host.wsl.user = devConf.wslUser; })) extraConfig);
+            lib.mkIf hasOverride (lib.recursiveUpdate baseConfig specialConfig);
 
           config = mkHost {
             hostName = hostName;

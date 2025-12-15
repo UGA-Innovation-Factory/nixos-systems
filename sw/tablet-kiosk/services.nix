@@ -155,7 +155,7 @@
           --noerrdialogs \
           --disable-session-crashed-bubble \
           --disable-infobars \
-          ${config.modules.sw.kioskUrl}
+          ${config.ugaif.sw.kioskUrl}
       '';
     };
   };

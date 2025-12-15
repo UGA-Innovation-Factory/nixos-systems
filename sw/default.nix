@@ -16,7 +16,7 @@
 with lib;
 
 let
-  cfg = config.modules.sw;
+  cfg = config.ugaif.sw;
 in
 {
   imports = [
@@ -25,7 +25,7 @@ in
     ./updater.nix
   ];
 
-  options.modules.sw = {
+  options.ugaif.sw = {
     enable = mkEnableOption "Standard Workstation Configuration";
 
     type = mkOption {

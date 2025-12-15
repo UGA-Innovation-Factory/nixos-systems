@@ -43,9 +43,9 @@
 
       boot.kernelPackages = lib.mkForce refKernelPackages;
 
-      host.filesystem.swapSize = lib.mkDefault "8G";
-      host.filesystem.device = lib.mkDefault "/dev/mmcblk0";
-      host.buildMethods = lib.mkDefault [ "installer-iso" ];
+      ugaif.host.filesystem.swapSize = lib.mkDefault "8G";
+      ugaif.host.filesystem.device = lib.mkDefault "/dev/mmcblk0";
+      ugaif.host.buildMethods = lib.mkDefault [ "installer-iso" ];
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
@@ -53,7 +53,7 @@
   )
   inputs.nixos-hardware.nixosModules.microsoft-surface-go
   {
-    modules.sw.enable = true;
-    modules.sw.type = "tablet-kiosk";
+    ugaif.sw.enable = true;
+    ugaif.sw.type = "tablet-kiosk";
   }
 ]

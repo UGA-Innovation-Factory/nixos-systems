@@ -47,7 +47,7 @@
   nix-surface = {
     count = 3;
     devices = {
-      "1".modules.sw.kioskUrl = "https://google.com";
+      "1".ugaif.sw.kioskUrl = "https://google.com";
     };
   };
 

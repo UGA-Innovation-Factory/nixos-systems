@@ -9,7 +9,7 @@
 with lib;
 
 let
-  cfg = config.modules.sw;
+  cfg = config.ugaif.sw;
   basePackages = with pkgs; [
     libcamera
     chromium

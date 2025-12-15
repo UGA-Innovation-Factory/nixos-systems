@@ -77,7 +77,7 @@ let
   };
 in
 {
-  options.modules.users = {
+  options.ugaif.users = {
     shell = lib.mkOption {
       type = lib.types.package;
       default = pkgs.bash;
@@ -97,7 +97,7 @@ in
 
   config = {
     # Default enabled users (always present)
-    modules.users.enabledUsers = [
+    ugaif.users.enabledUsers = [
       "root"
       "engr-ugaif"
     ];
@@ -106,8 +106,8 @@ in
     users.users =
       let
         enabledAccounts = lib.filterAttrs (
-          name: _: lib.elem name config.modules.users.enabledUsers
-        ) config.modules.users.accounts;
+          name: _: lib.elem name config.ugaif.users.enabledUsers
+        ) config.ugaif.users.accounts;
       in
       lib.mapAttrs (
         name: user:
@@ -121,7 +121,7 @@ in
           description = if user.description != null then user.description else lib.mkDefault "";
           openssh.authorizedKeys.keys = user.opensshKeys;
           packages = finalPackages;
-          shell = if user.shell != null then user.shell else config.modules.users.shell;
+          shell = if user.shell != null then user.shell else config.ugaif.users.shell;
         }
       ) enabledAccounts;
 
@@ -136,8 +136,8 @@ in
       users =
         let
           enabledAccounts = lib.filterAttrs (
-            name: _: lib.elem name config.modules.users.enabledUsers
-          ) config.modules.users.accounts;
+            name: _: lib.elem name config.ugaif.users.enabledUsers
+          ) config.ugaif.users.accounts;
         in
         lib.mapAttrs (
           name: user:

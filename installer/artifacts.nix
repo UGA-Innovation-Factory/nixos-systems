@@ -62,7 +62,7 @@ let
   # Generate installer ISOs for hosts that have "installer-iso" in their buildMethods
   installerPackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
-    if lib.elem "installer-iso" cfg.config.host.buildMethods then [{
+    if lib.elem "installer-iso" cfg.config.ugaif.host.buildMethods then [{
       name = "installer-iso-${name}";
       value = (mkInstaller name).config.system.build.isoImage;
     }] else []
@@ -71,7 +71,7 @@ let
   # Generate Live ISOs for hosts that have "iso" in their buildMethods
   isoPackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
-    if lib.elem "iso" cfg.config.host.buildMethods then [{
+    if lib.elem "iso" cfg.config.ugaif.host.buildMethods then [{
       name = "iso-${name}";
       value = mkGenerator name "iso";
     }] else []
@@ -80,7 +80,7 @@ let
   # Generate iPXE artifacts (kernel, initrd, script) for hosts that have "ipxe" in their buildMethods
   ipxePackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
-    if lib.elem "ipxe" cfg.config.host.buildMethods then [{
+    if lib.elem "ipxe" cfg.config.ugaif.host.buildMethods then [{
       name = "ipxe-${name}";
       value =
         let
@@ -100,7 +100,7 @@ let
   # Generate LXC tarballs for hosts that have "lxc" in their buildMethods
   lxcPackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
-    if lib.elem "lxc" cfg.config.host.buildMethods then [{
+    if lib.elem "lxc" cfg.config.ugaif.host.buildMethods then [{
       name = "lxc-${name}";
       value =
         if cfg.config.boot.isContainer then
@@ -112,7 +112,7 @@ let
 
   proxmoxPackages = lib.listToAttrs (lib.concatMap (name:
     let cfg = hosts.nixosConfigurations.${name}; in
-    if lib.elem "proxmox" cfg.config.host.buildMethods then [{
+    if lib.elem "proxmox" cfg.config.ugaif.host.buildMethods then [{
       name = "proxmox-${name}";
       value =
         if cfg.config.boot.isContainer then

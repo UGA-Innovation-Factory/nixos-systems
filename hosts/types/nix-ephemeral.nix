@@ -31,9 +31,9 @@
       ];
 
       # Ephemeral setup: No swap, no disk
-      host.filesystem.swapSize = lib.mkForce "0G";
-      host.filesystem.device = lib.mkForce "/dev/null"; # Dummy device
-      host.buildMethods = lib.mkDefault [ "iso" "ipxe" ];
+      ugaif.host.filesystem.swapSize = lib.mkForce "0G";
+      ugaif.host.filesystem.device = lib.mkForce "/dev/null"; # Dummy device
+      ugaif.host.buildMethods = lib.mkDefault [ "iso" "ipxe" ];
       
       # Disable Disko config since we are running from RAM/ISO
       disko.enableConfig = lib.mkForce false;
@@ -50,7 +50,7 @@
     }
   )
   {
-    modules.sw.enable = true;
-    modules.sw.type = "stateless-kiosk";
+    ugaif.sw.enable = true;
+    ugaif.sw.type = "stateless-kiosk";
   }
 ]

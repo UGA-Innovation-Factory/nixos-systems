@@ -6,7 +6,7 @@
 }:
 
 let
-  cfg = config.modules.sw;
+  cfg = config.ugaif.sw;
 in
 {
   programs.dconf = {

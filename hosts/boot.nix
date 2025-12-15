@@ -8,11 +8,11 @@
 # Boot & Storage Configuration
 # ============================================================================
 # This module defines the Disko partition layout and bootloader settings.
-# It exposes 'host.filesystem' options to allow per-host overrides of
+# It exposes 'ugaif.host.filesystem' options to allow per-host overrides of
 # the target device and swap size.
 
 {
-  options.host = {
+  options.ugaif.host = {
     filesystem = {
       device = lib.mkOption {
         type = lib.types.str;
@@ -45,7 +45,7 @@
     disko.devices = {
       disk.main = {
         type = "disk";
-        device = config.host.filesystem.device;
+        device = config.ugaif.host.filesystem.device;
         content = {
           type = "gpt";
           partitions = {
@@ -71,7 +71,7 @@
             swap = {
               name = "swap";
               label = "swap";
-              size = config.host.filesystem.swapSize;
+              size = config.ugaif.host.filesystem.swapSize;
               content = {
                 type = "swap";
               };

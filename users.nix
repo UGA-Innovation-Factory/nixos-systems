@@ -5,11 +5,11 @@
   # ============================================================================
   # This file defines the available user accounts. These accounts are NOT
   # enabled by default on all systems. They must be enabled via the
-  # 'modules.users.enabledUsers' option in inventory.nix or system flakes.
+  # 'ugaif.users.enabledUsers' option in inventory.nix or system flakes.
 
   # Define the users here using the new option
   # To generate a password hash, run: mkpasswd -m sha-512
-  modules.users.accounts = {
+  ugaif.users.accounts = {
     root = {
       isNormalUser = false;
       hashedPassword = "!";

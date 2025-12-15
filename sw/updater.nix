@@ -8,7 +8,7 @@
 with lib;
 
 {
-  options.modules.sw.remoteBuild = lib.mkOption {
+  options.ugaif.sw.remoteBuild = lib.mkOption {
     type = types.submodule {
       options = {
         hosts = mkOption {
@@ -29,7 +29,7 @@ with lib;
   };
 
   config = {
-    modules.sw.remoteBuild.enable = lib.mkDefault (config.modules.sw.type == "tablet-kiosk");
+    ugaif.sw.remoteBuild.enable = lib.mkDefault (config.ugaif.sw.type == "tablet-kiosk");
 
     environment.systemPackages = [
       (pkgs.writeShellScriptBin "update-system" ''
@@ -64,11 +64,11 @@ with lib;
         Type = "oneshot";
         ExecStart = 
           let
-            hosts = config.modules.sw.remoteBuild.hosts;
+            hosts = config.ugaif.sw.remoteBuild.hosts;
             builders = lib.strings.concatMapStringsSep ";" (x: x) hosts;
             rebuildCmd = "${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --refresh";
             source = "--flake github:UGA-Innovation-Factory/nixos-systems";
-            remoteBuildFlags = if config.modules.sw.remoteBuild.enable
+            remoteBuildFlags = if config.ugaif.sw.remoteBuild.enable
               then
                 ''--builders "${builders}"''
               else "";

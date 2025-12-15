@@ -35,9 +35,9 @@
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-      host.filesystem.device = lib.mkDefault "/dev/nvme0n1";
-      host.filesystem.swapSize = lib.mkDefault "34G";
-      host.buildMethods = lib.mkDefault [ "installer-iso" ];
+      ugaif.host.filesystem.device = lib.mkDefault "/dev/nvme0n1";
+      ugaif.host.filesystem.swapSize = lib.mkDefault "34G";
+      ugaif.host.buildMethods = lib.mkDefault [ "installer-iso" ];
 
       # Suspend / logind behavior
       services.upower.enable = lib.mkDefault true;
@@ -51,7 +51,7 @@
     }
   )
   {
-    modules.sw.enable = true;
-    modules.sw.type = "desktop";
+    ugaif.sw.enable = true;
+    ugaif.sw.type = "desktop";
   }
 ]
