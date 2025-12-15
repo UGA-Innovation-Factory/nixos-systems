@@ -13,10 +13,10 @@
 # options to select the system type ('desktop' or 'kiosk') and handles
 # the conditional importation of the appropriate sub-modules.
 
-with lib;
+  with lib;
 
 let
-  cfg = config.modules.sw;
+  cfg = config.components.sw;
 in
 {
   imports = [
@@ -25,7 +25,7 @@ in
     ./updater.nix
   ];
 
-  options.modules.sw = {
+  options.components.sw = {
     enable = mkEnableOption "Standard Workstation Configuration";
 
     type = mkOption {

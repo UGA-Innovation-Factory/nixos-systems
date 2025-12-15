@@ -35,11 +35,11 @@
       ];
       services.vscode-server.enable = true;
       system.stateVersion = "25.11";
-      host.buildMethods = lib.mkDefault [ "lxc" "proxmox" ];
+      components.host.buildMethods = lib.mkDefault [ "lxc" "proxmox" ];
     }
   )
   {
-    modules.sw.enable = true;
-    modules.sw.type = "headless";
+    components.sw.enable = true;
+    components.sw.type = "headless";
   }
 ]

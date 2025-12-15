@@ -56,18 +56,7 @@ let
       fi
     fi
 
-    # Wait for the URL to resolve, up to 30 seconds
-    timeout=30
-    elapsed=0
-    while ! ${pkgs.curl}/bin/curl -sf --max-time 2 "$URL" >/dev/null; do
-      sleep 1
-      elapsed=$((elapsed+1))
-      if [ "$elapsed" -ge "$timeout" ]; then
-        echo "ERROR: $URL did not resolve after $timeout seconds" >&2
-        exit 1
-      fi
-    done
-
+    # Exec Chromium directly; reachability/ping is handled by systemd unit
     exec ${pkgs.chromium}/bin/chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble "$URL"
   '';
 in
@@ -81,6 +70,9 @@ in
     description = "Chromium Kiosk";
     wantedBy = [ "graphical-session.target" ];
     partOf = [ "graphical-session.target" ];
+    # Ensure the system-level ping service/target runs and completes before launching Chromium
+    wants = [ "kiosk-ping.target" ];
+    after = [ "kiosk-ping.target" ];
     serviceConfig = {
       ExecStart = "${chromiumKiosk}/bin/chromiumkiosk";
       Restart = "on-failure";

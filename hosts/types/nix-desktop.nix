@@ -28,16 +28,16 @@
         "rd.systemd.show_status=auto"
       ];
 
-      host.filesystem.swapSize = lib.mkDefault "16G";
-      host.filesystem.device = lib.mkDefault "/dev/nvme0n1";
-      host.buildMethods = lib.mkDefault [ "installer-iso" ];
+      components.host.filesystem.swapSize = lib.mkDefault "16G";
+      components.host.filesystem.device = lib.mkDefault "/dev/nvme0n1";
+      components.host.buildMethods = lib.mkDefault [ "installer-iso" ];
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
     }
   )
   {
-    modules.sw.enable = true;
-    modules.sw.type = "desktop";
+    components.sw.enable = true;
+    components.sw.type = "desktop";
   }
 ]

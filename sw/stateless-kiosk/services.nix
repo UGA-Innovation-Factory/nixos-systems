@@ -48,8 +48,63 @@ in
         esac
 
         ${pkgs.nettools}/bin/hostname "$NEW_HOST"
-
       '';
     };
+  };
+
+  # Sway background as soon as the compositor is running
+  systemd.user.services.swaybg-on-sway = {
+    description = "Set background once Sway compositor is running";
+    wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = ''
+        ${pkgs.swaybg}/bin/swaybg \
+          --image ${../../assets/if_logo.png} \
+          --mode center \
+          --color '#ffffff'
+      '';
+    };
+  };
+  
+  # System-level ping service: wait for the kiosk URL to become reachable
+  systemd.services.kiosk-ping = {
+    description = "Wait for homeassistant.lan:8123 to be reachable";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = ''
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        URL="http://homeassistant.lan:8123"
+
+        timeout=30
+        elapsed=0
+        while ! ${pkgs.curl}/bin/curl -sf --max-time 2 "$URL" >/dev/null; do
+          sleep 1
+          elapsed=$((elapsed+1))
+          if [ "$elapsed" -ge "$timeout" ]; then
+            echo "ERROR: $URL did not resolve after $timeout seconds" >&2
+            exit 1
+          fi
+        done
+      '';
+    };
+  };
+
+  systemd.targets.kiosk-ping = {
+    description = "Kiosk network/ping readiness target";
+    wants = [ "kiosk-ping.service" ];
+    wantedBy = [ "multi-user.target" ];
+  };
+
+  systemd.targets."plymouth-wait-for-ping" = {
+    description = "Plymouth wait for kiosk-ping target";
+    wantedBy = [ "multi-user.target" ];
+    before = [ "plymouth-quit.service" ];
+    after = [ "kiosk-ping.target" ];
   };
 }

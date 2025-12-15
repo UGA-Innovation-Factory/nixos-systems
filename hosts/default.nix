@@ -60,7 +60,7 @@ let
       # We use legacyPackages to evaluate the simple data structure of users.nix
       pkgs = nixpkgs.legacyPackages.${system};
       usersData = import ../users.nix { inherit pkgs; };
-      accounts = usersData.modules.users.accounts or { };
+      accounts = usersData.components.users.accounts or { };
 
       # Extract flakeUrls and convert to modules
       userFlakeModules = lib.mapAttrsToList (
@@ -135,6 +135,7 @@ let
                 "modules"
                 "buildMethods"
                 "wslUser"
+                "components"
               ];
               extraConfig = lib.removeAttrs devConf [
                 "extraUsers"
@@ -142,12 +143,13 @@ let
                 "hostname"
                 "buildMethods"
                 "wslUser"
+                "components"
               ];
             in
             lib.mkIf hasOverride (lib.recursiveUpdate (lib.recursiveUpdate {
-              host.filesystem = fsConf;
-              modules.users.enabledUsers = devConf.extraUsers or [ ];
-            } (lib.optionalAttrs (devConf ? buildMethods) { host.buildMethods = devConf.buildMethods; } // lib.optionalAttrs (devConf ? wslUser) { host.wsl.user = devConf.wslUser; })) extraConfig);
+              components.host.filesystem = fsConf;
+              components.users.enabledUsers = devConf.extraUsers or [ ];
+            } (lib.optionalAttrs (devConf ? buildMethods) { components.host.buildMethods = devConf.buildMethods; } // lib.optionalAttrs (devConf ? wslUser) { components.host.wsl.user = devConf.wslUser; })) extraConfig);
 
           config = mkHost {
             hostName = hostName;

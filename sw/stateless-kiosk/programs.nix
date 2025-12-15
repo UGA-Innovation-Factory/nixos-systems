@@ -4,4 +4,9 @@
     enable = true;
     wrapperFeatures.gtk = true;
   };
+
+  environment.systemPackages = with pkgs; [
+    swaybg
+    wl-clipboard
+  ];
 }

@@ -9,7 +9,7 @@
 with lib;
 
 let
-  cfg = config.modules.sw;
+  cfg = config.components.sw;
   basePackages = with pkgs; [
     tmux
     man

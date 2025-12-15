@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 
 # ============================================================================
 # Boot & Storage Configuration
@@ -12,7 +12,7 @@
 # the target device and swap size.
 
 {
-  options.host = {
+  options.components.host = {
     filesystem = {
       device = lib.mkOption {
         type = lib.types.str;
@@ -45,7 +45,7 @@
     disko.devices = {
       disk.main = {
         type = "disk";
-        device = config.host.filesystem.device;
+        device = config.components.host.filesystem.device;
         content = {
           type = "gpt";
           partitions = {
@@ -71,7 +71,7 @@
             swap = {
               name = "swap";
               label = "swap";
-              size = config.host.filesystem.swapSize;
+              size = config.components.host.filesystem.swapSize;
               content = {
                 type = "swap";
               };
@@ -99,9 +99,24 @@
 
     # Bootloader Configuration
     boot = {
-      loader.systemd-boot.enable = true;
+      loader.systemd-boot.enable = lib.mkDefault true;
       loader.efi.canTouchEfiVariables = true;
-      plymouth.enable = true;
+      plymouth = {
+        enable = true;
+        theme = "ugaif";
+        themePackages = [
+          (pkgs.stdenvNoCC.mkDerivation {
+            name = "ugaif";
+            src = ../assets/plymouth-theme/ugaif;
+            installPhase = ''
+              sed -i 's:\(^ImageDir=\)/usr:\1'"$out"':' ugaif.plymouth
+              mkdir -p $out/share/plymouth/themes/ugaif
+              cp -r * $out/share/plymouth/themes/ugaif/
+              cp header-image.png $out/share/plymouth/themes/ugaif/bgrt-fallback.png 
+            '';
+          })
+        ];
+      };
 
       # Enable "Silent boot"
       consoleLogLevel = 3;

@@ -1,0 +1,26 @@
+Source: pop-plymouth-theme
+Section: x11
+Priority: optional
+Maintainer: 13r0ck <bnr@tuta.io>
+Build-Depends: debhelper (>= 10.5.1)
+Standards-Version: 4.5.0
+
+Package: pop-plymouth-theme
+Architecture: all
+Depends: ${misc:Depends}, plymouth, plymouth-label, plymouth-theme-spinner, pop-fonts
+Replaces: plymouth-theme-pop-basic (<< 2.0.2~)
+Breaks: plymouth-theme-pop-basic (<< 2.0.2~)
+Description: graphical boot animation and logger
+ Plymouth is an application that runs very early in the boot process
+ (even before the root filesystem is mounted!) that provides a graphical
+ boot animation while the boot process happens in the background.
+ .
+ This package contains the Pop!_OS splash theme for Plymouth.
+
+Package: plymouth-theme-pop-basic
+Depends: pop-plymouth-theme, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

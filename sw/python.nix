@@ -15,10 +15,10 @@
 with lib;
 
 let
-  cfg = config.modules.sw.python;
+  cfg = config.components.sw.python;
 in
 {
-  options.modules.sw.python = {
+  options.components.sw.python = {
     enable = mkEnableOption "Python development tools (pixi, uv)" // {
       default = true;
     };

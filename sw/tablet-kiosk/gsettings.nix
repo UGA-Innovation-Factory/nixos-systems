@@ -6,7 +6,7 @@
 }:
 
 let
-  cfg = config.modules.sw;
+  cfg = config.components.sw;
 in
 {
   programs.dconf = {

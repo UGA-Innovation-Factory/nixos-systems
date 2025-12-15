@@ -35,9 +35,9 @@
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-      host.filesystem.device = lib.mkDefault "/dev/nvme0n1";
-      host.filesystem.swapSize = lib.mkDefault "34G";
-      host.buildMethods = lib.mkDefault [ "installer-iso" ];
+      components.host.filesystem.device = lib.mkDefault "/dev/nvme0n1";
+      components.host.filesystem.swapSize = lib.mkDefault "34G";
+      components.host.buildMethods = lib.mkDefault [ "installer-iso" ];
 
       # Suspend / logind behavior
       services.upower.enable = lib.mkDefault true;
@@ -51,7 +51,7 @@
     }
   )
   {
-    modules.sw.enable = true;
-    modules.sw.type = "desktop";
+    components.sw.enable = true;
+    components.sw.type = "desktop";
   }
 ]

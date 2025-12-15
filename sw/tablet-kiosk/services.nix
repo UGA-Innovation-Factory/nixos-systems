@@ -147,7 +147,7 @@
 
     serviceConfig = {
       ExecStart = ''
-        ${pkgs.chromium}/bin/chromium \
+          ${pkgs.chromium}/bin/chromium \
           --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation,PullToRefresh \
           --ozone-platform=wayland \
           --kiosk \
@@ -155,7 +155,7 @@
           --noerrdialogs \
           --disable-session-crashed-bubble \
           --disable-infobars \
-          ${config.modules.sw.kioskUrl}
+          ${config.components.sw.kioskUrl}
       '';
     };
   };

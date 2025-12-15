@@ -19,21 +19,23 @@
         "sd_mod"
         "sdhci_pci"
       ];
-      boot.initrd.kernelModules = [ ];
-      boot.kernelModules = [ "kvm-intel" ];
+      boot.initrd.systemd.enable = true;
+      boot.initrd.kernelModules = [ "i915" ];
+      boot.kernelModules = [ "kvm-intel" "i915" ];
       boot.extraModulePackages = [ ];
       boot.kernelParams = [
         "quiet"
         "splash"
+        "plymouth.use-simpledrm"
         "boot.shell_on_fail"
         "udev.log_priority=3"
         "rd.systemd.show_status=auto"
       ];
 
       # Ephemeral setup: No swap, no disk
-      host.filesystem.swapSize = lib.mkForce "0G";
-      host.filesystem.device = lib.mkForce "/dev/null"; # Dummy device
-      host.buildMethods = lib.mkDefault [ "iso" "ipxe" ];
+      components.host.filesystem.swapSize = lib.mkForce "0G";
+      components.host.filesystem.device = lib.mkForce "/dev/null"; # Dummy device
+      components.host.buildMethods = lib.mkDefault [ "iso" "ipxe" ];
       
       # Disable Disko config since we are running from RAM/ISO
       disko.enableConfig = lib.mkForce false;
@@ -50,7 +52,7 @@
     }
   )
   {
-    modules.sw.enable = true;
-    modules.sw.type = "stateless-kiosk";
+    components.sw.enable = true;
+    components.sw.type = "stateless-kiosk";
   }
 ]
