@@ -60,24 +60,26 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
+      # ========== System-Wide Configuration ==========
       nixpkgs.config.allowUnfree = true;
 
+      # ========== Shell Configuration ==========
       programs.zsh.enable = true;
-      programs.nix-ld.enable = true;
+      programs.nix-ld.enable = true; # Allow running non-NixOS binaries
 
+      # ========== Base Packages ==========
       environment.systemPackages =
         with pkgs;
         subtractLists cfg.excludePackages [
-          htop
-          binutils
-          zsh
-          git
-          oh-my-posh
-          # inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
-          inputs.agenix.packages.${stdenv.hostPlatform.system}.default
+          htop      # System monitor
+          binutils  # Binary utilities
+          zsh       # Z shell
+          git       # Version control
+          oh-my-posh # Shell prompt theme
+          inputs.agenix.packages.${stdenv.hostPlatform.system}.default # Secret management
         ];
     }
-    # Import Desktop or Kiosk modules based on type
+    # ========== Software Profile Imports ==========
     (mkIf (cfg.type == "desktop") (
       import ./desktop {
         inherit

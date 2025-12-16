@@ -1,3 +1,10 @@
+# ============================================================================
+# Ephemeral/Diskless System Configuration
+# ============================================================================
+# Configuration for systems that run entirely from RAM without persistent storage.
+# Suitable for kiosks, netboot clients, and stateless workstations.
+# All data is lost on reboot.
+
 { inputs, ... }:
 {
   config,
@@ -6,43 +13,43 @@
   ...
 }:
 {
-  # This host type is for ephemeral, diskless systems (e.g. kiosks, netboot clients).
-  # It runs entirely from RAM and does not persist state across reboots.
   imports = [
     (import ../common.nix { inherit inputs; })
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
+  # ========== Boot Configuration ==========
   boot.initrd.availableKernelModules = [
-    "xhci_pci"
-    "nvme"
-    "usb_storage"
-    "sd_mod"
-    "sdhci_pci"
+    "xhci_pci"    # USB 3.0 support
+    "nvme"        # NVMe support
+    "usb_storage" # USB storage devices
+    "sd_mod"      # SD card support
+    "sdhci_pci"   # SD card host controller
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
+  boot.kernelModules = [ "kvm-intel" ]; # Intel virtualization support
   boot.extraModulePackages = [ ];
   boot.kernelParams = [
-    "quiet"
-    "splash"
-    "boot.shell_on_fail"
-    "udev.log_priority=3"
-    "rd.systemd.show_status=auto"
+    "quiet"                       # Minimal boot messages
+    "splash"                      # Show Plymouth boot splash
+    "boot.shell_on_fail"          # Emergency shell on boot failure
+    "udev.log_priority=3"         # Reduce udev logging
+    "rd.systemd.show_status=auto" # Show systemd status during boot
   ];
 
-  # Ephemeral setup: No swap, no disk
+  # ========== Ephemeral Configuration ==========
+  # No persistent storage - everything runs from RAM
   ugaif.host.filesystem.swapSize = lib.mkForce "0G";
   ugaif.host.filesystem.device = lib.mkForce "/dev/null"; # Dummy device
   ugaif.host.buildMethods = lib.mkDefault [
-    "iso"
-    "ipxe"
+    "iso"   # Live ISO image
+    "ipxe"  # Network boot
   ];
 
-  # Disable Disko config since we are running from RAM/ISO
+  # Disable disk management for RAM-only systems
   disko.enableConfig = lib.mkForce false;
 
-  # Define a dummy root filesystem to satisfy assertions
+  # Define tmpfs root filesystem
   fileSystems."/" = {
     device = "none";
     fsType = "tmpfs";

@@ -1,3 +1,9 @@
+# ============================================================================
+# Windows Subsystem for Linux (WSL) Configuration
+# ============================================================================
+# Configuration for NixOS running in WSL2 on Windows.
+# Integrates with nixos-wsl for WSL-specific functionality.
+
 { inputs, ... }:
 {
   lib,
@@ -11,6 +17,7 @@
     inputs.vscode-server.nixosModules.default
   ];
 
+  # ========== Options ==========
   options.ugaif.host.wsl.user = lib.mkOption {
     type = lib.types.str;
     default = "engr-ugaif";
@@ -18,23 +25,26 @@
   };
 
   config = {
+    # ========== WSL Configuration ==========
     wsl.enable = true;
+    # Use forUser if set, otherwise fall back to wsl.user option
     wsl.defaultUser =
       if config.ugaif.forUser != null then config.ugaif.forUser else config.ugaif.host.wsl.user;
 
-    # Enable the headless software profile
+    # ========== Software Profile ==========
     ugaif.sw.enable = lib.mkDefault true;
     ugaif.sw.type = lib.mkDefault "headless";
 
-    # Fix for VS Code Server in WSL if needed, though vscode-server input exists
+    # ========== Remote Development ==========
     services.vscode-server.enable = true;
 
-    # Disable Disko and Bootloader for WSL
+    # ========== Disable Irrelevant Systems ==========
+    # WSL doesn't use traditional boot or disk management
     disko.enableConfig = lib.mkForce false;
     boot.loader.systemd-boot.enable = lib.mkForce false;
     boot.loader.grub.enable = lib.mkForce false;
 
-    # Disable networking for wsl (it manages its own networking)
+    # WSL manages its own networking
     systemd.network.enable = lib.mkForce false;
 
     # Provide dummy values for required options from boot.nix

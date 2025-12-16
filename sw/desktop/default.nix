@@ -1,3 +1,8 @@
+# ============================================================================
+# Desktop Software Configuration
+# ============================================================================
+# Imports desktop-specific programs and services (KDE Plasma, CUPS, etc.)
+
 {
   config,
   lib,

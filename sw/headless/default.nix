@@ -1,3 +1,8 @@
+# ============================================================================
+# Headless Software Configuration
+# ============================================================================
+# Imports headless-specific programs and services (SSH, minimal CLI tools)
+
 {
   config,
   lib,

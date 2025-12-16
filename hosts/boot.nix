@@ -1,15 +1,15 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, lib, ... }:
-
 # ============================================================================
 # Boot & Storage Configuration
 # ============================================================================
-# This module defines the Disko partition layout and bootloader settings.
-# It exposes 'ugaif.host.filesystem' options to allow per-host overrides of
-# the target device and swap size.
+# This module defines:
+# - Disko partition layout (EFI, swap, root)
+# - Bootloader configuration (systemd-boot with Plymouth)
+# - Filesystem options (device, swap size)
+# - Build method options (ISO, iPXE, LXC, Proxmox)
+# - Garbage collection settings
+# - Convenience options (forUser, useHostPrefix)
+
+{ config, lib, ... }:
 
 {
   options.ugaif = {
@@ -79,7 +79,7 @@
   };
 
   config = {
-    # Enable Disko for declarative partitioning
+    # ========== Disk Partitioning (Disko) ==========
     disko.enableConfig = lib.mkDefault true;
 
     disko.devices = {

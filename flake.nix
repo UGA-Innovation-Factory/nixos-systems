@@ -92,7 +92,18 @@
       # Expose artifacts to all systems, but they are always built for x86_64-linux
       packages = forAllSystems (_: artifacts);
 
-      # Expose host type modules for external use
-      nixosModules = import ./installer/modules.nix { inherit inputs; };
+      # Expose modules for external use
+      nixosModules =
+        let
+          modules = import ./installer/modules.nix { inherit inputs; };
+        in
+        nixpkgs.lib.filterAttrs (n: _: n != "homeModules") modules;
+
+      # Expose Home Manager modules separately
+      homeModules =
+        let
+          modules = import ./installer/modules.nix { inherit inputs; };
+        in
+        modules.homeModules or { };
     };
 }
