@@ -2,6 +2,7 @@
   pkgs,
   config,
   lib,
+  inputs,
   ...
 }:
 
@@ -100,7 +101,8 @@ in
     ugaif.users.enabledUsers = [
       "root"
       "engr-ugaif"
-    ];
+    ]
+    ++ lib.optional (config.ugaif.forUser != null) config.ugaif.forUser;
 
     # Generate NixOS users
     users.users =
@@ -131,6 +133,7 @@ in
       useUserPackages = true;
       extraSpecialArgs = {
         osConfig = config;
+        inherit inputs;
       };
 
       users =
@@ -146,8 +149,9 @@ in
             isExternal = user.flakeUrl != "";
 
             # Common imports based on flags
-            commonImports =
-              lib.optional user.useZshTheme ../sw/theme.nix ++ lib.optional user.useNvimPlugins ../sw/nvim.nix;
+            commonImports = lib.optional user.useZshTheme ../sw/theme.nix ++ [
+              (import ../sw/nvim.nix { inherit user; })
+            ];
           in
           if isExternal then
             {

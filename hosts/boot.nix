@@ -13,7 +13,22 @@
 
 {
   options.ugaif = {
+    forUser = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Convenience option to configure a host for a specific user.
+        Automatically adds the user to extraUsers and sets wslUser for WSL hosts.
+        Value should be a username from ugaif.users.accounts.
+      '';
+    };
+
     host = {
+      useHostPrefix = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to prepend the host prefix to the hostname (used in inventory).";
+      };
       filesystem = {
         device = lib.mkOption {
           type = lib.types.str;

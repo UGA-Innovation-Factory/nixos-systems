@@ -19,7 +19,8 @@
 
   config = {
     wsl.enable = true;
-    wsl.defaultUser = config.ugaif.host.wsl.user;
+    wsl.defaultUser =
+      if config.ugaif.forUser != null then config.ugaif.forUser else config.ugaif.host.wsl.user;
 
     # Enable the headless software profile
     ugaif.sw.enable = lib.mkDefault true;

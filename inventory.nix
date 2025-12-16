@@ -2,77 +2,105 @@
   # ============================================================================
   # Fleet Inventory
   # ============================================================================
-  # This file defines the types of hosts and their counts. It is used by
-  # hosts/default.nix to generate the full set of NixOS configurations.
+  # Top-level keys are ALWAYS hostname prefixes. Actual hostnames are generated
+  # from the devices map or count.
   #
-  # Structure:
-  #   <host-type> = {
-  #     count = <number>;       # Number of hosts to generate (e.g., nix-laptop1, nix-laptop2)
-  #     devices = {             # Per-device overrides
-  #       "<index>" = {
-  #         extraUsers = [ ... ];  # Users enabled on this specific device
-  #         flakeUrl = "...";      # Optional external system flake for full override
-  #         ...                    # Other hardware/filesystem overrides
+  # Hostname generation rules:
+  # - Numeric suffixes: no dash (e.g., "nix-surface1", "nix-surface2")
+  # - Non-numeric suffixes: add dash (e.g., "nix-surface-alpha", "nix-surface-beta")
+  # - Set ugaif.host.useHostPrefix = false to use suffix as full hostname
+  #
+  # Format:
+  #   "prefix" = {
+  #     type = "nix-desktop";        # Optional: defaults to prefix name
+  #     system = "x86_64-linux";     # Optional: default is x86_64-linux
+  #
+  #     # Option 1: Simple count (quick syntax)
+  #     devices = 5;                 # Creates: prefix1, prefix2, ..., prefix5
+  #
+  #     # Option 2: Explicit count
+  #     count = 5;                   # Creates: prefix1, prefix2, ..., prefix5
+  #
+  #     # Option 3: Default count (for groups with mixed devices)
+  #     defaultCount = 3;            # Creates default numbered hosts
+  #
+  #     # Option 4: Named device configurations
+  #     devices = {
+  #       "1" = { ... };             # Creates: prefix1
+  #       "alpha" = { ... };         # Creates: prefix-alpha
+  #       "custom" = {               # Creates: custom (no prefix)
+  #         ugaif.host.useHostPrefix = false;
   #       };
   #     };
+  #
+  #     # Common config for all devices in this group
+  #     overrides = {
+  #       extraUsers = [ "user1" ];  # Applied to all devices in this group
+  #       # ... any other config
+  #     };
   #   };
-
-  # Laptop Configuration
-  # Base specs: NVMe drive, 34G Swap
+  #
+  # Convenience options:
+  #   ugaif.forUser = "username";  # Automatically adds user to extraUsers and sets wslUser for WSL
+  #
+  # Examples:
+  #   "lab" = { devices = 3; };                           # Quick: lab1, lab2, lab3
+  #   "lab" = { count = 3; };                             # Same as above
+  #   "kiosk" = {
+  #     defaultCount = 2;                                 # kiosk1, kiosk2 (default)
+  #     devices."special" = {};                           # kiosk-special (custom)
+  #   };
+  #   "laptop" = {
+  #     devices = 5;
+  #     overrides.extraUsers = [ "student" ];             # All 5 laptops get this user
+  #   };
+  #   "wsl" = {
+  #     devices."alice".ugaif.forUser = "alice123";       # Sets up for user alice123
+  #   };  # ========== Lab Laptops ==========
+  # Creates: nix-laptop1, nix-laptop2
+  # Both get hdh20267 user via overrides
   nix-laptop = {
-    count = 2;
-    devices = {
-      # Override example:
-      # "2" = { swapSize = "64G"; };
-
-      # Enable specific users for this device index
-      "1" = {
-        extraUsers = [ "hdh20267" ];
-      };
-      "2" = {
-        extraUsers = [ "hdh20267" ];
-      };
-
-      # Example of using an external flake for system configuration:
-      # "2" = { flakeUrl = "github:user/system-flake"; };
-    };
+    devices = 2;
+    overrides.extraUsers = [ "hdh20267" ];
   };
 
-  # Desktop Configuration
-  # Base specs: NVMe drive, 16G Swap
-  nix-desktop.count = 1;
+  # ========== Desktop ==========
+  # Creates: nix-desktop1
+  nix-desktop = {
+    devices = 1;
+  };
 
-  # Surface Tablet Configuration (Kiosk Mode)
-  # Base specs: eMMC drive, 8G Swap
+  # ========== Surface Tablets (Kiosk Mode) ==========
+  # Creates: nix-surface1 (custom), nix-surface2, nix-surface3 (via defaultCount)
   nix-surface = {
-    count = 3;
+    defaultCount = 3;
     devices = {
       "1".ugaif.sw.kioskUrl = "https://google.com";
     };
+    overrides = {
+      ugaif.sw.kioskUrl = "https://yahoo.com";
+    };
   };
 
-  # LXC Container Configuration
+  # ========== LXC Containers ==========
+  # Creates: nix-builder (without lxc prefix)
   nix-lxc = {
-    count = 1;
     devices = {
-      "1" = {
-        hostname = "nix-builder";
+      "nix-builder" = {
+        ugaif.host.useHostPrefix = false;
       };
     };
   };
 
-  # WSL Configuration
+  # ========== WSL Instances ==========
+  # Creates: nix-wsl-alireza
   nix-wsl = {
-    count = 1;
     devices = {
-      "1" = {
-        hostname = "nix-wsl-alireza";
-        extraUsers = [ "sv22900" ];
-        wslUser = "sv22900";
-      };
+      "alireza".ugaif.forUser = "sv22900";
     };
   };
 
-  # Ephemeral Configuration (Live ISO / Netboot)
-  nix-ephemeral.count = 1;
+  # ========== Ephemeral/Netboot System ==========
+  # Creates: nix-ephemeral1
+  nix-ephemeral.devices = 1;
 }

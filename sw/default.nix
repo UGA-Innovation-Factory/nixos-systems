@@ -73,7 +73,7 @@ in
           zsh
           git
           oh-my-posh
-          inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
+          # inputs.lazyvim-nixvim.packages.${stdenv.hostPlatform.system}.nvim
           inputs.agenix.packages.${stdenv.hostPlatform.system}.default
         ];
     }
