@@ -86,9 +86,11 @@
   # Creates: nix-builder (without lxc prefix)
   nix-lxc = {
     devices = {
-      "nix-builder" = {
-        ugaif.host.useHostPrefix = false;
-      };
+      "nix-builder" = { };
+      "usda-dash" = { };
+    };
+    overrides = {
+      ugaif.host.useHostPrefix = false;
     };
   };
 

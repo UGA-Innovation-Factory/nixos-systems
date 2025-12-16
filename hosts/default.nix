@@ -170,10 +170,11 @@ let
         lib.mapAttrsToList (
           deviceKey: deviceConfig:
           let
-            usePrefix = deviceConfig.ugaif.host.useHostPrefix or true;
-            hostName = mkHostName prefix deviceKey usePrefix;
             # Merge: base config -> overrides -> device-specific config
             mergedConfig = lib.recursiveUpdate (lib.recursiveUpdate baseConfig overrides) deviceConfig;
+            # Check useHostPrefix from the merged config
+            usePrefix = mergedConfig.ugaif.host.useHostPrefix or true;
+            hostName = mkHostName prefix deviceKey usePrefix;
           in
           {
             name = hostName;
