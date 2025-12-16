@@ -9,10 +9,12 @@
 
   # Define the users here using the new option
   # To generate a password hash, run: mkpasswd -m sha-512
-  ugaif.users.accounts = {
+  # Set enabled = true on systems where the user should exist
+  ugaif.users = {
     root = {
       isNormalUser = false;
       hashedPassword = "!";
+      enable = true; # Root is always enabled
     };
     engr-ugaif = {
       description = "UGA Innovation Factory";
@@ -26,6 +28,7 @@
       opensshKeys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBC7xzHxY2BfFUybMvG4wHSF9oEAGzRiLTFEndLvWV/X hdh20267@engr733847d.engr.uga.edu"
       ];
+      enable = true; # Default user, enabled everywhere
     };
     hdh20267 = {
       description = "Hunter Halloran";
@@ -37,6 +40,7 @@
       shell = pkgs.zsh;
       # Example of using an external flake for configuration:
       # flakeUrl = "github:hdh20267/dotfiles";
+      # enable = false by default, set to true per-system
     };
     sv22900 = {
       description = "Alireza Vaezi";
@@ -45,6 +49,7 @@
         "wheel"
       ];
       shell = pkgs.zsh;
+      # enable = false by default, set to true per-system
     };
   };
 }

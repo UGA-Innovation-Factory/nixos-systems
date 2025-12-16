@@ -43,7 +43,7 @@ let
       # Load users.nix to find external user flakes
       pkgs = nixpkgs.legacyPackages.${system};
       usersData = import ../users.nix { inherit pkgs; };
-      accounts = usersData.ugaif.users.accounts or { };
+      accounts = usersData.ugaif.users or { };
 
       # Extract flakeUrls and convert to modules
       userFlakeModules = lib.mapAttrsToList (
@@ -87,7 +87,8 @@ let
           ];
           specialConfig = lib.mkMerge [
             (lib.optionalAttrs (configOverrides ? extraUsers) {
-              ugaif.users.enabledUsers = configOverrides.extraUsers;
+              # Enable each user in the extraUsers list
+              ugaif.users = lib.genAttrs configOverrides.extraUsers (_: { enable = true; });
             })
             (lib.optionalAttrs (configOverrides ? buildMethods) {
               ugaif.host.buildMethods = configOverrides.buildMethods;

@@ -64,6 +64,11 @@ let
         default = null;
         description = "The shell for this user.";
       };
+      editor = lib.mkOption {
+        type = lib.types.nullOr lib.types.package;
+        default = null;
+        description = "The default editor for this user.";
+      };
       useZshTheme = lib.mkOption {
         type = lib.types.bool;
         default = true;
@@ -74,42 +79,31 @@ let
         default = true;
         description = "Whether to apply the system Neovim configuration.";
       };
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Whether this user account is enabled on this system.";
+      };
     };
   };
 in
 {
-  options.ugaif.users = {
-    shell = lib.mkOption {
-      type = lib.types.package;
-      default = pkgs.bash;
-      description = "The default shell for users.";
-    };
-    accounts = lib.mkOption {
-      type = lib.types.attrsOf userSubmodule;
-      default = { };
-      description = "User accounts configuration.";
-    };
-    enabledUsers = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = "List of users to enable on this system.";
-    };
+  options.ugaif.users = lib.mkOption {
+    type = lib.types.attrsOf userSubmodule;
+    default = { };
+    description = "User accounts configuration. Set enable=true for users that should exist on this system.";
   };
 
   config = {
-    # Default enabled users (always present)
-    ugaif.users.enabledUsers = [
-      "root"
-      "engr-ugaif"
-    ]
-    ++ lib.optional (config.ugaif.forUser != null) config.ugaif.forUser;
+    # Enable forUser if specified
+    ugaif.users = lib.mkIf (config.ugaif.forUser != null) {
+      ${config.ugaif.forUser}.enable = true;
+    };
 
     # Generate NixOS users
     users.users =
       let
-        enabledAccounts = lib.filterAttrs (
-          name: _: lib.elem name config.ugaif.users.enabledUsers
-        ) config.ugaif.users.accounts;
+        enabledAccounts = lib.filterAttrs (_: user: user.enable) config.ugaif.users;
       in
       lib.mapAttrs (
         name: user:
@@ -123,7 +117,7 @@ in
           description = if user.description != null then user.description else lib.mkDefault "";
           openssh.authorizedKeys.keys = user.opensshKeys;
           packages = finalPackages;
-          shell = if user.shell != null then user.shell else config.ugaif.users.shell;
+          shell = if user.shell != null then user.shell else pkgs.bash;
         }
       ) enabledAccounts;
 
@@ -138,9 +132,7 @@ in
 
       users =
         let
-          enabledAccounts = lib.filterAttrs (
-            name: _: lib.elem name config.ugaif.users.enabledUsers
-          ) config.ugaif.users.accounts;
+          enabledAccounts = lib.filterAttrs (_: user: user.enable) config.ugaif.users;
         in
         lib.mapAttrs (
           name: user:
