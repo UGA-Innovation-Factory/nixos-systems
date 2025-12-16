@@ -81,6 +81,7 @@ nixos-systems/
 │   ├── system/         # System configuration template
 │   └── user/           # User configuration template
 └── assets/             # Assets (Plymouth theme, etc.)
+```
 
 ## Configuration Namespace
 
