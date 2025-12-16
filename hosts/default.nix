@@ -88,7 +88,9 @@ let
           specialConfig = lib.mkMerge [
             (lib.optionalAttrs (configOverrides ? extraUsers) {
               # Enable each user in the extraUsers list
-              ugaif.users = lib.genAttrs configOverrides.extraUsers (_: { enable = true; });
+              ugaif.users = lib.genAttrs configOverrides.extraUsers (_: {
+                enable = true;
+              });
             })
             (lib.optionalAttrs (configOverrides ? buildMethods) {
               ugaif.host.buildMethods = configOverrides.buildMethods;

@@ -20,20 +20,20 @@
 
   # ========== Boot Configuration ==========
   boot.initrd.availableKernelModules = [
-    "xhci_pci"    # USB 3.0 support
-    "nvme"        # NVMe support
+    "xhci_pci" # USB 3.0 support
+    "nvme" # NVMe support
     "usb_storage" # USB storage devices
-    "sd_mod"      # SD card support
-    "sdhci_pci"   # SD card host controller
+    "sd_mod" # SD card support
+    "sdhci_pci" # SD card host controller
   ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ]; # Intel virtualization support
   boot.extraModulePackages = [ ];
   boot.kernelParams = [
-    "quiet"                       # Minimal boot messages
-    "splash"                      # Show Plymouth boot splash
-    "boot.shell_on_fail"          # Emergency shell on boot failure
-    "udev.log_priority=3"         # Reduce udev logging
+    "quiet" # Minimal boot messages
+    "splash" # Show Plymouth boot splash
+    "boot.shell_on_fail" # Emergency shell on boot failure
+    "udev.log_priority=3" # Reduce udev logging
     "rd.systemd.show_status=auto" # Show systemd status during boot
   ];
 
@@ -42,8 +42,8 @@
   ugaif.host.filesystem.swapSize = lib.mkForce "0G";
   ugaif.host.filesystem.device = lib.mkForce "/dev/null"; # Dummy device
   ugaif.host.buildMethods = lib.mkDefault [
-    "iso"   # Live ISO image
-    "ipxe"  # Network boot
+    "iso" # Live ISO image
+    "ipxe" # Network boot
   ];
 
   # Disable disk management for RAM-only systems

@@ -31,30 +31,30 @@
   # ========== Container-Specific Configuration ==========
   boot.isContainer = true;
   boot.loader.systemd-boot.enable = lib.mkForce false; # No bootloader in container
-  disko.enableConfig = lib.mkForce false;              # No disk management in container
+  disko.enableConfig = lib.mkForce false; # No disk management in container
   console.enable = true;
-  
+
   # Allow getty to work in containers
   systemd.services."getty@".unitConfig.ConditionPathExists = [
     ""
     "/dev/%I"
   ];
-  
+
   # Suppress unnecessary systemd units for containers
   systemd.suppressedSystemUnits = [
     "dev-mqueue.mount"
     "sys-kernel-debug.mount"
     "sys-fs-fuse-connections.mount"
   ];
-  
+
   # ========== Remote Development ==========
   services.vscode-server.enable = true;
-  
+
   # ========== System Configuration ==========
   system.stateVersion = "25.11";
   ugaif.host.buildMethods = lib.mkDefault [
-    "lxc"      # LXC container tarball
-    "proxmox"  # Proxmox VMA archive
+    "lxc" # LXC container tarball
+    "proxmox" # Proxmox VMA archive
   ];
 
   ugaif.sw.enable = lib.mkDefault true;

@@ -71,10 +71,10 @@ in
       environment.systemPackages =
         with pkgs;
         subtractLists cfg.excludePackages [
-          htop      # System monitor
-          binutils  # Binary utilities
-          zsh       # Z shell
-          git       # Version control
+          htop # System monitor
+          binutils # Binary utilities
+          zsh # Z shell
+          git # Version control
           oh-my-posh # Shell prompt theme
           inputs.agenix.packages.${stdenv.hostPlatform.system}.default # Secret management
         ];

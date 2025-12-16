@@ -20,25 +20,25 @@
   # ========== Boot Configuration ==========
 
   boot.initrd.availableKernelModules = [
-    "xhci_pci"    # USB 3.0 support
+    "xhci_pci" # USB 3.0 support
     "thunderbolt" # Thunderbolt support
-    "nvme"        # NVMe SSD support
+    "nvme" # NVMe SSD support
     "usb_storage" # USB storage devices
-    "sd_mod"      # SD card support
-    "sdhci_pci"   # SD card host controller
+    "sd_mod" # SD card support
+    "sdhci_pci" # SD card host controller
   ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ]; # Intel virtualization support
   boot.extraModulePackages = [ ];
   boot.kernelParams = [
-    "quiet"                       # Minimal boot messages
-    "splash"                      # Show Plymouth boot splash
-    "boot.shell_on_fail"          # Emergency shell on boot failure
-    "udev.log_priority=3"         # Reduce udev logging
+    "quiet" # Minimal boot messages
+    "splash" # Show Plymouth boot splash
+    "boot.shell_on_fail" # Emergency shell on boot failure
+    "udev.log_priority=3" # Reduce udev logging
     "rd.systemd.show_status=auto" # Show systemd status during boot
-    "i915.enable_psr=0"           # Disable Panel Self Refresh (stability)
-    "i915.enable_dc=0"            # Disable display power saving
-    "i915.enable_fbc=0"           # Disable framebuffer compression
+    "i915.enable_psr=0" # Disable Panel Self Refresh (stability)
+    "i915.enable_dc=0" # Disable display power saving
+    "i915.enable_fbc=0" # Disable framebuffer compression
   ];
 
   # ========== Hardware Configuration ==========
