@@ -305,7 +305,19 @@ The external flake must provide a `nixosModules.default` output. See [System Fla
 
 ## External Flake Templates
 
-If you're creating a flake to use with `flakeUrl`, use these templates as starting points.
+If you're creating a flake to use with `flakeUrl`, you can use the provided templates as starting points.
+
+### Quick Start with Templates
+
+Initialize a new configuration from templates:
+
+```bash
+# User configuration template (for users.nix)
+nix flake init -t github:UGA-Innovation-Factory/nixos-systems#user
+
+# System configuration template (for inventory.nix)
+nix flake init -t github:UGA-Innovation-Factory/nixos-systems#system
+```
 
 **Important:** Do not specify `inputs` in your flake. This ensures your flake uses the exact same `nixpkgs` version as the main system, preventing version drift and saving disk space.
 

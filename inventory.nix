@@ -43,6 +43,10 @@
   # Convenience options:
   #   ugaif.forUser = "username";  # Automatically adds user to extraUsers and sets wslUser for WSL
   #
+  # External modules (instead of config):
+  #   Device values can be either a config attrset OR a fetchGit/fetchurl call
+  #   that points to an external Nix module. The module will be imported and evaluated.
+  #
   # Examples:
   #   "lab" = { devices = 3; };                           # Quick: lab1, lab2, lab3
   #   "lab" = { count = 3; };                             # Same as above
@@ -56,6 +60,12 @@
   #   };
   #   "wsl" = {
   #     devices."alice".ugaif.forUser = "alice123";       # Sets up for user alice123
+  #   };
+  #   "external" = {
+  #     devices."remote" = builtins.fetchGit {            # External module via Git
+  #       url = "https://github.com/example/config";
+  #       rev = "abc123...";
+  #     };
   #   };  # ========== Lab Laptops ==========
   # Creates: nix-laptop1, nix-laptop2
   # Both get hdh20267 user via overrides
@@ -87,7 +97,10 @@
   nix-lxc = {
     devices = {
       "nix-builder" = { };
-      "usda-dash" = { };
+      "usda-dash" = builtins.fetchGit {
+        url = "https://git.factory.uga.edu/MODEL/usda-dash-config.git";
+        rev = "4491f7826824c41a8e5047c04b198040d397a219";
+      };
     };
     overrides = {
       ugaif.host.useHostPrefix = false;
@@ -105,4 +118,35 @@
   # ========== Ephemeral/Netboot System ==========
   # Creates: nix-ephemeral1
   nix-ephemeral.devices = 1;
+
+  # ========== Example: External Module Configurations ==========
+  # Uncomment to use external modules from Git repositories:
+  #
+  # external-systems = {
+  #   devices = {
+  #     # Option 1: fetchGit with specific revision (recommended for reproducibility)
+  #     "prod-server" = builtins.fetchGit {
+  #       url = "https://github.com/example/server-config";
+  #       rev = "abc123def456...";  # Full commit hash
+  #       ref = "main";              # Optional: branch/tag name
+  #     };
+  #
+  #     # Option 2: fetchGit with latest from branch (less reproducible)
+  #     "dev-server" = builtins.fetchGit {
+  #       url = "https://github.com/example/server-config";
+  #       ref = "develop";
+  #     };
+  #
+  #     # Option 3: fetchTarball for specific release
+  #     "test-server" = builtins.fetchTarball {
+  #       url = "https://github.com/example/server-config/archive/v1.0.0.tar.gz";
+  #       sha256 = "sha256:0000000000000000000000000000000000000000000000000000";
+  #     };
+  #
+  #     # Option 4: Mix external module with local overrides
+  #     # Note: The external module's default.nix should export a NixOS module
+  #     # that accepts { inputs, ... } as parameters
+  #   };
+  # };
 }
+

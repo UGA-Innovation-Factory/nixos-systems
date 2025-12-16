@@ -105,5 +105,8 @@
           modules = import ./installer/modules.nix { inherit inputs; };
         in
         modules.homeModules or { };
+
+      # Templates for external configurations
+      templates = import ./templates;
     };
 }

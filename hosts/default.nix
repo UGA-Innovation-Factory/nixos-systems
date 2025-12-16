@@ -38,18 +38,31 @@ let
       system ? "x86_64-linux",
       hostType,
       configOverrides ? { },
+      externalModulePath ? null,
     }:
     let
-      # Load users.nix to find external user flakes
+      # Load users.nix to find external user modules
       pkgs = nixpkgs.legacyPackages.${system};
       usersData = import ../users.nix { inherit pkgs; };
       accounts = usersData.ugaif.users or { };
 
-      # Extract flakeUrls and convert to modules
-      userFlakeModules = lib.mapAttrsToList (
+      # Extract external user NixOS modules (if they exist)
+      # External user modules can optionally provide a nixos.nix file for system-level config
+      userNixosModules = lib.mapAttrsToList (
         name: user:
-        if (user ? flakeUrl && user.flakeUrl != "") then
-          (builtins.getFlake user.flakeUrl).nixosModules.default
+        if (user ? home && user.home != null) then
+          let
+            homePath = 
+              if builtins.isAttrs user.home && user.home ? outPath then
+                user.home.outPath
+              else
+                user.home;
+            nixosModulePath = homePath + "/nixos.nix";
+          in
+          if (builtins.isPath homePath || (builtins.isString homePath && lib.hasPrefix "/" homePath)) && builtins.pathExists nixosModulePath then
+            import nixosModulePath { inherit inputs; }
+          else
+            { }
         else
           { }
       ) accounts;
@@ -66,6 +79,13 @@ let
       externalFlakeModule =
         if configOverrides ? flakeUrl then
           (builtins.getFlake configOverrides.flakeUrl).nixosModules.default
+        else
+          { };
+
+      # External module from fetchGit/fetchurl
+      externalPathModule =
+        if externalModulePath != null then
+          import externalModulePath { inherit inputs; }
         else
           { };
 
@@ -108,13 +128,14 @@ let
         };
 
       allModules =
-        userFlakeModules
+        userNixosModules
         ++ [
           typeModule
           overrideModule
           { networking.hostName = hostName; }
         ]
-        ++ lib.optional (configOverrides ? flakeUrl) externalFlakeModule;
+        ++ lib.optional (configOverrides ? flakeUrl) externalFlakeModule
+        ++ lib.optional (externalModulePath != null) externalPathModule;
     in
     {
       system = lib.nixosSystem {
@@ -170,16 +191,52 @@ let
         lib.mapAttrsToList (
           deviceKey: deviceConfig:
           let
-            # Merge: base config -> overrides -> device-specific config
-            mergedConfig = lib.recursiveUpdate (lib.recursiveUpdate baseConfig overrides) deviceConfig;
+            # Check if deviceConfig is a path/derivation (from fetchGit, fetchurl, etc.)
+            # fetchGit/fetchTarball return an attrset with outPath attribute
+            isExternalModule =
+              (builtins.isPath deviceConfig)
+              || (builtins.isString deviceConfig && lib.hasPrefix "/" deviceConfig)
+              || (lib.isDerivation deviceConfig)
+              || (builtins.isAttrs deviceConfig && deviceConfig ? outPath);
+
+            # Extract the actual path from fetchGit/fetchTarball results
+            extractedPath =
+              if builtins.isAttrs deviceConfig && deviceConfig ? outPath then
+                deviceConfig.outPath
+              else
+                deviceConfig;
+
+            # If external module, we use base config + overrides as the config
+            # and pass the module path separately
+            actualConfig = if isExternalModule then (lib.recursiveUpdate baseConfig overrides) else deviceConfig;
+
+            # Merge: base config -> overrides -> device-specific config (only if not external module)
+            mergedConfig =
+              if isExternalModule then
+                actualConfig
+              else
+                lib.recursiveUpdate (lib.recursiveUpdate baseConfig overrides) deviceConfig;
+
             # Check useHostPrefix from the merged config
             usePrefix = mergedConfig.ugaif.host.useHostPrefix or true;
             hostName = mkHostName prefix deviceKey usePrefix;
+
+            # If external module, also add a default.nix path for import
+            externalModulePath =
+              if isExternalModule then
+                if builtins.isPath extractedPath then
+                  extractedPath + "/default.nix"
+                else if lib.isDerivation extractedPath then
+                  extractedPath + "/default.nix"
+                else
+                  extractedPath + "/default.nix"
+              else
+                null;
           in
           {
             name = hostName;
             value = mkHost {
-              inherit hostName system hostType;
+              inherit hostName system hostType externalModulePath;
               configOverrides = mergedConfig;
             };
           }

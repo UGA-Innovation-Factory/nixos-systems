@@ -10,6 +10,16 @@
   # Define the users here using the new option
   # To generate a password hash, run: mkpasswd -m sha-512
   # Set enabled = true on systems where the user should exist
+  #
+  # External Home Configuration:
+  # Users can specify external home-manager configuration via the 'home' attribute:
+  #   home = builtins.fetchGit { url = "..."; rev = "..."; };
+  #   home = /path/to/local/config;
+  #   home = { home.packages = [ ... ]; };  # Direct attrset
+  #
+  # External repositories should contain:
+  #   - home.nix (required): Home-manager configuration
+  #   - nixos.nix (optional): System-level NixOS configuration
   ugaif.users = {
     root = {
       isNormalUser = false;
@@ -38,8 +48,12 @@
       ];
       homePackages = [ pkgs.ghostty ];
       shell = pkgs.zsh;
-      # Example of using an external flake for configuration:
-      # flakeUrl = "github:hdh20267/dotfiles";
+      # Example of using an external module for home-manager configuration:
+      # home = builtins.fetchGit {
+      #   url = "https://github.com/hdh20267/dotfiles";
+      #   rev = "abc123...";
+      # };
+      # This expects a home.nix file in the repository with home-manager config
       # enable = false by default, set to true per-system
     };
     sv22900 = {

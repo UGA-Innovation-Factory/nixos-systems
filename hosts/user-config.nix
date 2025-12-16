@@ -49,10 +49,16 @@ let
         type = lib.types.listOf lib.types.path;
         default = [ ];
       };
-      flakeUrl = lib.mkOption {
-        type = lib.types.str;
-        default = "";
-        description = "URL of a flake to import Home Manager configuration from (e.g. github:user/dotfiles).";
+      home = lib.mkOption {
+        type = lib.types.nullOr (lib.types.oneOf [ lib.types.path lib.types.package lib.types.attrs ]);
+        default = null;
+        description = ''
+          External home-manager configuration. Can be:
+          - A path to a local module
+          - A fetchGit/fetchTarball result pointing to a repository
+          - An attribute set with home-manager configuration
+          Example: builtins.fetchGit { url = "https://github.com/user/dotfiles"; rev = "..."; }
+        '';
       };
       opensshKeys = lib.mkOption {
         type = lib.types.listOf lib.types.str;
@@ -138,18 +144,37 @@ in
           name: user:
           { ... }:
           let
-            isExternal = user.flakeUrl != "";
+            # Check if user has external home configuration
+            hasExternalHome = user.home != null;
+            
+            # Extract path from fetchGit/fetchTarball if needed
+            externalHomePath = 
+              if hasExternalHome then
+                if builtins.isAttrs user.home && user.home ? outPath then
+                  user.home.outPath
+                else
+                  user.home
+              else
+                null;
+            
+            # Import external module if it's a path
+            externalHomeModule = 
+              if externalHomePath != null && (builtins.isPath externalHomePath || (builtins.isString externalHomePath && lib.hasPrefix "/" externalHomePath)) then
+                import (externalHomePath + "/home.nix") { inherit inputs; }
+              else if builtins.isAttrs user.home && !(user.home ? outPath) then
+                user.home  # Direct attrset configuration
+              else
+                { };
 
             # Common imports based on flags
             commonImports = lib.optional user.useZshTheme ../sw/theme.nix ++ [
               (import ../sw/nvim.nix { inherit user; })
             ];
           in
-          if isExternal then
+          if hasExternalHome then
             {
-              # External users: Only apply requested system modules.
-              # The external flake is responsible for home.username, home.packages, etc.
-              imports = commonImports;
+              # External users: Merge external config with common imports
+              imports = commonImports ++ [ externalHomeModule ];
             }
           else
             {
