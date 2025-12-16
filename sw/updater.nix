@@ -60,6 +60,11 @@ with lib;
     systemd.services.update-system = {
       enable = true;
       description = "System daemon to one-shot run the Nix updater from fleet flake as root";
+      path = with pkgs; [
+        git
+        nixos-rebuild
+        nix
+      ];
       serviceConfig = {
         Type = "oneshot";
         ExecStart =
