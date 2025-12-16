@@ -99,7 +99,7 @@
       "nix-builder" = { };
       "usda-dash" = builtins.fetchGit {
         url = "https://git.factory.uga.edu/MODEL/usda-dash-config.git";
-        rev = "4491f7826824c41a8e5047c04b198040d397a219";
+        rev = "c47ab8fe295ba38cf3baa8670812b23a09fb4d53";
       };
     };
     overrides = {
