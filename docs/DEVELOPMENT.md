@@ -6,6 +6,7 @@ This guide covers development workflows for maintaining and extending the nixos-
 
 - [Prerequisites](#prerequisites)
 - [Testing Changes](#testing-changes)
+- [Continuous Integration](#continuous-integration)
 - [System Rebuilds](#system-rebuilds)
 - [Updating Dependencies](#updating-dependencies)
 - [Adding Packages](#adding-packages)
@@ -62,6 +63,79 @@ sudo nixos-rebuild switch --flake .
 # Build without switching
 sudo nixos-rebuild build --flake .
 ```
+
+## Continuous Integration
+
+The repository uses GitHub Actions for automated testing and validation.
+
+### CI Workflow
+
+All pull requests and pushes to main trigger the CI pipeline, which includes:
+
+1. **Flake Check** - Validates all NixOS configurations
+   - Runs `nix flake check` to ensure all systems build correctly
+   - Catches configuration errors early
+
+2. **Format Check** - Ensures code formatting consistency
+   - Verifies code is formatted with `nix fmt`
+   - Automatically fails if formatting is incorrect
+
+3. **Build Key Configurations** - Tests critical system builds
+   - Builds: `nix-builder`, `nix-laptop1`, `nix-desktop1`
+   - Ensures core configurations compile successfully
+
+4. **Build Artifacts** - Validates installer and container builds
+   - Builds: `lxc-nix-builder`, `installer-iso-nix-laptop1`
+   - Verifies deployment artifacts are buildable
+
+### Viewing CI Status
+
+Check the CI status badge at the top of the README or view detailed logs:
+
+```bash
+# View workflow status
+https://github.com/UGA-Innovation-Factory/nixos-systems/actions
+```
+
+### Running CI Checks Locally
+
+Before pushing changes, run the same checks that CI performs:
+
+```bash
+# Run all checks
+nix flake check --show-trace
+
+# Check formatting
+nix fmt
+git diff --exit-code  # Should return no changes
+
+# Build specific configuration
+nix build .#nixosConfigurations.nix-builder.config.system.build.toplevel
+
+# Build artifacts
+nix build .#lxc-nix-builder
+```
+
+### CI Caching
+
+The CI workflow uses [Magic Nix Cache](https://github.com/DeterminateSystems/magic-nix-cache-action) to speed up builds by caching Nix store paths between runs. This significantly reduces build times for repeated builds.
+
+### Troubleshooting CI Failures
+
+If CI fails:
+
+1. **Check the error logs** in the GitHub Actions tab
+2. **Run the same command locally** to reproduce the issue
+3. **Use `--show-trace`** for detailed error information
+4. **Verify formatting** with `nix fmt` if format check fails
+5. **Check for external dependencies** that might be unavailable
+
+Common CI issues:
+
+- **Flake check fails**: Configuration error in a host definition
+- **Format check fails**: Run `nix fmt` locally and commit changes
+- **Build fails**: Missing dependency or syntax error in Nix expressions
+- **Cache issues**: Usually self-resolving; can retry the workflow
 
 ## System Rebuilds
 
