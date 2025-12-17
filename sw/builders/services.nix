@@ -34,6 +34,13 @@ mkIf builderCfg.githubRunner.enable {
       TimeoutStopSec = 60;
       # Restart on failure, but not immediately
       RestartSec = 10;
+      
+      # Disable namespace isolation features that don't work in LXC containers
+      PrivateMounts = mkForce false;
+      MountAPIVFS = mkForce false;
+      BindPaths = mkForce [ ];
+      BindReadOnlyPaths = mkForce [ ];
+      
       # Override the unconfigure script to be failure-tolerant
       # The '-' prefix means the command failure won't cause the service to fail
       ExecStartPre = mkForce [
