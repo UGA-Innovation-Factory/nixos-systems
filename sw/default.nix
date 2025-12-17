@@ -17,6 +17,12 @@ with lib;
 
 let
   cfg = config.ugaif.sw;
+
+  # Normalize type to always be a list
+  swTypes = if isList cfg.type then cfg.type else [ cfg.type ];
+
+  # Helper to check if a type is enabled
+  hasType = type: elem type swTypes;
 in
 {
   imports = [
@@ -29,14 +35,26 @@ in
     enable = mkEnableOption "Standard Workstation Configuration";
 
     type = mkOption {
-      type = types.enum [
-        "desktop"
-        "tablet-kiosk"
-        "headless"
-        "stateless-kiosk"
+      type = types.oneOf [
+        (types.enum [
+          "desktop"
+          "tablet-kiosk"
+          "headless"
+          "stateless-kiosk"
+          "builders"
+        ])
+        (types.listOf (
+          types.enum [
+            "desktop"
+            "tablet-kiosk"
+            "headless"
+            "stateless-kiosk"
+            "builders"
+          ]
+        ))
       ];
       default = "desktop";
-      description = "Type of system configuration: 'desktop' for normal OS, 'tablet-kiosk' for tablet/kiosk mode.";
+      description = "Type(s) of system configuration. Can be a single type or a list of types to combine multiple configurations.";
     };
 
     extraPackages = mkOption {
@@ -55,6 +73,58 @@ in
       type = types.str;
       default = "https://ha.factory.uga.edu";
       description = "URL to open in Chromium kiosk mode.";
+    };
+
+    # Builders-specific options
+    builders = mkOption {
+      type = types.submodule {
+        options = {
+          githubRunner = {
+            enable = mkEnableOption "GitHub Actions self-hosted runner";
+
+            url = mkOption {
+              type = types.str;
+              description = "GitHub repository URL for the runner";
+            };
+
+            tokenFile = mkOption {
+              type = types.path;
+              default = "/var/lib/github-runner-token";
+              description = ''
+                Path to file containing GitHub PAT token.
+                Generate at: https://github.com/settings/tokens
+                The token must have repo access.
+              '';
+            };
+
+            extraLabels = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = "Extra labels to identify this runner in workflows";
+            };
+
+            user = mkOption {
+              type = types.str;
+              default = "engr-ugaif";
+              description = "User to run the runner as";
+            };
+
+            workDir = mkOption {
+              type = types.str;
+              default = "/var/lib/github-runner";
+              description = "Working directory for runner";
+            };
+
+            name = mkOption {
+              type = types.str;
+              default = "nixos-systems";
+              description = "Name of the GitHub runner service";
+            };
+          };
+        };
+      };
+      default = { };
+      description = "Builder-specific configuration options";
     };
   };
 
@@ -80,7 +150,7 @@ in
         ];
     }
     # ========== Software Profile Imports ==========
-    (mkIf (cfg.type == "desktop") (
+    (mkIf (hasType "desktop") (
       import ./desktop {
         inherit
           config
@@ -90,7 +160,7 @@ in
           ;
       }
     ))
-    (mkIf (cfg.type == "tablet-kiosk") (
+    (mkIf (hasType "tablet-kiosk") (
       import ./tablet-kiosk {
         inherit
           config
@@ -100,7 +170,7 @@ in
           ;
       }
     ))
-    (mkIf (cfg.type == "headless") (
+    (mkIf (hasType "headless") (
       import ./headless {
         inherit
           config
@@ -110,8 +180,18 @@ in
           ;
       }
     ))
-    (mkIf (cfg.type == "stateless-kiosk") (
+    (mkIf (hasType "stateless-kiosk") (
       import ./stateless-kiosk {
+        inherit
+          config
+          lib
+          pkgs
+          inputs
+          ;
+      }
+    ))
+    (mkIf (hasType "builders") (
+      import ./builders {
         inherit
           config
           lib
