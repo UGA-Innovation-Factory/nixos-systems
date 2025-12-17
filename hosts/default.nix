@@ -46,26 +46,45 @@ let
       usersData = import ../users.nix { inherit pkgs; };
       accounts = usersData.ugaif.users or { };
 
-      # Extract external user NixOS modules (if they exist)
-      # External user modules can optionally provide a nixos.nix file for system-level config
-      userNixosModules = lib.mapAttrsToList (
-        name: user:
-        if (user ? home && user.home != null) then
-          let
-            homePath =
-              if builtins.isAttrs user.home && user.home ? outPath then user.home.outPath else user.home;
-            nixosModulePath = homePath + "/nixos.nix";
-          in
-          if
-            (builtins.isPath homePath || (builtins.isString homePath && lib.hasPrefix "/" homePath))
-            && builtins.pathExists nixosModulePath
-          then
-            import nixosModulePath { inherit inputs; }
+      # Build a map of user names to their nixos module paths (if they exist)
+      # We'll use this to conditionally import modules based on user.enable
+      userNixosModulePaths = lib.filterAttrs (_: v: v != null) (
+        lib.mapAttrs (
+          name: user:
+          if (user ? home && user.home != null) then
+            let
+              homePath =
+                if builtins.isAttrs user.home && user.home ? outPath then user.home.outPath else user.home;
+              nixosModulePath = homePath + "/nixos.nix";
+            in
+            if
+              (builtins.isPath homePath || (builtins.isString homePath && lib.hasPrefix "/" homePath))
+              && builtins.pathExists nixosModulePath
+            then
+              nixosModulePath
+            else
+              null
           else
-            { }
-        else
-          { }
-      ) accounts;
+            null
+        ) accounts
+      );
+
+      # Create conditional wrapper modules for each user's nixos.nix
+      # Each wrapper checks if the user is enabled before applying the module content
+      userNixosModules = lib.mapAttrsToList (
+        name: modulePath:
+        { config, lib, pkgs, ... }@args:
+        let
+          # Import the user's nixos module - it returns a function or attrset
+          importedModuleFunc = import modulePath { inherit inputs; };
+          # If it's a function, call it with the module args; otherwise use as-is
+          importedModule =
+            if lib.isFunction importedModuleFunc then importedModuleFunc args else importedModuleFunc;
+        in
+        {
+          config = lib.mkIf (config.ugaif.users.${name}.enable or false) importedModule;
+        }
+      ) userNixosModulePaths;
 
       # Load the host type module
       typeFile = ./types + "/${hostType}.nix";
