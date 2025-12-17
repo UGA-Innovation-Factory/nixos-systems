@@ -107,11 +107,6 @@ in
   };
 
   config = {
-    # Enable forUser if specified
-    ugaif.users = lib.mkIf (config.ugaif.forUser != null) {
-      ${config.ugaif.forUser}.enable = true;
-    };
-
     # Generate NixOS users
     users.users =
       let
