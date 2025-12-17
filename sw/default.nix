@@ -120,6 +120,12 @@ in
               default = "nixos-systems";
               description = "Name of the GitHub runner service";
             };
+
+            replace = mkOption {
+              type = types.bool;
+              default = false;
+              description = "Replace existing runner registration on start";
+            };
           };
         };
       };

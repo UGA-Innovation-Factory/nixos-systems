@@ -19,7 +19,7 @@ mkIf builderCfg.githubRunner.enable {
     extraLabels = builderCfg.githubRunner.extraLabels;
     user = builderCfg.githubRunner.user;
     workDir = builderCfg.githubRunner.workDir;
-    replace = true;
+    replace = builderCfg.githubRunner.replace;
   };
 
   # Configure the systemd service for better handling of cleanup and restarts
@@ -85,7 +85,7 @@ mkIf builderCfg.githubRunner.enable {
             
             cd "$runnerDir"
             
-            # Configure if not already configured or if --replace is set
+            # Configure the runner, optionally replacing existing registration
             if [ ! -f ".runner" ] || [ "${if builderCfg.githubRunner.replace then "true" else "false"}" = "true" ]; then
               echo "Configuring GitHub Actions runner..."
               ${runnerPkg}/bin/Runner.Listener configure \
@@ -95,9 +95,9 @@ mkIf builderCfg.githubRunner.enable {
                 --name "$(hostname)" \
                 --labels "${lib.concatStringsSep "," builderCfg.githubRunner.extraLabels}" \
                 --work "_work" \
-                --replace
+                ${if builderCfg.githubRunner.replace then "--replace" else ""}
             else
-              echo "Runner already configured."
+              echo "Runner already configured, skipping configuration."
             fi
           '';
         in
