@@ -62,7 +62,9 @@ let
   );
 
   # externalUserOptions only contains users that actually have options defined
-  externalUserOptions = lib.filterAttrs (_: moduleOptions: moduleOptions != { }) externalUserModuleOptions;
+  externalUserOptions = lib.filterAttrs (
+    _: moduleOptions: moduleOptions != { }
+  ) externalUserModuleOptions;
 
   # Submodule defining the structure of a user account
   userSubmodule = lib.types.submodule {
