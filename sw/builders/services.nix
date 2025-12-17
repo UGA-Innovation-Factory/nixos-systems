@@ -51,6 +51,10 @@ mkIf builderCfg.githubRunner.enable {
       ProtectKernelModules = mkForce false;
       ProtectControlGroups = mkForce false;
       
+      # Use LoadCredential to securely pass the token file to the service
+      # This allows the service to read the token even when running as non-root
+      LoadCredential = "token:${builderCfg.githubRunner.tokenFile}";
+      
       # Don't override ExecStartPre - let the default module handle configuration
       # Just make the cleanup more tolerant by wrapping the original script
       ExecStartPre = mkForce (
@@ -81,7 +85,14 @@ mkIf builderCfg.githubRunner.enable {
             set -e
             
             runnerDir="${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name}"
-            token=$(cat "${builderCfg.githubRunner.tokenFile}")
+            
+            # Read token from systemd credential (passed via LoadCredential)
+            if [ -n "''${CREDENTIALS_DIRECTORY:-}" ] && [ -f "''${CREDENTIALS_DIRECTORY}/token" ]; then
+              token=$(cat "''${CREDENTIALS_DIRECTORY}/token")
+            else
+              echo "Error: Token credential not available"
+              exit 1
+            fi
             
             cd "$runnerDir"
             
