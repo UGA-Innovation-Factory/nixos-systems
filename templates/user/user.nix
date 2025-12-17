@@ -8,8 +8,9 @@
 # 2. Home-manager configuration (home.*, programs.*, services.*) when imported
 #    into home-manager
 #
-# This file is optional - if not present, these options should be set
-# directly in the main users.nix file.
+# This file is optional - if not present, the system will use the defaults
+# from the main users.nix file. Use this file to override or extend those
+# default user and home-manager options for this user.
 #
 # This module receives the same `inputs` flake inputs as the main
 # nixos-systems configuration (nixpkgs, home-manager, etc.).
