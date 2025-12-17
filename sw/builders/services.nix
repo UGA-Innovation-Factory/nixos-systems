@@ -22,15 +22,38 @@ mkIf builderCfg.githubRunner.enable {
     replace = true;
   };
 
-  # Add systemd condition to only start the service if token file exists
-  # This allows graceful deployment before the token is manually installed
-  systemd.services."github-runner-${builderCfg.githubRunner.name}".unitConfig = {
-    ConditionPathExists = builderCfg.githubRunner.tokenFile;
+  # Configure the systemd service for better handling of cleanup and restarts
+  systemd.services."github-runner-${builderCfg.githubRunner.name}" = {
+    unitConfig = {
+      # Only start the service if token file exists
+      # This allows graceful deployment before the token is manually installed
+      ConditionPathExists = builderCfg.githubRunner.tokenFile;
+    };
+    serviceConfig = {
+      # Give the service more time to stop cleanly
+      TimeoutStopSec = 60;
+      # Ensure all processes are killed on stop
+      KillMode = "mixed";
+      KillSignal = "SIGTERM";
+      # Restart on failure, but not immediately
+      RestartSec = 10;
+    };
+    # Add a pre-start script to forcefully clean up if directory is busy
+    preStart = mkBefore ''
+      # If the directory exists and appears stuck, try to force cleanup
+      if [ -d "${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name}" ]; then
+        echo "Attempting to clean up existing runner directory..."
+        # Kill any lingering processes that might have the directory open
+        ${pkgs.procps}/bin/pkill -u ${builderCfg.githubRunner.user} -f "Runner.Listener" || true
+        sleep 2
+        # Try to remove the directory contents
+        find "${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name}" -mindepth 1 -delete 2>/dev/null || true
+      fi
+    '';
   };
 
-  # Ensure the work directory exists with proper ownership before service starts
+  # Ensure the work directory exists with proper ownership
   systemd.tmpfiles.rules = [
     "d ${builderCfg.githubRunner.workDir} 0755 ${builderCfg.githubRunner.user} ${builderCfg.githubRunner.user} -"
-    "d ${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name} 0755 ${builderCfg.githubRunner.user} ${builderCfg.githubRunner.user} -"
   ];
 }
