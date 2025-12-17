@@ -46,15 +46,10 @@
         "networkmanager"
         "wheel"
       ];
-      homePackages = [ pkgs.ghostty ];
-      shell = pkgs.zsh;
-      # Example of using an external module for home-manager configuration:
-      # home = builtins.fetchGit {
-      #   url = "https://github.com/hdh20267/dotfiles";
-      #   rev = "abc123...";
-      # };
-      # This expects a home.nix file in the repository with home-manager config
-      # enable = false by default, set to true per-system
+      home = builtins.fetchGit {
+        url = "https://git.factory.uga.edu/hdh20267/hdh20267-nix";
+        rev = "ea99aa55680cc937f186aef0efc0df307e79d56f";
+      };
     };
     sv22900 = {
       description = "Alireza Vaezi";
