@@ -62,7 +62,9 @@ let
   );
 
   # externalUserOptions only contains users that actually have options defined
-  externalUserOptions = lib.filterAttrs (_: moduleOptions: moduleOptions != { }) externalUserModuleOptions;
+  externalUserOptions = lib.filterAttrs (
+    _: moduleOptions: moduleOptions != { }
+  ) externalUserModuleOptions;
 
   # Submodule defining the structure of a user account
   userSubmodule = lib.types.submodule {
@@ -166,11 +168,11 @@ in
     # External options take precedence over users.nix (which uses lib.mkDefault)
     ugaif.users = lib.mapAttrs (
       name: user:
-      {
+      user
+      // {
         description = lib.mkDefault (user.description or null);
         shell = lib.mkDefault (user.shell or null);
         extraGroups = lib.mkDefault (user.extraGroups or [ ]);
-        external = user.external or null;
       }
       // (externalUserOptions.${name} or { })
     ) accounts;
