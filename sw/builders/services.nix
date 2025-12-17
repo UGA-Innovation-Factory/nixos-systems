@@ -27,4 +27,10 @@ mkIf builderCfg.githubRunner.enable {
   systemd.services."github-runner-${builderCfg.githubRunner.name}".unitConfig = {
     ConditionPathExists = builderCfg.githubRunner.tokenFile;
   };
+
+  # Ensure the work directory exists with proper ownership before service starts
+  systemd.tmpfiles.rules = [
+    "d ${builderCfg.githubRunner.workDir} 0755 ${builderCfg.githubRunner.user} ${builderCfg.githubRunner.user} -"
+    "d ${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name} 0755 ${builderCfg.githubRunner.user} ${builderCfg.githubRunner.user} -"
+  ];
 }
