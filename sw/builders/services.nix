@@ -32,9 +32,6 @@ mkIf builderCfg.githubRunner.enable {
     serviceConfig = {
       # Give the service more time to stop cleanly
       TimeoutStopSec = 60;
-      # Ensure all processes are killed on stop
-      KillMode = "mixed";
-      KillSignal = "SIGTERM";
       # Restart on failure, but not immediately
       RestartSec = 10;
     };
