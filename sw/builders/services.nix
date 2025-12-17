@@ -35,18 +35,6 @@ mkIf builderCfg.githubRunner.enable {
       # Restart on failure, but not immediately
       RestartSec = 10;
     };
-    # Add a pre-start script to forcefully clean up if directory is busy
-    preStart = mkBefore ''
-      # If the directory exists and appears stuck, try to force cleanup
-      if [ -d "${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name}" ]; then
-        echo "Attempting to clean up existing runner directory..."
-        # Kill any lingering processes that might have the directory open
-        ${pkgs.procps}/bin/pkill -u ${builderCfg.githubRunner.user} -f "Runner.Listener" || true
-        sleep 2
-        # Try to remove the directory contents
-        find "${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name}" -mindepth 1 -delete 2>/dev/null || true
-      fi
-    '';
   };
 
   # Ensure the work directory exists with proper ownership
