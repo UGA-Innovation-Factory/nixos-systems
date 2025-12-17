@@ -50,7 +50,13 @@ let
         default = [ ];
       };
       home = lib.mkOption {
-        type = lib.types.nullOr (lib.types.oneOf [ lib.types.path lib.types.package lib.types.attrs ]);
+        type = lib.types.nullOr (
+          lib.types.oneOf [
+            lib.types.path
+            lib.types.package
+            lib.types.attrs
+          ]
+        );
         default = null;
         description = ''
           External home-manager configuration. Can be:
@@ -146,23 +152,26 @@ in
           let
             # Check if user has external home configuration
             hasExternalHome = user.home != null;
-            
+
             # Extract path from fetchGit/fetchTarball if needed
-            externalHomePath = 
+            externalHomePath =
               if hasExternalHome then
-                if builtins.isAttrs user.home && user.home ? outPath then
-                  user.home.outPath
-                else
-                  user.home
+                if builtins.isAttrs user.home && user.home ? outPath then user.home.outPath else user.home
               else
                 null;
-            
+
             # Import external module if it's a path
-            externalHomeModule = 
-              if externalHomePath != null && (builtins.isPath externalHomePath || (builtins.isString externalHomePath && lib.hasPrefix "/" externalHomePath)) then
+            externalHomeModule =
+              if
+                externalHomePath != null
+                && (
+                  builtins.isPath externalHomePath
+                  || (builtins.isString externalHomePath && lib.hasPrefix "/" externalHomePath)
+                )
+              then
                 import (externalHomePath + "/home.nix") { inherit inputs; }
               else if builtins.isAttrs user.home && !(user.home ? outPath) then
-                user.home  # Direct attrset configuration
+                user.home # Direct attrset configuration
               else
                 { };
 

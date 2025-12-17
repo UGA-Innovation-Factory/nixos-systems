@@ -52,14 +52,14 @@ let
         name: user:
         if (user ? home && user.home != null) then
           let
-            homePath = 
-              if builtins.isAttrs user.home && user.home ? outPath then
-                user.home.outPath
-              else
-                user.home;
+            homePath =
+              if builtins.isAttrs user.home && user.home ? outPath then user.home.outPath else user.home;
             nixosModulePath = homePath + "/nixos.nix";
           in
-          if (builtins.isPath homePath || (builtins.isString homePath && lib.hasPrefix "/" homePath)) && builtins.pathExists nixosModulePath then
+          if
+            (builtins.isPath homePath || (builtins.isString homePath && lib.hasPrefix "/" homePath))
+            && builtins.pathExists nixosModulePath
+          then
             import nixosModulePath { inherit inputs; }
           else
             { }
@@ -75,19 +75,9 @@ let
         else
           throw "Host type '${hostType}' not found in hosts/types/";
 
-      # External flake override if specified
-      externalFlakeModule =
-        if configOverrides ? flakeUrl then
-          (builtins.getFlake configOverrides.flakeUrl).nixosModules.default
-        else
-          { };
-
       # External module from fetchGit/fetchurl
       externalPathModule =
-        if externalModulePath != null then
-          import externalModulePath { inherit inputs; }
-        else
-          { };
+        if externalModulePath != null then import externalModulePath { inherit inputs; } else { };
 
       # Config override module - translate special keys to ugaif options
       overrideModule =
@@ -99,26 +89,11 @@ let
             "devices"
             "overrides"
             "defaultCount"
-            "extraUsers"
-            "flakeUrl"
-            "hostname"
             "buildMethods"
-            "wslUser"
           ];
-          specialConfig = lib.mkMerge [
-            (lib.optionalAttrs (configOverrides ? extraUsers) {
-              # Enable each user in the extraUsers list
-              ugaif.users = lib.genAttrs configOverrides.extraUsers (_: {
-                enable = true;
-              });
-            })
-            (lib.optionalAttrs (configOverrides ? buildMethods) {
-              ugaif.host.buildMethods = configOverrides.buildMethods;
-            })
-            (lib.optionalAttrs (configOverrides ? wslUser) {
-              ugaif.host.wsl.user = configOverrides.wslUser;
-            })
-          ];
+          specialConfig = lib.optionalAttrs (configOverrides ? buildMethods) {
+            ugaif.host.buildMethods = configOverrides.buildMethods;
+          };
         in
         {
           config = lib.mkMerge [
@@ -134,7 +109,6 @@ let
           overrideModule
           { networking.hostName = hostName; }
         ]
-        ++ lib.optional (configOverrides ? flakeUrl) externalFlakeModule
         ++ lib.optional (externalModulePath != null) externalPathModule;
     in
     {
@@ -208,7 +182,8 @@ let
 
             # If external module, we use base config + overrides as the config
             # and pass the module path separately
-            actualConfig = if isExternalModule then (lib.recursiveUpdate baseConfig overrides) else deviceConfig;
+            actualConfig =
+              if isExternalModule then (lib.recursiveUpdate baseConfig overrides) else deviceConfig;
 
             # Merge: base config -> overrides -> device-specific config (only if not external module)
             mergedConfig =
@@ -236,7 +211,12 @@ let
           {
             name = hostName;
             value = mkHost {
-              inherit hostName system hostType externalModulePath;
+              inherit
+                hostName
+                system
+                hostType
+                externalModulePath
+                ;
               configOverrides = mergedConfig;
             };
           }

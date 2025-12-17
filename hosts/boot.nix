@@ -18,7 +18,7 @@
       default = null;
       description = ''
         Convenience option to configure a host for a specific user.
-        Automatically adds the user to extraUsers and sets wslUser for WSL hosts.
+        Automatically enables the user (sets ugaif.users.username.enable = true).
         Value should be a username from ugaif.users.accounts.
       '';
     };

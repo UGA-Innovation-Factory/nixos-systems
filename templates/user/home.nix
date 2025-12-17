@@ -22,16 +22,16 @@
   config,
   lib,
   pkgs,
-  osConfig,  # Access to the OS-level config
+  osConfig, # Access to the OS-level config
   ...
 }:
 
 {
   # ========== Home Manager Configuration ==========
-  
+
   # User identity (required)
-  home.username = lib.mkDefault config.home.username;  # Set by system
-  home.homeDirectory = lib.mkDefault config.home.homeDirectory;  # Set by system
+  home.username = lib.mkDefault config.home.username; # Set by system
+  home.homeDirectory = lib.mkDefault config.home.homeDirectory; # Set by system
   home.stateVersion = lib.mkDefault "25.11";
 
   # ========== Packages ==========
@@ -44,7 +44,7 @@
   ];
 
   # ========== Programs ==========
-  
+
   # Git configuration
   programs.git = {
     enable = true;
@@ -70,22 +70,22 @@
   # };
 
   # ========== Shell Environment ==========
-  
+
   home.sessionVariables = {
     EDITOR = "vim";
     # Add your custom environment variables
   };
 
   # ========== Dotfiles ==========
-  
+
   # You can manage dotfiles with home.file
   # home.file.".bashrc".source = ./dotfiles/bashrc;
   # home.file.".vimrc".source = ./dotfiles/vimrc;
 
   # Or use programs.* options for better integration
-  
+
   # ========== XDG Configuration ==========
-  
+
   xdg.enable = true;
   # xdg.configFile."app/config.conf".source = ./config/app.conf;
 }

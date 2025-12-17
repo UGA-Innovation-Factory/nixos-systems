@@ -41,7 +41,5 @@
   # Use ugaif.sw.type to select profile: "desktop", "tablet-kiosk", "headless", "stateless-kiosk"
   # Use ugaif.sw.extraPackages to add additional packages
   # Use ugaif.sw.kioskUrl to set kiosk mode URL
-  sw =
-    { inputs, ... }@args:
-    (import ../sw/default.nix (args // { inherit inputs; }));
+  sw = { inputs, ... }@args: (import ../sw/default.nix (args // { inherit inputs; }));
 }

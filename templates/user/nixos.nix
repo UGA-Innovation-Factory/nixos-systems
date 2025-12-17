@@ -23,7 +23,7 @@
 
 {
   # ========== System Configuration ==========
-  
+
   # Example: Enable a system service for this user
   # systemd.services.my-user-service = {
   #   description = "My User Service";

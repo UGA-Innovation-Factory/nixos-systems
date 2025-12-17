@@ -35,13 +35,13 @@
   #
   #     # Common config for all devices in this group
   #     overrides = {
-  #       extraUsers = [ "user1" ];  # Applied to all devices in this group
+  #       ugaif.users.user1.enable = true;  # Applied to all devices in this group
   #       # ... any other config
   #     };
   #   };
   #
   # Convenience options:
-  #   ugaif.forUser = "username";  # Automatically adds user to extraUsers and sets wslUser for WSL
+  #   ugaif.forUser = "username";  # Automatically enables user (sets ugaif.users.username.enable = true)
   #
   # External modules (instead of config):
   #   Device values can be either a config attrset OR a fetchGit/fetchurl call
@@ -56,7 +56,7 @@
   #   };
   #   "laptop" = {
   #     devices = 5;
-  #     overrides.extraUsers = [ "student" ];             # All 5 laptops get this user
+  #     overrides.ugaif.users.student.enable = true;     # All 5 laptops get this user
   #   };
   #   "wsl" = {
   #     devices."alice".ugaif.forUser = "alice123";       # Sets up for user alice123
@@ -71,7 +71,7 @@
   # Both get hdh20267 user via overrides
   nix-laptop = {
     devices = 2;
-    overrides.extraUsers = [ "hdh20267" ];
+    overrides.ugaif.users.hdh20267.enable = true;
   };
 
   # ========== Desktop ==========
@@ -149,4 +149,3 @@
   #   };
   # };
 }
-

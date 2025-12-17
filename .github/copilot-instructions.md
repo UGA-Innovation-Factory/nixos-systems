@@ -91,7 +91,7 @@ ugaif.forUser = "username";            # Convenience: enable user + set WSL user
 
 #### Adding a New User
 1. Edit `users.nix` to add user definition under `ugaif.users.accounts`
-2. Enable user in `inventory.nix` via `extraUsers` or `ugaif.users.enabledUsers`
+2. Enable user in `inventory.nix` via `ugaif.users.username.enable = true` or use `ugaif.forUser = "username"`
 3. Test: `nix flake check`
 
 #### Adding a New Host
