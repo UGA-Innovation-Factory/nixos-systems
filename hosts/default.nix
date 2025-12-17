@@ -51,14 +51,17 @@ let
       userNixosModulePaths = lib.filterAttrs (_: v: v != null) (
         lib.mapAttrs (
           name: user:
-          if (user ? home && user.home != null) then
+          if (user ? external && user.external != null) then
             let
-              homePath =
-                if builtins.isAttrs user.home && user.home ? outPath then user.home.outPath else user.home;
-              nixosModulePath = homePath + "/nixos.nix";
+              externalPath =
+                if builtins.isAttrs user.external && user.external ? outPath then
+                  user.external.outPath
+                else
+                  user.external;
+              nixosModulePath = externalPath + "/nixos.nix";
             in
             if
-              (builtins.isPath homePath || (builtins.isString homePath && lib.hasPrefix "/" homePath))
+              (builtins.isPath externalPath || (builtins.isString externalPath && lib.hasPrefix "/" externalPath))
               && builtins.pathExists nixosModulePath
             then
               nixosModulePath

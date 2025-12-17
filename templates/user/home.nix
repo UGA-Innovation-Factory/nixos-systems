@@ -1,19 +1,28 @@
 { inputs, ... }:
 
 # ============================================================================
-# User Home Manager Configuration Template
+# User Home Manager Configuration Template (Optional)
 # ============================================================================
 # This file provides home-manager configuration for a user.
 # It will be imported into the NixOS system's home-manager configuration.
 #
+# This file is optional - if not present, no home-manager configuration
+# will be loaded from this external module.
+#
 # Usage in users.nix:
 #   myusername = {
+#     # Set user options here OR in the external module's user.nix
 #     description = "My Name";
-#     home = builtins.fetchGit {
+#     shell = pkgs.zsh;
+#     extraGroups = [ "wheel" "networkmanager" ];
+#     
+#     external = builtins.fetchGit {
 #       url = "https://github.com/username/dotfiles";
 #       rev = "commit-hash";
 #     };
 #   };
+#
+# Or use user.nix in your external module to set user options.
 #
 # This module receives the same `inputs` flake inputs as the main
 # nixos-systems configuration (nixpkgs, home-manager, etc.).

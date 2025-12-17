@@ -11,6 +11,9 @@
 # - Special system permissions or configurations
 # - Installing system packages that require root
 #
+# Note: User options (description, shell, extraGroups, etc.) should be set
+# in the main users.nix file, not here.
+#
 # This module receives the same `inputs` flake inputs as the main
 # nixos-systems configuration.
 

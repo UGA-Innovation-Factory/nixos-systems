@@ -90,8 +90,8 @@ username = {
     "ssh-rsa AAAA... user@otherhost"
   ];
   
-  # === Home Configuration ===
-  home = builtins.fetchGit { ... };       # External home-manager config (see below)
+  # === External Configuration ===
+  external = builtins.fetchGit { ... };   # External user module (see below)
   
   # OR (if not using external config):
   homePackages = with pkgs; [             # User packages
@@ -120,12 +120,13 @@ In `users.nix`:
 
 ```nix
 myuser = {
+  # Basic options can be set here OR in the external module's user.nix
   description = "My Name";
   extraGroups = [ "wheel" ];
   hashedPassword = "$6$...";
   
-  # Point to external dotfiles repository
-  home = builtins.fetchGit {
+  # Point to external configuration repository
+  external = builtins.fetchGit {
     url = "https://github.com/username/dotfiles";
     rev = "abc123...";  # Pin to specific commit
   };
@@ -136,7 +137,7 @@ myuser = {
 
 ```
 dotfiles/
-├── home.nix     # Required: Home-manager configuration
+├── user.nix     # Optional: User options AND home-manager config
 ├── nixos.nix    # Optional: System-level configuration
 └── config/      # Optional: Your dotfiles
     ├── bashrc
@@ -144,13 +145,28 @@ dotfiles/
     └── ...
 ```
 
-**home.nix (required):**
+**Both `.nix` files are optional, but at least one should be present.**
+
+**user.nix (optional):**
 ```nix
 { inputs, ... }:
-{ config, lib, pkgs, osConfig, ... }:
+{ config, lib, pkgs, ... }:
+
 {
-  home.packages = with pkgs; [ vim git htop ];
-  
+  # User account options (imported as NixOS module)
+  ugaif.users.myusername = {
+    description = "My Full Name";
+    extraGroups = [ "wheel" "docker" ];
+    shell = pkgs.zsh;
+    useZshTheme = true;
+  };
+
+  # Home-manager configuration (imported into home-manager)
+  home.packages = with pkgs; [
+    vim
+    ripgrep
+  ];
+
   programs.git = {
     enable = true;
     userName = "My Name";
@@ -174,12 +190,22 @@ dotfiles/
 
 ### What External Modules Receive
 
-**In home.nix:**
+**In user.nix:**
 - `inputs` - Flake inputs (nixpkgs, home-manager, etc.)
-- `config` - Home-manager configuration
+- `config` - Configuration (NixOS or home-manager depending on import context)
 - `lib` - Nixpkgs library functions
 - `pkgs` - Package set
-- `osConfig` - OS-level configuration (read-only)
+- `osConfig` - (home-manager context only) OS-level configuration
+
+### How External Modules Are Loaded
+
+The `user.nix` module is used in two ways:
+
+1. **User Options (Data Extraction)**: The `ugaif.users.<username>` options are extracted and loaded as **data**. The module is evaluated with minimal arguments to extract just the ugaif.users options, which override any defaults set in `users.nix` (which uses `lib.mkDefault`).
+
+2. **Home-Manager Configuration**: The entire module (including `home.*`, `programs.*`, `services.*` options) is imported into home-manager as a configuration module.
+
+This means you can define both user account settings AND home-manager configuration in a single file.
 
 **In nixos.nix:**
 - `inputs` - Flake inputs
@@ -191,21 +217,19 @@ dotfiles/
 
 **Local path (for testing):**
 ```nix
-home = /home/username/dev/dotfiles;
+external = /home/username/dev/dotfiles;
 ```
 
-**Inline configuration:**
+**Note:** User options can be set in users.nix OR in the external module's user.nix file.
+
+**No external config:**
 ```nix
-home = {
-  home.packages = with pkgs; [ vim ];
-  programs.git.enable = true;
+# Configure everything directly in users.nix
+myuser = {
+  description = "My Name";
+  homePackages = with pkgs; [ vim git ];
+  # external is null by default
 };
-```
-
-**No external config (legacy):**
-```nix
-homePackages = with pkgs; [ vim git ];
-# home = null;  # Default
 ```
 
 ### Create User Template

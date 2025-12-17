@@ -14,6 +14,57 @@
 # and Home Manager configuration.
 
 let
+  # Load users.nix to get account definitions
+  pkgs' = pkgs;
+  usersData = import ../users.nix { pkgs = pkgs'; };
+  accounts = usersData.ugaif.users or { };
+
+  # Helper: Resolve external module path from fetchGit/fetchTarball/path
+  resolveExternalPath = external:
+    if external == null then
+      null
+    else if builtins.isAttrs external && external ? outPath then
+      external.outPath
+    else
+      external;
+
+  # Helper: Check if path exists and is valid
+  isValidPath = path:
+    path != null
+    && (builtins.isPath path || (builtins.isString path && lib.hasPrefix "/" path))
+    && builtins.pathExists path;
+
+  # Extract ugaif.users options from external user.nix modules
+  externalUserOptions = lib.foldl' (
+    acc: item:
+    let
+      name = item.name;
+      user = item.user;
+      externalPath = resolveExternalPath (user.external or null);
+      userNixPath = if externalPath != null then externalPath + "/user.nix" else null;
+
+      # Load the module and extract its ugaif.users options
+      moduleOptions =
+        if isValidPath userNixPath then
+          let
+            # Import and evaluate the module with minimal args
+            outerModule = import userNixPath { inherit inputs; };
+            evaluatedModule = outerModule {
+              config = { };
+              inherit lib pkgs;
+              osConfig = null;
+            };
+            # Extract just the ugaif.users.<name> options
+            ugaifUsers = evaluatedModule.ugaif.users or { };
+            userOptions = ugaifUsers.${name} or { };
+          in
+          userOptions
+        else
+          { };
+    in
+    if moduleOptions != { } then acc // { ${name} = moduleOptions; } else acc
+  ) { } (lib.mapAttrsToList (name: user: { inherit name user; }) accounts);
+
   # Submodule defining the structure of a user account
   userSubmodule = lib.types.submodule {
     options = {
@@ -49,7 +100,7 @@ let
         type = lib.types.listOf lib.types.path;
         default = [ ];
       };
-      home = lib.mkOption {
+      external = lib.mkOption {
         type = lib.types.nullOr (
           lib.types.oneOf [
             lib.types.path
@@ -59,10 +110,14 @@ let
         );
         default = null;
         description = ''
-          External home-manager configuration. Can be:
-          - A path to a local module
+          External user configuration module. Can be:
+          - A path to a local module directory
           - A fetchGit/fetchTarball result pointing to a repository
-          - An attribute set with home-manager configuration
+
+          The external module can contain:
+          - user.nix (optional): Sets ugaif.users.<name> options AND home-manager config
+          - nixos.nix (optional): System-level NixOS configuration
+
           Example: builtins.fetchGit { url = "https://github.com/user/dotfiles"; rev = "..."; }
         '';
       };
@@ -98,8 +153,10 @@ let
       };
     };
   };
+
 in
 {
+
   options.ugaif.users = lib.mkOption {
     type = lib.types.attrsOf userSubmodule;
     default = { };
@@ -107,6 +164,20 @@ in
   };
 
   config = {
+    # Merge user definitions from users.nix with options from external user.nix modules
+    # External options take precedence over users.nix (which uses lib.mkDefault)
+    ugaif.users = lib.mapAttrs (
+      name: user:
+      {
+        description = lib.mkDefault (user.description or null);
+        shell = lib.mkDefault (user.shell or null);
+        extraGroups = lib.mkDefault (user.extraGroups or [ ]);
+        external = user.external or null;
+      }
+      // (externalUserOptions.${name} or { })
+    ) accounts;
+    
+
     # Generate NixOS users
     users.users =
       let
@@ -143,52 +214,59 @@ in
         in
         lib.mapAttrs (
           name: user:
-          { ... }:
           let
-            # Check if user has external home configuration
-            hasExternalHome = user.home != null;
+            # Resolve external module paths
+            hasExternal = user.external != null;
+            externalPath = resolveExternalPath user.external;
+            userNixPath = if externalPath != null then externalPath + "/user.nix" else null;
+            hasExternalUser = isValidPath userNixPath;
 
-            # Extract path from fetchGit/fetchTarball if needed
-            externalHomePath =
-              if hasExternalHome then
-                if builtins.isAttrs user.home && user.home ? outPath then user.home.outPath else user.home
-              else
-                null;
-
-            # Import external module if it's a path
-            externalHomeModule =
-              if
-                externalHomePath != null
-                && (
-                  builtins.isPath externalHomePath
-                  || (builtins.isString externalHomePath && lib.hasPrefix "/" externalHomePath)
-                )
-              then
-                import (externalHomePath + "/home.nix") { inherit inputs; }
-              else if builtins.isAttrs user.home && !(user.home ? outPath) then
-                user.home # Direct attrset configuration
+            # Import external user.nix for home-manager (filter out ugaif.* options)
+            externalUserModule =
+              if hasExternalUser then
+                let
+                  fullModule = import userNixPath { inherit inputs; };
+                in
+                # Only pass through non-ugaif options to home-manager
+                {
+                  config,
+                  lib,
+                  pkgs,
+                  osConfig,
+                  ...
+                }:
+                let
+                  evaluated = fullModule { inherit config lib pkgs osConfig; };
+                in
+                lib.filterAttrs (name: _: name != "ugaif") evaluated
               else
                 { };
 
-            # Common imports based on flags
+            # Common imports based on user flags
             commonImports = lib.optional user.useZshTheme ../sw/theme.nix ++ [
               (import ../sw/nvim.nix { inherit user; })
             ];
+
+            # Build imports list
+            allImports =
+              user.extraImports
+              ++ commonImports
+              ++ lib.optional hasExternalUser externalUserModule;
           in
-          if hasExternalHome then
+          lib.mkMerge [
             {
-              # External users: Merge external config with common imports
-              imports = commonImports ++ [ externalHomeModule ];
-            }
-          else
-            {
-              # Local users: Apply full configuration.
-              imports = user.extraImports ++ commonImports;
+              imports = allImports;
+
+              # Always set these required options
               home.username = name;
               home.homeDirectory = if name == "root" then "/root" else "/home/${name}";
               home.stateVersion = "25.11";
-              home.packages = user.homePackages;
             }
+            (lib.mkIf (!hasExternal) {
+              # For local users only, add their packages
+              home.packages = user.homePackages;
+            })
+          ]
         ) enabledAccounts;
     };
   };
