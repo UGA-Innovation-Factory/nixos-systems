@@ -26,7 +26,7 @@
   # ========== User Account Configuration ==========
   # These are imported as a NixOS module to set ugaif.users options
   # Replace "myusername" with your actual username
-  
+
   ugaif.users.myusername = {
     description = "Your Full Name";
 

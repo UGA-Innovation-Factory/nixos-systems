@@ -20,7 +20,8 @@ let
   accounts = usersData.ugaif.users or { };
 
   # Helper: Resolve external module path from fetchGit/fetchTarball/path
-  resolveExternalPath = external:
+  resolveExternalPath =
+    external:
     if external == null then
       null
     else if builtins.isAttrs external && external ? outPath then
@@ -29,7 +30,8 @@ let
       external;
 
   # Helper: Check if path exists and is valid
-  isValidPath = path:
+  isValidPath =
+    path:
     path != null
     && (builtins.isPath path || (builtins.isString path && lib.hasPrefix "/" path))
     && builtins.pathExists path;
@@ -176,7 +178,6 @@ in
       }
       // (externalUserOptions.${name} or { })
     ) accounts;
-    
 
     # Generate NixOS users
     users.users =
@@ -236,7 +237,14 @@ in
                   ...
                 }:
                 let
-                  evaluated = fullModule { inherit config lib pkgs osConfig; };
+                  evaluated = fullModule {
+                    inherit
+                      config
+                      lib
+                      pkgs
+                      osConfig
+                      ;
+                  };
                 in
                 lib.filterAttrs (name: _: name != "ugaif") evaluated
               else
@@ -248,10 +256,7 @@ in
             ];
 
             # Build imports list
-            allImports =
-              user.extraImports
-              ++ commonImports
-              ++ lib.optional hasExternalUser externalUserModule;
+            allImports = user.extraImports ++ commonImports ++ lib.optional hasExternalUser externalUserModule;
           in
           lib.mkMerge [
             {

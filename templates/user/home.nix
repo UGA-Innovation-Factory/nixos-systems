@@ -15,7 +15,7 @@
 #     description = "My Name";
 #     shell = pkgs.zsh;
 #     extraGroups = [ "wheel" "networkmanager" ];
-#     
+#
 #     external = builtins.fetchGit {
 #       url = "https://github.com/username/dotfiles";
 #       rev = "commit-hash";
