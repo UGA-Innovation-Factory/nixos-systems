@@ -125,6 +125,37 @@ CI jobs run on the `nix-builder` host as a self-hosted GitHub Actions runner. Th
 - Consistent build environment matching deployment targets
 - Direct access to build caching infrastructure
 
+#### Setting Up the GitHub Actions Runner
+
+The nix-builder host is configured with a GitHub Actions self-hosted runner in `inventory.nix`. To complete the setup:
+
+1. **Generate a GitHub Personal Access Token (PAT)**:
+   - Go to https://github.com/settings/tokens
+   - Create a new token with `repo` scope
+   - Copy the token value
+
+2. **Create the token file on nix-builder**:
+   ```bash
+   ssh engr-ugaif@nix-builder
+   echo "YOUR_TOKEN_HERE" | sudo tee /var/lib/github-runner-token > /dev/null
+   sudo chmod 600 /var/lib/github-runner-token
+   ```
+
+3. **Rebuild the system** to start the runner:
+   ```bash
+   sudo nixos-rebuild switch --flake github:UGA-Innovation-Factory/nixos-systems#nix-builder
+   ```
+
+4. **Verify the runner is registered**:
+   - Check https://github.com/UGA-Innovation-Factory/nixos-systems/settings/actions/runners
+   - The runner should appear with the `nix-builder` label
+
+The runner service is configured in the nix-builder device configuration and will automatically:
+- Register with the repository on first start
+- Use the `nix-builder` label for workflow targeting
+- Run as the `engr-ugaif` user
+- Store work in `/var/lib/github-runner`
+
 ### Troubleshooting CI Failures
 
 If CI fails:

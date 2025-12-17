@@ -96,7 +96,26 @@
   # Creates: nix-builder (without lxc prefix)
   nix-lxc = {
     devices = {
-      "nix-builder" = { };
+      "nix-builder" = {
+        # GitHub Actions self-hosted runner configuration
+        # The runner will register itself with the repository on first start
+        services.github-runners.nixos-systems = {
+          enable = true;
+          url = "https://github.com/UGA-Innovation-Factory/nixos-systems";
+          # Token file must be created manually at this path with a GitHub PAT
+          # that has repo access. Generate at: https://github.com/settings/tokens
+          # echo "YOUR_TOKEN_HERE" | sudo tee /var/lib/github-runner-token > /dev/null
+          tokenFile = "/var/lib/github-runner-token";
+          # Labels to identify this runner in workflows
+          extraLabels = [ "nix-builder" ];
+          # User to run the runner as
+          user = "engr-ugaif";
+          # Working directory for runner
+          workDir = "/var/lib/github-runner";
+          # Replace runner on config changes
+          replace = true;
+        };
+      };
       "usda-dash" = builtins.fetchGit {
         url = "https://git.factory.uga.edu/MODEL/usda-dash-config.git";
         rev = "c47ab8fe295ba38cf3baa8670812b23a09fb4d53";
