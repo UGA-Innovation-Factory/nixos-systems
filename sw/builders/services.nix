@@ -34,7 +34,7 @@ mkIf builderCfg.githubRunner.enable {
       TimeoutStopSec = 60;
       # Restart on failure, but not immediately
       RestartSec = 10;
-      
+
       # Disable all namespace isolation features that don't work in LXC containers
       PrivateMounts = mkForce false;
       MountAPIVFS = mkForce false;
@@ -50,26 +50,26 @@ mkIf builderCfg.githubRunner.enable {
       ProtectKernelTunables = mkForce false;
       ProtectKernelModules = mkForce false;
       ProtectControlGroups = mkForce false;
-      
+
       # Use LoadCredential to securely pass the token file to the service
       # This allows the service to read the token even when running as non-root
       LoadCredential = "token:${builderCfg.githubRunner.tokenFile}";
-      
+
       # Don't override ExecStartPre - let the default module handle configuration
       # Just make the cleanup more tolerant by wrapping the original script
       ExecStartPre = mkForce (
         let
           # Get the runner package and scripts
           runnerPkg = pkgs.github-runner;
-          
+
           # Create wrapper scripts that are failure-tolerant
           unconfigureWrapper = pkgs.writeShellScript "github-runner-unconfigure-wrapper.sh" ''
             set +e  # Don't fail on errors
-            
+
             runnerDir="$1"
             stateDir="$2"
             logDir="$3"
-            
+
             # If directory is busy, just skip cleanup with a warning
             if [ -d "$runnerDir" ]; then
               echo "Attempting cleanup of $runnerDir..."
@@ -77,15 +77,15 @@ mkIf builderCfg.githubRunner.enable {
                 echo "Warning: Cleanup had issues (directory may be in use), continuing anyway..."
               }
             fi
-            
+
             exit 0
           '';
-          
+
           configureScript = pkgs.writeShellScript "github-runner-configure.sh" ''
             set -e
-            
+
             runnerDir="${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name}"
-            
+
             # Read token from systemd credential (passed via LoadCredential)
             if [ -n "''${CREDENTIALS_DIRECTORY:-}" ] && [ -f "''${CREDENTIALS_DIRECTORY}/token" ]; then
               token=$(cat "''${CREDENTIALS_DIRECTORY}/token")
@@ -93,11 +93,13 @@ mkIf builderCfg.githubRunner.enable {
               echo "Error: Token credential not available"
               exit 1
             fi
-            
+
             cd "$runnerDir"
-            
+
             # Configure the runner, optionally replacing existing registration
-            if [ ! -f ".runner" ] || [ "${if builderCfg.githubRunner.replace then "true" else "false"}" = "true" ]; then
+            if [ ! -f ".runner" ] || [ "${
+              if builderCfg.githubRunner.replace then "true" else "false"
+            }" = "true" ]; then
               echo "Configuring GitHub Actions runner..."
               ${runnerPkg}/bin/Runner.Listener configure \
                 --unattended \

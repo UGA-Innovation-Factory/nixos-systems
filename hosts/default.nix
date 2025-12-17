@@ -73,7 +73,12 @@ let
       # Each wrapper checks if the user is enabled before applying the module content
       userNixosModules = lib.mapAttrsToList (
         name: modulePath:
-        { config, lib, pkgs, ... }@args:
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }@args:
         let
           # Import the user's nixos module - it returns a function or attrset
           importedModuleFunc = import modulePath { inherit inputs; };
