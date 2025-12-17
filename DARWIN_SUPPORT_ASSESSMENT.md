@@ -4,7 +4,7 @@
 
 This document provides a comprehensive assessment of the work required to extend the `nixos-systems` repository to support nix-Darwin configurations alongside the existing NixOS configurations. The goal is to enable management of macOS systems using the same infrastructure that currently manages Linux systems (desktops, laptops, tablets, containers).
 
-**Estimated Effort: Medium-High Complexity, ~3-5 days of development + testing**
+**Estimated Effort: Medium-High Complexity, 2-3 weeks (10-14 days) including development, testing, and iterations**
 
 ## Table of Contents
 
@@ -546,7 +546,7 @@ darwin-desktop = {
 | Inventory examples | Low | 1 hour | Low |
 | Documentation | Medium | 4-8 hours | High |
 
-**Total Development Time: 41.5 - 62.5 hours (5-8 days)**
+**Total Development Time: 41.5 - 62.5 hours (5-8 development days)**
 
 ### Testing Time
 
@@ -557,13 +557,15 @@ darwin-desktop = {
 | Real hardware testing | 4-8 hours |
 | Regression testing (NixOS) | 4-6 hours |
 
-**Total Testing Time: 24-38 hours (3-5 days)**
+**Total Testing Time: 24-38 hours (3-5 testing days)**
 
 ### Total Project Timeline
 
-**Optimistic:** 6-8 days (1-1.5 weeks)  
+These estimates include development time, testing time, iterations, and fixes:
+
+**Optimistic:** 8-10 days (1.5-2 weeks) with minimal issues  
 **Realistic:** 10-14 days (2-3 weeks) including iterations and fixes  
-**Conservative:** 15-20 days (3-4 weeks) with comprehensive testing
+**Conservative:** 15-20 days (3-4 weeks) with comprehensive testing and documentation
 
 ## Alternative Approaches
 

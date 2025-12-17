@@ -66,7 +66,7 @@ lib.mkMerge [
       description = "Update system configuration";
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = "${pkgs.systemd}/bin/systemctl start nixos-rebuild";
+        ExecStart = "/run/current-system/sw/bin/nixos-rebuild switch --flake github:UGA-Innovation-Factory/nixos-systems";
       };
     };
   })

@@ -31,7 +31,7 @@
   # Garbage collection (similar to NixOS)
   nix.gc = lib.mkIf config.ugaif.system.gc.enable {
     automatic = true;
-    interval = { Day = 7; };  # launchd format, not systemd
+    interval = { Weekday = 0; Hour = 3; Minute = 0; };  # launchd format: Sunday at 3 AM
     options = "--delete-older-than ${toString config.ugaif.system.gc.retentionDays}d";
   };
 
