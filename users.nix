@@ -11,15 +11,16 @@
   # To generate a password hash, run: mkpasswd -m sha-512
   # Set enabled = true on systems where the user should exist
   #
-  # External Home Configuration:
-  # Users can specify external home-manager configuration via the 'home' attribute:
-  #   home = builtins.fetchGit { url = "..."; rev = "..."; };
-  #   home = /path/to/local/config;
-  #   home = { home.packages = [ ... ]; };  # Direct attrset
+  # External User Configuration:
+  # Users can specify external configuration modules via the 'external' attribute:
+  #   external = builtins.fetchGit { url = "..."; rev = "..."; };
+  #   external = /path/to/local/config;
   #
-  # External repositories should contain:
-  #   - home.nix (required): Home-manager configuration
+  # External repositories can contain:
+  #   - user.nix (optional): Sets ugaif.users.<name> options AND home-manager config
   #   - nixos.nix (optional): System-level NixOS configuration
+  #
+  # User options can be set either in users.nix OR in the external module's user.nix.
   ugaif.users = {
     root = {
       isNormalUser = false;
@@ -41,14 +42,9 @@
       enable = true; # Default user, enabled everywhere
     };
     hdh20267 = {
-      description = "Hunter Halloran";
-      extraGroups = [
-        "networkmanager"
-        "wheel"
-      ];
-      home = builtins.fetchGit {
+      external = builtins.fetchGit {
         url = "https://git.factory.uga.edu/hdh20267/hdh20267-nix";
-        rev = "ea99aa55680cc937f186aef0efc0df307e79d56f";
+        rev = "db96137bb4cb16acefcf59d58c9f848924f2ad43";
       };
     };
     sv22900 = {

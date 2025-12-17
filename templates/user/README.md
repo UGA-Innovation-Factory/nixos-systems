@@ -10,11 +10,13 @@ External user modules allow users to maintain their personal configurations (dot
 
 ```
 user-dotfiles-repo/
-├── home.nix          # Required: Home-manager configuration
+├── user.nix          # Optional: User options AND home-manager configuration
 ├── nixos.nix         # Optional: System-level NixOS configuration
 ├── README.md         # Documentation
 └── dotfiles/         # Optional: Dotfiles to symlink
 ```
+
+**Note:** Both `.nix` files are optional, but at least one should be present for the module to be useful.
 
 ## Usage
 
@@ -30,24 +32,22 @@ Copy the templates from this directory to your own Git repository:
 {
   ugaif.users = {
     myusername = {
+      # Option 1: Set user options in users.nix
       description = "My Name";
       extraGroups = [ "wheel" "networkmanager" ];
       shell = pkgs.zsh;
       
-      # Option 1: External module from Git
-      home = builtins.fetchGit {
+      # Option 2: Or let the external module's user.nix set these options
+      
+      # Reference external dotfiles module
+      external = builtins.fetchGit {
         url = "https://github.com/username/dotfiles";
         rev = "abc123def456...";  # Full commit hash for reproducibility
         ref = "main";              # Optional: branch/tag name
       };
       
-      # Option 2: Local path for testing
-      # home = /path/to/local/dotfiles;
-      
-      # Option 3: Inline configuration
-      # home = {
-      #   home.packages = [ pkgs.vim ];
-      #   programs.git.enable = true;
+      # Or use local path for testing
+      # external = /path/to/local/dotfiles;
       # };
     };
   };
@@ -63,7 +63,7 @@ Enable the user in `inventory.nix`:
   "my-system" = {
     devices = {
       "hostname" = {
-        extraUsers = [ "myusername" ];
+        ugaif.users.myusername.enable = true;
       };
     };
   };
@@ -72,18 +72,32 @@ Enable the user in `inventory.nix`:
 
 ## File Descriptions
 
-### home.nix (Required)
+### user.nix (Optional)
 
-This file contains your home-manager configuration. It must be a valid NixOS module that accepts `{ inputs, ... }` and returns a home-manager configuration.
+This file serves dual purpose:
+1. Sets `ugaif.users.<username>` options (description, shell, extraGroups, etc.)
+2. Provides home-manager configuration (programs.*, home.*, services.*)
 
-**Must export:**
-- Home-manager options (programs.*, home.packages, etc.)
+**How it works:**
+- The `ugaif.users.<username>` options are extracted and loaded as **data** during module evaluation
+- These options override any defaults set in `users.nix` (which uses `lib.mkDefault`)
+- The home-manager options (`home.*`, `programs.*`, etc.) are imported as a module for home-manager
+- External module options take precedence over `users.nix` base configuration
+
+The same file is imported in two contexts:
+- As a NixOS module to read ugaif.users options
+- As a home-manager module for home.*, programs.*, services.*, etc.
+
+Simply include both types of options in the same file.
 
 **Receives:**
 - `inputs` - Flake inputs (nixpkgs, home-manager, etc.)
-- `config` - Home-manager config
+- `config` - Config (NixOS or home-manager depending on context)
+- `lib` - Nixpkgs library
 - `pkgs` - Nixpkgs package set
-- `osConfig` - Access to OS-level configuration
+- `osConfig` - (home-manager context only) OS-level configuration
+
+**Example:** See `user.nix` template
 
 ### nixos.nix (Optional)
 
@@ -92,16 +106,29 @@ This file contains system-level NixOS configuration. Only needed for:
 - System packages requiring root
 - Special permissions or system settings
 
+**Receives:**
+- `inputs` - Flake inputs (nixpkgs, home-manager, etc.)
+- `config` - NixOS config
+- `lib` - Nixpkgs library
+- `pkgs` - Nixpkgs package set
+
 ## Examples
 
-### Minimal home.nix
+### Minimal user.nix
 
 ```nix
 { inputs, ... }:
-
 { config, lib, pkgs, ... }:
 
 {
+  # User account options (imported as NixOS module)
+  ugaif.users.myuser = {
+    description = "My Name";
+    shell = pkgs.zsh;
+    extraGroups = [ "wheel" "networkmanager" ];
+  };
+
+  # Home-manager configuration (imported into home-manager)
   home.packages = with pkgs; [
     vim
     git
@@ -120,10 +147,14 @@ This file contains system-level NixOS configuration. Only needed for:
 
 ```nix
 { inputs, ... }:
-
 { config, lib, pkgs, ... }:
 
 {
+  ugaif.users.myuser = {
+    description = "My Name";
+    shell = pkgs.zsh;
+  };
+
   home.packages = with pkgs; [ ripgrep fd bat ];
 
   # Symlink dotfiles
@@ -158,20 +189,21 @@ This file contains system-level NixOS configuration. Only needed for:
 
 External user modules:
 - Receive the same flake inputs as nixos-systems
-- Can use all home-manager options
+- Can set user options via user.nix (description, shell, home-manager, etc.)
 - Optionally provide system-level configuration (nixos.nix)
 - System zsh theme applied if `useZshTheme = true` (default)
 - System nvim config applied if `useNvimPlugins = true` (default)
-- Merged with inventory.nix user settings (groups, shell, etc.)
+- Settings from user.nix override base users.nix definitions
 
 ## Development Workflow
 
-1. Create your user config repository with `home.nix`
-2. Test locally: `home = /path/to/local/repo;`
-3. Build: `nix build .#nixosConfigurations.hostname.config.system.build.toplevel`
-4. Commit and push changes
-5. Update users.nix with commit hash
-6. Deploy to systems
+1. Create your user config repository with `user.nix` and/or `nixos.nix`
+2. Set user options in user.nix OR in the main users.nix
+3. Test locally: `external = /path/to/local/repo;`
+4. Build: `nix build .#nixosConfigurations.hostname.config.system.build.toplevel`
+5. Commit and push changes
+6. Update users.nix with commit hash
+7. Deploy to systems
 
 ## Benefits
 
