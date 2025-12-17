@@ -245,7 +245,7 @@ in
                       ;
                   };
                 in
-                lib.filterAttrs (name: _: name != "ugaif") evaluated
+                lib.filterAttrs (attrName: _: attrName != "ugaif") evaluated
               else
                 { };
 
