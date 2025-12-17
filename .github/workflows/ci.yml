@@ -41,6 +41,7 @@ jobs:
         with:
           extra-conf: |
             experimental-features = nix-command flakes
+            accept-flake-config = true
 
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main
