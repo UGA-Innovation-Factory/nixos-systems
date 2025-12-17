@@ -51,36 +51,61 @@ mkIf builderCfg.githubRunner.enable {
       ProtectKernelModules = mkForce false;
       ProtectControlGroups = mkForce false;
       
-      # Override the unconfigure script to be failure-tolerant
-      # The '-' prefix means the command failure won't cause the service to fail
-      ExecStartPre = mkForce [
-        (
-          let
-            unconfigureScript = pkgs.writeShellScript "github-runner-${builderCfg.githubRunner.name}-unconfigure.sh" ''
-              set +e  # Don't exit on error
-              
-              runnerDir="${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name}"
-              
-              # Try to remove the runner registration if it exists
-              if [ -e "$runnerDir" ]; then
-                echo "Cleaning up runner directory: $runnerDir"
-                
-                # Try to remove contents, but don't fail if busy
-                find "$runnerDir" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
-                
-                # If directory still has content but we couldn't delete it, just warn
-                if [ "$(ls -A $runnerDir 2>/dev/null)" ]; then
-                  echo "Warning: Could not fully clean $runnerDir (may be in use)"
-                  echo "This is normal on first deployment or if runner is already running"
-                fi
-              fi
-              
-              exit 0  # Always succeed
-            '';
-          in
-          "-${unconfigureScript} ${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name} ${builderCfg.githubRunner.workDir} /var/log/github-runner/${builderCfg.githubRunner.name}"
-        )
-      ];
+      # Don't override ExecStartPre - let the default module handle configuration
+      # Just make the cleanup more tolerant by wrapping the original script
+      ExecStartPre = mkForce (
+        let
+          # Get the runner package and scripts
+          runnerPkg = pkgs.github-runner;
+          
+          # Create wrapper scripts that are failure-tolerant
+          unconfigureWrapper = pkgs.writeShellScript "github-runner-unconfigure-wrapper.sh" ''
+            set +e  # Don't fail on errors
+            
+            runnerDir="$1"
+            stateDir="$2"
+            logDir="$3"
+            
+            # If directory is busy, just skip cleanup with a warning
+            if [ -d "$runnerDir" ]; then
+              echo "Attempting cleanup of $runnerDir..."
+              find "$runnerDir" -mindepth 1 -maxdepth 1 -delete 2>/dev/null || {
+                echo "Warning: Cleanup had issues (directory may be in use), continuing anyway..."
+              }
+            fi
+            
+            exit 0
+          '';
+          
+          configureScript = pkgs.writeShellScript "github-runner-configure.sh" ''
+            set -e
+            
+            runnerDir="${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name}"
+            token=$(cat "${builderCfg.githubRunner.tokenFile}")
+            
+            cd "$runnerDir"
+            
+            # Configure if not already configured or if --replace is set
+            if [ ! -f ".runner" ] || [ "${if builderCfg.githubRunner.replace then "true" else "false"}" = "true" ]; then
+              echo "Configuring GitHub Actions runner..."
+              ${runnerPkg}/bin/Runner.Listener configure \
+                --unattended \
+                --url "${builderCfg.githubRunner.url}" \
+                --token "$token" \
+                --name "$(hostname)" \
+                --labels "${lib.concatStringsSep "," builderCfg.githubRunner.extraLabels}" \
+                --work "_work" \
+                --replace
+            else
+              echo "Runner already configured."
+            fi
+          '';
+        in
+        [
+          "-${unconfigureWrapper} ${builderCfg.githubRunner.workDir}/${builderCfg.githubRunner.name} ${builderCfg.githubRunner.workDir} /var/log/github-runner/${builderCfg.githubRunner.name}"
+          "${configureScript}"
+        ]
+      );
     };
   };
 
