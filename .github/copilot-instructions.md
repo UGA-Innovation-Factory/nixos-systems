@@ -14,7 +14,7 @@ This is a **NixOS system configuration repository** that uses:
 ## Code Style and Conventions
 
 ### Nix Code Style
-- Use the repository's formatter: `nix fmt` (uses `nixfmt-rfc-style`)
+- Use the repository's formatter: `nix fmt **/*.nix` (uses `nixfmt-rfc-style`)
 - Follow existing indentation (2 spaces)
 - Use descriptive variable names
 - Add comments for complex logic, especially in host generation
@@ -126,7 +126,7 @@ ugaif.forUser = "username";            # Convenience: enable user + set WSL user
 - **Always** preserve existing comment styles and documentation
 - **Always** test that configurations build successfully
 - **Always** consider impact on existing hosts when making changes
-- **Always** use `nix fmt` to format code before committing
+- **Always** use `nix fmt **/*.nix` to format code before committing
 
 ## External Module Integration
 
@@ -197,8 +197,8 @@ Set via `ugaif.host.buildMethods`:
 ### Common Issues
 1. **Build failures**: Run `nix flake check --show-trace` for detailed errors
 2. **External modules not loading**: Check URL accessibility and module structure
-3. **User not appearing**: Ensure user is in `enabledUsers` for that host
-4. **Formatting issues**: Run `nix fmt` to auto-format
+3. **User not appearing**: Ensure user is enabled for that host
+4. **Formatting issues**: Run `nix fmt **/*.nix` to auto-format
 
 ### Getting Help
 - Review existing documentation: `README.md`, `USER_CONFIGURATION.md`, `EXTERNAL_MODULES.md`
