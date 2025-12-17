@@ -42,12 +42,7 @@
       enable = true; # Default user, enabled everywhere
     };
     hdh20267 = {
-      description = "Hunter Halloran";
-      extraGroups = [
-        "networkmanager"
-        "wheel"
-      ];
-      home = builtins.fetchGit {
+      external = builtins.fetchGit {
         url = "https://git.factory.uga.edu/hdh20267/hdh20267-nix";
         rev = "db96137bb4cb16acefcf59d58c9f848924f2ad43";
       };
