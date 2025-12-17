@@ -21,4 +21,10 @@ mkIf builderCfg.githubRunner.enable {
     workDir = builderCfg.githubRunner.workDir;
     replace = true;
   };
+
+  # Add systemd condition to only start the service if token file exists
+  # This allows graceful deployment before the token is manually installed
+  systemd.services."github-runner-${builderCfg.githubRunner.name}".unitConfig = {
+    ConditionPathExists = builderCfg.githubRunner.tokenFile;
+  };
 }
