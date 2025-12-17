@@ -2,6 +2,8 @@
 
 This repository contains the NixOS configuration for the Innovation Factory's fleet of laptops, desktops, surface tablets, and containers. It provides a declarative, reproducible system configuration using Nix flakes.
 
+> **📖 Darwin Support**: Interested in adding macOS support? See [DARWIN_SUPPORT_ASSESSMENT.md](DARWIN_SUPPORT_ASSESSMENT.md) for a comprehensive analysis of the work required.
+
 ## Table of Contents
 
 - [Quick Start](#quick-start)
@@ -13,6 +15,7 @@ This repository contains the NixOS configuration for the Innovation Factory's fl
 - [Building Artifacts](#building-artifacts)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
+- [Future Enhancements](#future-enhancements)
 
 ## Quick Start
 
@@ -655,3 +658,40 @@ nix flake metadata
 # Update and show what changed
 nix flake update && git diff flake.lock
 ```
+
+## Future Enhancements
+
+### macOS Support with nix-Darwin
+
+The repository architecture is designed to potentially support macOS systems via nix-Darwin alongside the existing NixOS configurations. This would enable unified fleet management across Linux and macOS platforms.
+
+**Status:** Not implemented (assessment complete)
+
+**Documentation:**
+- **[DARWIN_SUPPORT_ASSESSMENT.md](DARWIN_SUPPORT_ASSESSMENT.md)** - Comprehensive 20+ page assessment covering:
+  - Current architecture analysis
+  - Required changes by component
+  - Detailed effort estimation (2-3 weeks)
+  - Migration strategy and testing plan
+  - Risk analysis and mitigation
+  
+- **[docs/DARWIN_QUICK_REFERENCE.md](docs/DARWIN_QUICK_REFERENCE.md)** - Quick reference guide with:
+  - TL;DR effort summary
+  - Implementation checklist
+  - Example configurations
+  - Common pitfalls
+
+**Key Insights:**
+- **Effort:** Medium-high complexity, ~2-3 weeks of development + testing
+- **Feasibility:** ✅ Recommended - the existing architecture is well-suited for this extension
+- **Impact:** Minimal changes needed to existing NixOS configurations (low risk)
+- **Benefits:** Unified management for mixed Linux/macOS environments
+
+**Main Changes Required:**
+1. Add nix-darwin flake input
+2. Refactor host generation for platform detection
+3. Create Darwin-specific host types and modules
+4. Make software profiles platform-aware (systemd vs launchd)
+5. Update documentation and examples
+
+For organizations with mixed environments, this enhancement would provide significant value through unified configuration management, consistent user environments via Home Manager, and streamlined fleet operations.
