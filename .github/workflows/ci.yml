@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  flake-check:
+    name: Flake Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Check flake
+        run: nix flake check --show-trace --print-build-logs
+
+  format-check:
+    name: Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            experimental-features = nix-command flakes
+
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Check formatting
+        run: |
+          nix fmt
+          if ! git diff --quiet; then
+            echo "::error::Code is not formatted. Please run 'nix fmt' locally."
+            git diff
+            exit 1
+          fi
+
+  build-configs:
+    name: Build Key Configurations
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config:
+          - nix-builder
+          - nix-laptop1
+          - nix-desktop1
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Build configuration
+        run: |
+          echo "Building configuration for ${{ matrix.config }}"
+          nix build .#nixosConfigurations.${{ matrix.config }}.config.system.build.toplevel \
+            --print-build-logs \
+            --show-trace
+
+  build-artifacts:
+    name: Build Artifacts
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        artifact:
+          - lxc-nix-builder
+          - installer-iso-nix-laptop1
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Build artifact
+        run: |
+          echo "Building artifact ${{ matrix.artifact }}"
+          nix build .#${{ matrix.artifact }} \
+            --print-build-logs \
+            --show-trace
+
+      - name: Show build result
+        run: |
+          if [ -L result ]; then
+            ls -lh result/
+            if [ -d result/iso ]; then
+              ls -lh result/iso/
+            fi
+          fi

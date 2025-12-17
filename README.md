@@ -1,5 +1,7 @@
 # UGA Innovation Factory - NixOS Systems
 
+[![CI](https://github.com/UGA-Innovation-Factory/nixos-systems/actions/workflows/ci.yml/badge.svg)](https://github.com/UGA-Innovation-Factory/nixos-systems/actions/workflows/ci.yml)
+
 This repository contains the NixOS configuration for the Innovation Factory's fleet of laptops, desktops, Surface tablets, and containers. It provides a declarative, reproducible system configuration using Nix flakes.
 
 ## Documentation
