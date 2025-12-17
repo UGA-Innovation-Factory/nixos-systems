@@ -67,8 +67,6 @@ let
   # Submodule defining the structure of a user account
   userSubmodule = lib.types.submodule {
     options = {
-  userSubmodule = lib.types.submodule {
-    options = {
       isNormalUser = lib.mkOption {
         type = lib.types.bool;
         default = true;
@@ -154,7 +152,6 @@ let
       };
     };
   };
-
 in
 {
 
