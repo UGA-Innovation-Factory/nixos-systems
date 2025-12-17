@@ -35,11 +35,21 @@ mkIf builderCfg.githubRunner.enable {
       # Restart on failure, but not immediately
       RestartSec = 10;
       
-      # Disable namespace isolation features that don't work in LXC containers
+      # Disable all namespace isolation features that don't work in LXC containers
       PrivateMounts = mkForce false;
       MountAPIVFS = mkForce false;
       BindPaths = mkForce [ ];
       BindReadOnlyPaths = mkForce [ ];
+      PrivateTmp = mkForce false;
+      PrivateDevices = mkForce false;
+      ProtectSystem = mkForce false;
+      ProtectHome = mkForce false;
+      ReadOnlyPaths = mkForce [ ];
+      InaccessiblePaths = mkForce [ ];
+      PrivateUsers = mkForce false;
+      ProtectKernelTunables = mkForce false;
+      ProtectKernelModules = mkForce false;
+      ProtectControlGroups = mkForce false;
       
       # Override the unconfigure script to be failure-tolerant
       # The '-' prefix means the command failure won't cause the service to fail
