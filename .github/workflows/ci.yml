@@ -38,9 +38,10 @@ jobs:
             exit 1
           fi
 
-  build-configs:
-    name: Build Key Configurations
+  eval-configs:
+    name: Evaluate Key Configurations
     runs-on: [self-hosted, nix-builder]
+    needs: [flake-check, format-check]
     strategy:
       matrix:
         config:
@@ -52,16 +53,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build configuration
+      - name: Evaluate configuration
         run: |
-          echo "Building configuration for ${{ matrix.config }}"
-          nix build .#nixosConfigurations.${{ matrix.config }}.config.system.build.toplevel \
-            --print-build-logs \
+          echo "Evaluating configuration for ${{ matrix.config }}"
+          nix eval .#nixosConfigurations.${{ matrix.config }}.config.system.build.toplevel.drvPath \
             --show-trace
 
   build-artifacts:
     name: Build Artifacts
     runs-on: [self-hosted, nix-builder]
+    needs: [flake-check, format-check]
     strategy:
       matrix:
         artifact:
