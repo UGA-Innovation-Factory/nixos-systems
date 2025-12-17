@@ -15,8 +15,7 @@
 
 let
   # Load users.nix to get account definitions
-  pkgs' = pkgs;
-  usersData = import ../users.nix { pkgs = pkgs'; };
+  usersData = import ../users.nix { inherit pkgs; };
   accounts = usersData.ugaif.users or { };
 
   # Helper: Resolve external module path from fetchGit/fetchTarball/path
