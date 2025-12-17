@@ -189,8 +189,7 @@ This file contains system-level NixOS configuration. Only needed for:
 
 External user modules:
 - Receive the same flake inputs as nixos-systems
-- Can set user options via user.nix (description, shell, extraGroups, etc.)
-- Can use all home-manager options via home.nix
+- Can set user options via user.nix (description, shell, home-manager, etc.)
 - Optionally provide system-level configuration (nixos.nix)
 - System zsh theme applied if `useZshTheme = true` (default)
 - System nvim config applied if `useNvimPlugins = true` (default)
@@ -198,7 +197,7 @@ External user modules:
 
 ## Development Workflow
 
-1. Create your user config repository with `user.nix`, `home.nix`, and/or `nixos.nix`
+1. Create your user config repository with `user.nix` and/or `nixos.nix`
 2. Set user options in user.nix OR in the main users.nix
 3. Test locally: `external = /path/to/local/repo;`
 4. Build: `nix build .#nixosConfigurations.hostname.config.system.build.toplevel`
