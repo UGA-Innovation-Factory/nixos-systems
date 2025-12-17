@@ -51,9 +51,9 @@ jobs:
 
       - name: Check formatting
         run: |
-          nix fmt
+          nix fmt **/*.nix
           if ! git diff --quiet; then
-            echo "::error::Code is not formatted. Please run 'nix fmt' locally."
+            echo "::error::Code is not formatted. Please run 'nix fmt **/*.nix' locally."
             git diff
             exit 1
           fi
