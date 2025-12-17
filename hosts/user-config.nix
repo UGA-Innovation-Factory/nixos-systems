@@ -166,11 +166,11 @@ in
     # External options take precedence over users.nix (which uses lib.mkDefault)
     ugaif.users = lib.mapAttrs (
       name: user:
-      {
+      user
+      // {
         description = lib.mkDefault (user.description or null);
         shell = lib.mkDefault (user.shell or null);
         extraGroups = lib.mkDefault (user.extraGroups or [ ]);
-        external = user.external or null;
       }
       // (externalUserOptions.${name} or { })
     ) accounts;
