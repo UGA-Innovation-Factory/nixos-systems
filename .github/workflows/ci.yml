@@ -14,40 +14,20 @@ permissions:
 jobs:
   flake-check:
     name: Flake Check
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nix-builder]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-        with:
-          extra-conf: |
-            experimental-features = nix-command flakes
-            accept-flake-config = true
-
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Check flake
         run: nix flake check --show-trace --print-build-logs
 
   format-check:
     name: Format Check
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nix-builder]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-        with:
-          extra-conf: |
-            experimental-features = nix-command flakes
-            accept-flake-config = true
-
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Check formatting
         run: |
@@ -60,7 +40,7 @@ jobs:
 
   build-configs:
     name: Build Key Configurations
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nix-builder]
     strategy:
       matrix:
         config:
@@ -72,16 +52,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-        with:
-          extra-conf: |
-            experimental-features = nix-command flakes
-            accept-flake-config = true
-
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
-
       - name: Build configuration
         run: |
           echo "Building configuration for ${{ matrix.config }}"
@@ -91,7 +61,7 @@ jobs:
 
   build-artifacts:
     name: Build Artifacts
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nix-builder]
     strategy:
       matrix:
         artifact:
@@ -101,16 +71,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-        with:
-          extra-conf: |
-            experimental-features = nix-command flakes
-            accept-flake-config = true
-
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Build artifact
         run: |

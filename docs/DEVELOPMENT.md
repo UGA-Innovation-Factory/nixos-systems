@@ -66,7 +66,7 @@ sudo nixos-rebuild build --flake .
 
 ## Continuous Integration
 
-The repository uses GitHub Actions for automated testing and validation.
+The repository uses GitHub Actions for automated testing and validation. CI jobs run on the self-hosted `nix-builder` machine via SSH.
 
 ### CI Workflow
 
@@ -116,9 +116,14 @@ nix build .#nixosConfigurations.nix-builder.config.system.build.toplevel
 nix build .#lxc-nix-builder
 ```
 
-### CI Caching
+### Self-Hosted Runner
 
-The CI workflow uses [Magic Nix Cache](https://github.com/DeterminateSystems/magic-nix-cache-action) to speed up builds by caching Nix store paths between runs. This significantly reduces build times for repeated builds.
+CI jobs run on the `nix-builder` host as a self-hosted GitHub Actions runner. This provides:
+
+- Native Nix environment without installation overhead
+- Access to local Nix store for faster builds
+- Consistent build environment matching deployment targets
+- Direct access to build caching infrastructure
 
 ### Troubleshooting CI Failures
 
