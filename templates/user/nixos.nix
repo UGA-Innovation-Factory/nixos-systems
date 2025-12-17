@@ -12,7 +12,8 @@
 # - Installing system packages that require root
 #
 # Note: User options (description, shell, extraGroups, etc.) should be set
-# in the main users.nix file, not here.
+# in your external module's user.nix or in the main users.nix file, not in
+# this nixos.nix.
 #
 # This module receives the same `inputs` flake inputs as the main
 # nixos-systems configuration.

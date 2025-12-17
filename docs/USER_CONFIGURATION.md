@@ -154,7 +154,7 @@ dotfiles/
 
 {
   # User account options (imported as NixOS module)
-  ugaif.users.myusername = {
+  ugaif.users.myuser = {
     description = "My Full Name";
     extraGroups = [ "wheel" "docker" ];
     shell = pkgs.zsh;
