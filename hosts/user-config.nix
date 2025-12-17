@@ -36,37 +36,37 @@ let
     && builtins.pathExists path;
 
   # Extract ugaif.users options from external user.nix modules
-  externalUserOptions = lib.foldl' (
-    acc: item:
+  # First, build a cache of options per user from their external user.nix (if any).
+  externalUserModuleOptions = lib.genAttrs (lib.attrNames accounts) (
+    name:
     let
-      name = item.name;
-      user = item.user;
+      user = accounts.${name};
       externalPath = resolveExternalPath (user.external or null);
       userNixPath = if externalPath != null then externalPath + "/user.nix" else null;
-
-      # Load the module and extract its ugaif.users options
-      moduleOptions =
-        if isValidPath userNixPath then
-          let
-            # Import and evaluate the module with minimal args
-            outerModule = import userNixPath { inherit inputs; };
-            evaluatedModule = outerModule {
-              config = { };
-              inherit lib pkgs;
-              osConfig = null;
-            };
-            # Extract just the ugaif.users.<name> options
-            ugaifUsers = evaluatedModule.ugaif.users or { };
-            userOptions = ugaifUsers.${name} or { };
-          in
-          userOptions
-        else
-          { };
     in
-    if moduleOptions != { } then acc // { ${name} = moduleOptions; } else acc
-  ) { } (lib.mapAttrsToList (name: user: { inherit name user; }) accounts);
+    if isValidPath userNixPath then
+      let
+        # Import and evaluate the module with minimal args
+        outerModule = import userNixPath { inherit inputs; };
+        evaluatedModule = outerModule {
+          config = { };
+          inherit lib pkgs;
+          osConfig = null;
+        };
+        # Extract just the ugaif.users.<name> options
+        ugaifUsers = evaluatedModule.ugaif.users or { };
+      in
+      ugaifUsers.${name} or { }
+    else
+      { }
+  );
+
+  # externalUserOptions only contains users that actually have options defined
+  externalUserOptions = lib.filterAttrs (_: moduleOptions: moduleOptions != { }) externalUserModuleOptions;
 
   # Submodule defining the structure of a user account
+  userSubmodule = lib.types.submodule {
+    options = {
   userSubmodule = lib.types.submodule {
     options = {
       isNormalUser = lib.mkOption {
