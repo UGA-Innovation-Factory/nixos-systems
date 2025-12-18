@@ -199,6 +199,7 @@ ugaif.users = {
 Each user in `users.nix` can be configured with:
 
 ```nix
+# Option 1: Define inline in users.nix
 ugaif.users.myuser = {
   description = "Full Name";
   isNormalUser = true;                    # Default: true
@@ -206,17 +207,17 @@ ugaif.users.myuser = {
   shell = pkgs.zsh;                       # Login shell
   hashedPassword = "$6$...";              # Hashed password
   opensshKeys = [ "ssh-ed25519 ..." ];    # SSH public keys
-  homePackages = with pkgs; [ ... ];      # User packages
   useZshTheme = true;                     # Use system Zsh theme
   useNvimPlugins = true;                  # Use system Neovim config
   
-  # External home-manager configuration (optional)
-  home = builtins.fetchGit {
-    url = "https://github.com/username/dotfiles";
-    rev = "abc123...";
-  };
-  
   enable = false;  # Enable per-system in inventory.nix
+};
+
+# Option 2: Use external configuration (recommended)
+# The external user.nix can set ugaif.users.myuser options directly
+ugaif.users.anotheruser.external = builtins.fetchGit {
+  url = "https://github.com/username/dotfiles";
+  rev = "abc123...";
 };
 ```
 
@@ -271,5 +272,6 @@ nix-wsl = {
 ## See Also
 
 - [INVENTORY.md](INVENTORY.md) - Host inventory configuration guide
-- [USER_CONFIGURATION.md](../USER_CONFIGURATION.md) - User management guide
+- [USER_CONFIGURATION.md](USER_CONFIGURATION.md) - User management guide
+- [EXTERNAL_MODULES.md](EXTERNAL_MODULES.md) - External configuration modules
 - [README.md](../README.md) - Main documentation

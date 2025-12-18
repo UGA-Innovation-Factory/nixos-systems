@@ -4,16 +4,15 @@
 # User NixOS System Configuration (Optional)
 # ============================================================================
 # This file provides system-level NixOS configuration for a user.
-# It's optional - most user configuration should go in home.nix.
+# It's optional - most user configuration should go in user.nix.
 #
 # Use this for:
 # - System-level services that depend on the user (e.g., user systemd services)
 # - Special system permissions or configurations
 # - Installing system packages that require root
 #
-# Note: User options (description, shell, extraGroups, etc.) should be set
-# in your external module's user.nix or in the main users.nix file, not in
-# this nixos.nix.
+# Note: User options (description, shell, extraGroups, etc.) AND home-manager
+# configuration should be set in user.nix, not in this nixos.nix.
 #
 # This module receives the same `inputs` flake inputs as the main
 # nixos-systems configuration.
@@ -47,5 +46,5 @@
   # Example: Add user to additional groups
   # users.users.myusername.extraGroups = [ "docker" ];
 
-  # Most configuration should be in home.nix instead of here
+  # Most configuration should be in user.nix instead of here
 }

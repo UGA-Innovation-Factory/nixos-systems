@@ -107,7 +107,7 @@ ugaif.forUser = "username";            # Convenience: enable user + set WSL user
 
 #### Creating External Modules
 1. Use templates: `nix flake init -t github:UGA-Innovation-Factory/nixos-systems#{user|system}`
-2. User modules: Provide `home.nix` (required) and `nixos.nix` (optional)
+2. User modules: Provide `user.nix` (required) and `nixos.nix` (optional)
 3. System modules: Provide `default.nix` that accepts `{ inputs, ... }`
 4. Reference in `inventory.nix` or `users.nix` using `builtins.fetchGit`
 
@@ -135,13 +135,12 @@ This repository supports external configurations via Git repositories:
 ### User Configurations (Dotfiles)
 ```nix
 # In users.nix
-myuser = {
-  description = "My Name";
-  home = builtins.fetchGit {
-    url = "https://github.com/username/dotfiles";
-    rev = "abc123...";  # Pin to specific commit
-  };
+myuser.external = builtins.fetchGit {
+  url = "https://github.com/username/dotfiles";
+  rev = "abc123...";  # Pin to specific commit
 };
+# The external user.nix file contains BOTH user account options
+# (ugaif.users.myuser) AND home-manager configuration
 ```
 
 ### System Configurations
@@ -157,7 +156,7 @@ nix-lxc = {
 
 **Key Points:**
 - External modules receive `{ inputs }` parameter with flake inputs
-- User modules must provide `home.nix` (home-manager config)
+- User modules must provide `user.nix` (user options AND home-manager config)
 - System modules must provide `default.nix` (NixOS module)
 - Always pin to specific commit hash (`rev`) for reproducibility
 

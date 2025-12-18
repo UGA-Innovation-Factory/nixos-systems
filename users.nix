@@ -16,11 +16,16 @@
   #   external = builtins.fetchGit { url = "..."; rev = "..."; };
   #   external = /path/to/local/config;
   #
-  # External repositories can contain:
-  #   - user.nix (optional): Sets ugaif.users.<name> options AND home-manager config
+  # External repositories should contain:
+  #   - user.nix (required): Defines ugaif.users.<name> options AND home-manager config
   #   - nixos.nix (optional): System-level NixOS configuration
   #
-  # User options can be set either in users.nix OR in the external module's user.nix.
+  # The user.nix file is imported in TWO contexts:
+  #   1. As a NixOS module to read ugaif.users.<name> options (account settings)
+  #   2. As a home-manager module for home.*, programs.*, services.* (user environment)
+  #
+  # User options can be set in users.nix OR in the external module's user.nix.
+  # External module options take precedence over users.nix defaults.
   ugaif.users = {
     root = {
       isNormalUser = false;
