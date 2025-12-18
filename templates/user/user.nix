@@ -1,16 +1,15 @@
 { inputs, ... }:
 
 # ============================================================================
-# User Configuration (Optional)
+# User Configuration
 # ============================================================================
-# This file can configure BOTH:
-# 1. User account options (ugaif.users.<username>) when imported as NixOS module
-# 2. Home-manager configuration (home.*, programs.*, services.*) when imported
-#    into home-manager
+# This file configures BOTH:
+# 1. User account options (ugaif.users.<username>)
+# 2. Home-manager configuration (home.*, programs.*, services.*)
 #
-# This file is optional - if not present, the system will use the defaults
-# from the main users.nix file. Use this file to override or extend those
-# default user and home-manager options for this user.
+# The same file is imported in two contexts:
+# - As a NixOS module to read ugaif.users.<username> options
+# - As a home-manager module for user environment configuration
 #
 # This module receives the same `inputs` flake inputs as the main
 # nixos-systems configuration (nixpkgs, home-manager, etc.).
@@ -25,45 +24,44 @@
 
 {
   # ========== User Account Configuration ==========
-  # These are imported as a NixOS module to set ugaif.users options
   # Replace "myusername" with your actual username
 
   ugaif.users.myusername = {
     description = "Your Full Name";
+    shell = pkgs.zsh;
+    hashedPassword = "!"; # Locked password - use SSH keys only
 
     extraGroups = [
       "wheel" # Sudo access
       "networkmanager" # Network configuration
-      # "docker"         # Docker access (if needed)
+      # "docker"       # Docker access (if needed)
     ];
 
-    shell = pkgs.zsh;
+    opensshKeys = [
+      # Add your SSH public keys here
+      # "ssh-ed25519 AAAA... user@machine"
+    ];
 
-    # Optional: Override editor
-    # editor = pkgs.helix;
-
-    # Optional: Disable system theme/nvim plugins
-    # useZshTheme = false;
-    # useNvimPlugins = false;
-
-    # Optional: Add system-level packages
-    # extraPackages = with pkgs; [ docker ];
+    useZshTheme = true; # Apply system Zsh theme
+    useNvimPlugins = true; # Apply system Neovim plugins
   };
 
   # Note: You don't need to set 'enable = true' - that's controlled
-  # per-host in inventory.nix
+  # per-host in inventory.nix via ugaif.users.myusername.enable
 
   # ========== Home Manager Configuration ==========
-  # These are imported into home-manager for user environment
-  # System theme (zsh) and nvim config are applied automatically based on flags above
 
   # Packages
-  home.packages = with pkgs; [
-    # Add your preferred packages here
-    # ripgrep
-    # fd
-    # bat
-  ];
+  home.packages =
+    with pkgs;
+    [
+      htop
+      ripgrep
+      fd
+      bat
+    ]
+    ++ lib.optional (osConfig.ugaif.sw.type or null == "desktop") firefox;
+  # Conditionally add packages based on system type
 
   # ========== Programs ==========
 
@@ -77,18 +75,28 @@
     };
   };
 
+  # Zsh configuration
+  programs.zsh = {
+    enable = true;
+    # System theme is applied automatically if useZshTheme = true
+  };
+
   # ========== Shell Environment ==========
 
   home.sessionVariables = {
-    # EDITOR is set automatically based on ugaif.users.*.editor
+    EDITOR = "nvim";
     # Add your custom environment variables here
   };
+
+  # ========== XDG Configuration ==========
+
+  xdg.enable = true;
 
   # ========== Dotfiles ==========
 
   # You can manage dotfiles with home.file
-  # home.file.".bashrc".source = ./dotfiles/bashrc;
-  # home.file.".vimrc".source = ./dotfiles/vimrc;
+  # home.file.".bashrc".source = ./config/bashrc;
+  # home.file.".vimrc".source = ./config/vimrc;
 
-  # Or use programs.* options for better integration
+  # Or use programs.* options for better integration (recommended)
 }

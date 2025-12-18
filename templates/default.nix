@@ -20,7 +20,7 @@
 
   user = {
     path = ./user;
-    description = "External user home-manager configuration";
+    description = "External user configuration module";
     welcomeText = ''
       # User Configuration Template
 
@@ -29,10 +29,10 @@
 
       ## Quick Start
 
-      1. Edit `home.nix` with your home-manager configuration
+      1. Edit `user.nix` with user account options and home-manager configuration
       2. (Optional) Edit `nixos.nix` for system-level configuration
       3. Commit to a Git repository
-      4. Reference in users.nix using the `flakeUrl` field
+      4. Reference in users.nix using external = builtins.fetchGit { ... }
 
       See README.md for detailed documentation.
     '';

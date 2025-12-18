@@ -305,16 +305,15 @@ nix-laptop = {
 
 ### User-Specific Packages
 
-Add to user's home-manager configuration in `users.nix` or external dotfiles:
+Add to user's home-manager configuration in their external `user.nix`:
 
 ```nix
-myuser = {
-  homePackages = with pkgs; [
-    ripgrep
-    fd
-    bat
-  ];
-};
+# In external user.nix
+home.packages = with pkgs; [
+  ripgrep
+  fd
+  bat
+];
 ```
 
 ### Search for Packages

@@ -27,6 +27,7 @@ Users are defined in `users.nix` but are **not enabled by default** on all syste
 
 ```nix
 ugaif.users = {
+  # Option 1: Inline definition
   myuser = {
     description = "My Full Name";
     extraGroups = [ "wheel" "networkmanager" ];
@@ -35,6 +36,12 @@ ugaif.users = {
     opensshKeys = [
       "ssh-ed25519 AAAA... user@machine"
     ];
+  };
+  
+  # Option 2: External configuration (recommended for personalization)
+  myuser.external = builtins.fetchGit {
+    url = "https://github.com/username/dotfiles";
+    rev = "abc123...";  # Pin to specific commit
   };
 };
 ```
@@ -93,14 +100,6 @@ username = {
   # === External Configuration ===
   external = builtins.fetchGit { ... };   # External user module (see below)
   
-  # OR (if not using external config):
-  homePackages = with pkgs; [             # User packages
-    ripgrep
-    fd
-    bat
-  ];
-  extraImports = [ ./my-module.nix ];     # Additional home-manager modules
-  
   # === Theme Integration ===
   useZshTheme = true;                     # Apply system Zsh theme (default: true)
   useNvimPlugins = true;                  # Apply system Neovim config (default: true)
@@ -137,7 +136,7 @@ myuser = {
 
 ```
 dotfiles/
-├── user.nix     # Optional: User options AND home-manager config
+├── user.nix     # Required: User options AND home-manager config
 ├── nixos.nix    # Optional: System-level configuration
 └── config/      # Optional: Your dotfiles
     ├── bashrc
@@ -145,32 +144,42 @@ dotfiles/
     └── ...
 ```
 
-**Both `.nix` files are optional, but at least one should be present.**
+**At least `user.nix` should be present for a functional user module.**
 
-**user.nix (optional):**
+**user.nix (required):**
 ```nix
 { inputs, ... }:
-{ config, lib, pkgs, ... }:
-
+{ config, lib, pkgs, osConfig ? null, ... }:
 {
-  # User account options (imported as NixOS module)
+  # ========== User Account Configuration ==========
+  # These options define the user account itself
   ugaif.users.myuser = {
     description = "My Full Name";
     extraGroups = [ "wheel" "docker" ];
     shell = pkgs.zsh;
+    hashedPassword = "!";
+    opensshKeys = [
+      "ssh-ed25519 AAAA... user@host"
+    ];
     useZshTheme = true;
+    useNvimPlugins = true;
   };
 
-  # Home-manager configuration (imported into home-manager)
+  # ========== Home Manager Configuration ==========
+  # User environment, packages, and dotfiles
+  
   home.packages = with pkgs; [
     vim
     ripgrep
-  ];
+  ] ++ lib.optional (osConfig.ugaif.sw.type or null == "desktop") firefox;
 
   programs.git = {
     enable = true;
     userName = "My Name";
     userEmail = "me@example.com";
+    extraConfig = {
+      init.defaultBranch = "main";
+    };
   };
   
   home.file.".bashrc".source = ./config/bashrc;
@@ -199,13 +208,15 @@ dotfiles/
 
 ### How External Modules Are Loaded
 
-The `user.nix` module is used in two ways:
+The `user.nix` module serves a dual purpose and is imported in **two contexts**:
 
-1. **User Options (Data Extraction)**: The `ugaif.users.<username>` options are extracted and loaded as **data**. The module is evaluated with minimal arguments to extract just the ugaif.users options, which override any defaults set in `users.nix` (which uses `lib.mkDefault`).
+1. **NixOS Module Context (User Options)**: The module is imported as a NixOS module where `ugaif.users.<username>` options are read to define the user account (description, shell, groups, SSH keys, etc.). These options override any defaults set in `users.nix`.
 
-2. **Home-Manager Configuration**: The entire module (including `home.*`, `programs.*`, `services.*` options) is imported into home-manager as a configuration module.
+2. **Home-Manager Context**: The same module is imported into home-manager where `home.*`, `programs.*`, and `services.*` options configure the user's environment, packages, and dotfiles.
 
-This means you can define both user account settings AND home-manager configuration in a single file.
+**Key insight:** A single `user.nix` file contains both account configuration AND home environment configuration. The system automatically imports it in the appropriate contexts.
+
+**Example:** The user account options (like `shell`, `extraGroups`) are read during NixOS evaluation, while home-manager options (like `home.packages`, `programs.git`) are used when building the user's home environment.
 
 **In nixos.nix:**
 - `inputs` - Flake inputs
@@ -220,17 +231,7 @@ This means you can define both user account settings AND home-manager configurat
 external = /home/username/dev/dotfiles;
 ```
 
-**Note:** User options can be set in users.nix OR in the external module's user.nix file.
-
-**No external config:**
-```nix
-# Configure everything directly in users.nix
-myuser = {
-  description = "My Name";
-  homePackages = with pkgs; [ vim git ];
-  # external is null by default
-};
-```
+**Note:** User options can be set in users.nix OR in the external module's user.nix file. For custom packages and environment configuration without external modules, create a local module and reference it with `extraImports`.
 
 ### Create User Template
 
@@ -380,7 +381,7 @@ admin = {
 };
 ```
 
-### User with External Dotfiles
+### User with External Configuration
 
 ```nix
 developer = {
@@ -388,7 +389,7 @@ developer = {
   extraGroups = [ "wheel" "docker" ];
   shell = pkgs.zsh;
   hashedPassword = "$6$...";
-  home = builtins.fetchGit {
+  external = builtins.fetchGit {
     url = "https://github.com/username/dotfiles";
     rev = "abc123def456...";
   };
@@ -403,7 +404,7 @@ wsl-user = {
   extraGroups = [ "wheel" ];
   shell = pkgs.zsh;
   hashedPassword = "$6$...";
-  home = builtins.fetchGit {
+  external = builtins.fetchGit {
     url = "https://github.com/username/dotfiles";
     rev = "abc123...";
   };
@@ -429,7 +430,7 @@ poweruser = {
   hashedPassword = "$6$...";
   useZshTheme = false;      # Don't apply system theme
   useNvimPlugins = false;   # Don't apply system nvim config
-  home = builtins.fetchGit {
+  external = builtins.fetchGit {
     url = "https://github.com/username/custom-dotfiles";
     rev = "abc123...";
   };
@@ -492,19 +493,19 @@ git ls-remote https://github.com/username/dotfiles
 ```
 
 **Verify structure:**
-- Must have `home.nix` at repository root
+- Must have `user.nix` at repository root
 - `nixos.nix` is optional
 - Check file permissions
 
 **Test with local path first:**
 ```nix
-home = /path/to/local/dotfiles;
+external = /path/to/local/dotfiles;
 ```
 
 ## See Also
 
-- [docs/EXTERNAL_MODULES.md](EXTERNAL_MODULES.md) - External module guide
-- [docs/INVENTORY.md](INVENTORY.md) - Host configuration
-- [docs/NAMESPACE.md](NAMESPACE.md) - Configuration options
+- [EXTERNAL_MODULES.md](EXTERNAL_MODULES.md) - External module guide
+- [INVENTORY.md](INVENTORY.md) - Host configuration guide
+- [NAMESPACE.md](NAMESPACE.md) - Configuration options reference
 - [templates/user/](../templates/user/) - User module template
 - [README.md](../README.md) - Main documentation

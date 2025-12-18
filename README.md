@@ -175,14 +175,13 @@ nix-desktop = {
 Users and systems can reference external Git repositories for configuration:
 
 ```nix
-# In users.nix - External dotfiles
-myuser = {
-  description = "My Name";
-  home = builtins.fetchGit {
-    url = "https://github.com/username/dotfiles";
-    rev = "abc123...";
-  };
+# In users.nix - External dotfiles with user configuration
+myuser.external = builtins.fetchGit {
+  url = "https://github.com/username/dotfiles";
+  rev = "abc123...";
 };
+# The external user.nix file contains both ugaif.users.myuser options
+# AND home-manager configuration
 
 # In inventory.nix - External system config
 nix-lxc = {

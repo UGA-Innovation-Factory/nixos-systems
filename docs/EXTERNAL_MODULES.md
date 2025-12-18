@@ -109,16 +109,18 @@ External user modules provide home-manager configurations (dotfiles, packages, p
 
 ```nix
 ugaif.users = {
-  myuser = {
-    description = "My Name";
-    extraGroups = [ "wheel" "networkmanager" ];
+  # External user module (dotfiles, home-manager, and user options)
+  myuser = builtins.fetchGit {
+    url = "https://github.com/username/dotfiles";
+    rev = "abc123...";
+  };
+
+  # Inline user definition
+  inlineuser = {
+    description = "Inline User";
+    extraGroups = [ "wheel" ];
+    shell = pkgs.zsh;
     hashedPassword = "$6$...";
-    
-    # External home-manager configuration
-    home = builtins.fetchGit {
-      url = "https://github.com/username/dotfiles";
-      rev = "abc123...";
-    };
   };
 };
 ```
@@ -127,20 +129,35 @@ ugaif.users = {
 
 ```
 dotfiles/
-├── home.nix     # Required: Home-manager config
+├── user.nix     # Required: User options AND home-manager config
 ├── nixos.nix    # Optional: System-level config
-└── dotfiles/    # Optional: Actual dotfiles
+└── config/      # Optional: Actual dotfiles
     ├── bashrc
     └── vimrc
 ```
 
-**home.nix (required):**
+**user.nix (required):**
 ```nix
 { inputs, ... }:
-{ config, lib, pkgs, osConfig, ... }:
+{ config, lib, pkgs, osConfig ? null, ... }:
 {
-  # Home-manager configuration
-  home.packages = with pkgs; [ vim git htop ];
+  # ========== User Account Configuration ==========
+  ugaif.users.myusername = {
+    description = "Your Full Name";
+    shell = pkgs.zsh;
+    hashedPassword = "!";
+    opensshKeys = [ "ssh-ed25519 AAAA..." ];
+    useZshTheme = true;
+    useNvimPlugins = true;
+  };
+
+  # ========== Home Manager Configuration ==========
+  # Packages
+  home.packages = with pkgs; [
+    vim
+    git
+    htop
+  ] ++ lib.optional (osConfig.ugaif.sw.type or null == "desktop") firefox;
   
   programs.git = {
     enable = true;
@@ -166,7 +183,7 @@ dotfiles/
 
 ### What User Modules Receive
 
-**In home.nix:**
+**In user.nix:**
 - **`inputs`** - Flake inputs (nixpkgs, home-manager, etc.)
 - **`config`** - Home-manager configuration
 - **`lib`** - Nixpkgs library functions
@@ -187,8 +204,7 @@ username = {
   description = "Full Name";
   
   # External configuration
-  home = builtins.fetchGit { ... };
-  
+  external = builtins.fetchGit { ... };
   # System settings
   extraGroups = [ "wheel" "networkmanager" ];
   hashedPassword = "$6$...";
@@ -325,16 +341,24 @@ They can use all standard NixOS options plus `ugaif.*` namespace options.
 
 ### User Module Integration
 
-External user modules are loaded separately for home-manager (`home.nix`) and NixOS (`nixos.nix` if it exists):
+External user modules are loaded in two contexts:
 
-**Home-manager:**
+**User options (NixOS module context):**
 ```nix
-import (externalHomePath + "/home.nix") { inherit inputs; }
+import (externalPath + "/user.nix") { inherit inputs; }
+# Evaluated as NixOS module to extract ugaif.users.<username> options
 ```
 
-**NixOS (optional):**
+**Home-manager configuration:**
 ```nix
-import (externalHomePath + "/nixos.nix") { inherit inputs; }
+import (externalPath + "/user.nix") { inherit inputs; }
+# Imported into home-manager for home.*, programs.*, services.* options
+```
+
+**System-level config (optional):**
+```nix
+import (externalPath + "/nixos.nix") { inherit inputs; }
+# If present, imported as NixOS module for system-level configuration
 ```
 
 ### Combining External and Local Config
@@ -357,27 +381,21 @@ nix-lxc = {
 };
 ```
 
-## Examples
-
-### Minimal System Module
-
-**default.nix:**
-```nix
-{ inputs, ... }:
-{ config, lib, pkgs, ... }:
-{
-  ugaif.sw.type = "headless";
-  services.nginx.enable = true;
-}
-```
-
 ### Minimal User Module
 
-**home.nix:**
+**user.nix:**
 ```nix
 { inputs, ... }:
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, osConfig ? null, ... }:
 {
+  # User account options
+  ugaif.users.myusername = {
+    description = "My Name";
+    shell = pkgs.zsh;
+    hashedPassword = "!";
+  };
+  
+  # Home-manager config
   home.packages = with pkgs; [ vim git ];
 }
 ```
@@ -386,7 +404,7 @@ nix-lxc = {
 
 ```
 dotfiles/
-├── home.nix
+├── user.nix
 ├── nixos.nix
 └── config/
     ├── bashrc
@@ -394,12 +412,35 @@ dotfiles/
     └── gitconfig
 ```
 
-**home.nix:**
+**user.nix:**
 ```nix
 { inputs, ... }:
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, osConfig ? null, ... }:
 {
-  home.packages = with pkgs; [ ripgrep fd bat ];
+  # User account configuration
+  ugaif.users.myusername = {
+    description = "My Full Name";
+    shell = pkgs.zsh;
+    extraGroups = [ "wheel" "networkmanager" ];
+    hashedPassword = "!";
+    opensshKeys = [ "ssh-ed25519 AAAA..." ];
+    useZshTheme = true;
+    useNvimPlugins = true;
+  };
+  
+  # Home-manager configuration
+  home.packages = with pkgs; [
+    ripgrep
+    fd
+    bat
+  ] ++ lib.optional (osConfig.ugaif.sw.type or null == "desktop") firefox;
+  
+  programs.git = {
+    enable = true;
+    userName = "My Full Name";
+    userEmail = "me@example.com";
+    extraConfig.init.defaultBranch = "main";
+  };
   
   home.file = {
     ".bashrc".source = ./config/bashrc;
@@ -411,8 +452,9 @@ dotfiles/
 
 ## See Also
 
-- [docs/INVENTORY.md](INVENTORY.md) - Host configuration guide
-- [docs/NAMESPACE.md](NAMESPACE.md) - Configuration options reference
+- [INVENTORY.md](INVENTORY.md) - Host configuration guide
+- [USER_CONFIGURATION.md](USER_CONFIGURATION.md) - User management guide
+- [NAMESPACE.md](NAMESPACE.md) - Configuration options reference
 - [templates/system/](../templates/system/) - System module template
 - [templates/user/](../templates/user/) - User module template
 - [README.md](../README.md) - Main documentation
